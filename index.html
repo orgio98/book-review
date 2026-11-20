@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>여백의 서재 (Marginalia Archive) — 발췌 문장과 여백의 사유 아카이브</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -85,14 +85,29 @@
 
     * {
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background-color: var(--bg-paper);
       color: var(--text-ink);
       font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
-      transition: background-color 0.22s ease, color 0.22s ease;
+      min-height: 100dvh;
+      padding-bottom: env(safe-area-inset-bottom);
+      transition: background-color 0.2s ease, color 0.2s ease;
       overflow-x: hidden;
+    }
+
+    /* Prevent iOS Safari auto-zoom on form input focus */
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+
+    /* Ensure hidden modal backdrops NEVER intercept pointer/touch events */
+    .modal-backdrop[hidden],
+    .modal-backdrop.hidden {
+      display: none !important;
+      pointer-events: none !important;
     }
 
     .font-literary {
@@ -166,7 +181,7 @@
 
     /* Search Highlight Mark */
     mark.search-hl {
-      background-color: rgba(245, 158, 11, 0.32);
+      background-color: rgba(245, 158, 11, 0.34);
       color: inherit;
       padding: 0 2px;
       border-radius: 3px;
@@ -185,7 +200,7 @@
       }
     }
     .card-spotlight {
-      animation: spotlightPulse 1.6s ease-out 2;
+      animation: spotlightPulse 1.5s ease-out 2;
       border-color: var(--accent-primary) !important;
     }
 
@@ -202,15 +217,14 @@
     }
     .barcode-laser-line {
       position: absolute;
-      left: 10%;
-      right: 10%;
+      left: 8%;
+      right: 8%;
       height: 2px;
       background: linear-gradient(90deg, transparent, #ef4444, #f59e0b, #ef4444, transparent);
       box-shadow: 0 0 10px rgba(239, 68, 68, 0.85);
       animation: scanLaser 2.2s ease-in-out infinite;
     }
 
-    /* Refined Thin Scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -224,33 +238,33 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-amber-700/20">
+<body class="flex flex-col antialiased selection:bg-amber-700/20">
 
   <!-- Toast Notification Stack -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+  <div id="toastContainer" class="fixed bottom-5 right-4 left-4 sm:left-auto sm:right-5 z-[70] flex flex-col items-end gap-2 pointer-events-none"></div>
 
   <!-- Mobile Sidebar Backdrop -->
-  <div id="mobileSidebarBackdrop" class="fixed inset-0 z-30 bg-black/45 backdrop-blur-[1px] hidden lg:hidden"></div>
+  <div id="mobileSidebarBackdrop" data-action="close-mobile-sidebar" hidden class="modal-backdrop hidden fixed inset-0 z-30 bg-black/50 lg:hidden"></div>
 
   <!-- 1. TOP STICKY EDITORIAL HEADER -->
-  <header class="sticky top-0 z-30 border-b border-hairline backdrop-blur-md" style="background-color: color-mix(in srgb, var(--bg-paper) 92%, transparent);">
-    <div class="max-w-[1480px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+  <header class="sticky top-0 z-20 border-b border-hairline backdrop-blur-md" style="background-color: var(--bg-paper);">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-2.5">
       <!-- Left: Mobile Menu + Brand Title -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5">
         <button
-          id="openMobileSidebarBtn"
           type="button"
+          data-action="open-mobile-sidebar"
           aria-label="책장 및 태그 메뉴 열기"
-          class="lg:hidden p-2 rounded-lg border border-hairline surface-card text-ink hover:opacity-80 transition"
+          class="lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl border border-hairline surface-card text-ink active:scale-95 transition"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
           </svg>
         </button>
 
-        <a href="#top" id="brandHomeBtn" class="flex items-center gap-2.5 group focus:outline-none">
-          <div class="w-9 h-9 rounded-xl flex items-center justify-center border border-hairline surface-card shadow-xs">
-            <svg class="w-5 h-5" style="color: var(--accent-primary);" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <button type="button" data-action="reset-home-view" class="flex items-center gap-2.5 text-left focus:outline-none">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center border border-hairline surface-card shadow-2xs shrink-0">
+            <svg class="w-5 h-5 pointer-events-none" style="color: var(--accent-primary);" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </div>
@@ -261,7 +275,7 @@
             </div>
             <p class="text-[11px] text-muted hidden sm:block">발췌 문장과 여백의 사유 아카이브</p>
           </div>
-        </a>
+        </button>
       </div>
 
       <!-- Center: Global Instant Search Bar -->
@@ -272,20 +286,18 @@
           </svg>
           <input
             id="globalSearchInput"
-            type="text"
-            placeholder="발췌 문장, 여백 메모, 책 제목, 저자, #태그 검색..."
+            type="search"
+            placeholder="발췌 문장, 여백 메모, 책, #태그 검색..."
             aria-label="전체 서재 검색"
-            class="w-full surface-card border border-hairline rounded-xl pl-10 pr-16 py-2 text-xs sm:text-sm text-ink placeholder:text-muted focus:outline-none focus:border-amber-700/60 transition"
+            class="w-full min-h-[44px] surface-card border border-hairline rounded-xl pl-10 pr-12 py-2 text-ink placeholder:text-muted focus:outline-none focus:border-amber-700/60 transition"
           />
-          <div class="absolute right-2.5 flex items-center gap-1">
-            <button
-              id="clearSearchBtn"
-              type="button"
-              aria-label="검색어 지우기"
-              class="hidden text-xs text-muted hover:text-ink px-1.5 py-0.5 rounded"
-            >✕</button>
-            <kbd class="hidden sm:inline-block text-[10px] font-mono text-muted px-1.5 py-0.5 rounded border border-hairline surface-subtle">/</kbd>
-          </div>
+          <button
+            id="clearSearchBtn"
+            type="button"
+            data-action="clear-search"
+            aria-label="검색어 지우기"
+            class="hidden absolute right-2 min-h-[36px] min-w-[36px] flex items-center justify-center text-sm text-muted hover:text-ink rounded-lg"
+          >✕</button>
         </div>
       </div>
 
@@ -294,93 +306,99 @@
         <button
           id="themeToggleBtn"
           type="button"
-          class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink transition"
+          data-action="toggle-theme"
+          class="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink active:scale-95 transition"
           title="라이트 페이퍼 / 다크 잉크 읽기 테마 전환"
         >
-          <span id="themeIcon" class="text-sm leading-none">🌙</span>
-          <span id="themeLabel" class="hidden sm:inline">다크 잉크</span>
+          <span id="themeIcon" class="text-base leading-none pointer-events-none">🌙</span>
+          <span id="themeLabel" class="hidden sm:inline pointer-events-none">다크 잉크</span>
         </button>
 
         <button
-          id="openMarkdownModalBtn"
           type="button"
-          class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink transition"
+          data-action="open-markdown-modal"
+          class="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink active:scale-95 transition"
           title="Markdown 리포트 내보내기"
         >
-          <svg class="w-3.5 h-3.5" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 pointer-events-none" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <span class="hidden md:inline">Markdown 내보내기</span>
+          <span class="hidden md:inline pointer-events-none">Markdown</span>
         </button>
 
         <button
-          id="openBackupModalBtn"
           type="button"
-          class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink transition"
+          data-action="open-backup-modal"
+          class="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink active:scale-95 transition"
           title="JSON 백업/복원 및 데이터 관리"
         >
-          <svg class="w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 text-muted pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
           </svg>
-          <span class="hidden xl:inline">JSON 백업/복원</span>
+          <span class="hidden xl:inline pointer-events-none">JSON 백업</span>
         </button>
 
         <button
-          id="openNewExcerptBtn"
           type="button"
-          class="btn-primary inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold shadow-xs"
-          title="새 발췌 문장과 여백 메모 기록 [단축키 N]"
+          data-action="open-new-excerpt"
+          class="btn-primary min-h-[44px] inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold shadow-2xs"
         >
-          <span>+ 새 발췌 기록</span>
-          <kbd class="hidden sm:inline-block text-[10px] font-mono bg-white/20 px-1.5 py-0.5 rounded">N</kbd>
+          <span class="pointer-events-none">+ 새 발췌</span>
         </button>
       </div>
     </div>
   </header>
 
   <!-- 2. MAIN WORKSPACE LAYOUT -->
-  <div id="top" class="flex-1 max-w-[1480px] w-full mx-auto px-4 sm:px-6 py-6 flex gap-7">
+  <div id="top" class="flex-1 max-w-[1480px] w-full mx-auto px-4 sm:px-6 py-5 flex gap-7">
 
     <!-- LEFT SIDEBAR (Bookshelf & Tag Explorer) -->
     <aside
       id="sidebarDrawer"
-      class="fixed inset-y-0 left-0 z-40 w-[285px] lg:w-[270px] lg:static lg:z-auto shrink-0 surface-paper lg:bg-transparent border-r lg:border-r-0 border-hairline p-5 lg:p-0 overflow-y-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out flex flex-col gap-6"
+      class="fixed inset-y-0 left-0 z-40 w-[290px] lg:w-[272px] lg:static lg:z-auto shrink-0 surface-paper lg:bg-transparent border-r lg:border-r-0 border-hairline p-5 lg:p-0 overflow-y-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out flex flex-col gap-6"
+      style="padding-bottom: max(1.25rem, env(safe-area-inset-bottom));"
     >
       <!-- Mobile Drawer Close Header -->
       <div class="flex items-center justify-between lg:hidden pb-3 border-b border-hairline">
         <span class="font-literary font-bold text-base text-ink">서재 탐색</span>
-        <button id="closeMobileSidebarBtn" type="button" class="p-1.5 rounded-lg border border-hairline surface-card text-muted hover:text-ink">✕</button>
+        <button
+          type="button"
+          data-action="close-mobile-sidebar"
+          class="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl border border-hairline surface-card text-muted hover:text-ink"
+        >✕</button>
       </div>
 
       <!-- Views Navigation -->
-      <nav aria-label="아카이브 보기 전환" class="flex flex-col gap-1">
-        <div class="text-[11px] font-semibold uppercase tracking-wider text-muted px-2.5 mb-1">아카이브 보기</div>
+      <nav aria-label="아카이브 보기 전환" class="flex flex-col gap-1.5">
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-muted px-2.5 mb-0.5">아카이브 보기</div>
         <button
           id="navAllBtn"
           type="button"
-          class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition"
+          data-action="view-all"
+          class="w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition"
         >
-          <span class="flex items-center gap-2.5">
+          <span class="flex items-center gap-2.5 pointer-events-none">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
             전체 발췌
           </span>
-          <span id="totalExcerptCount" class="font-mono text-xs px-2 py-0.5 rounded-full surface-elevated text-secondary">0</span>
+          <span id="totalExcerptCount" class="font-mono text-xs px-2 py-0.5 rounded-full surface-elevated text-secondary pointer-events-none">0</span>
         </button>
 
         <button
           id="navLinkedBtn"
           type="button"
-          class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition"
+          data-action="view-linked"
+          class="w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition"
         >
-          <span class="flex items-center gap-2.5">
+          <span class="flex items-center gap-2.5 pointer-events-none">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
             상호 참조 연결됨
           </span>
-          <span id="linkedExcerptCount" class="font-mono text-xs px-2 py-0.5 rounded-full surface-elevated text-secondary">0</span>
+          <span id="linkedExcerptCount" class="font-mono text-xs px-2 py-0.5 rounded-full surface-elevated text-secondary pointer-events-none">0</span>
         </button>
       </nav>
 
@@ -389,9 +407,9 @@
         <div class="flex items-center justify-between px-2.5">
           <span class="text-[11px] font-semibold uppercase tracking-wider text-muted">내 책장</span>
           <button
-            id="openNewBookModalBtn"
             type="button"
-            class="text-xs font-semibold hover:underline"
+            data-action="open-new-book"
+            class="min-h-[36px] px-2 text-xs font-semibold hover:underline"
             style="color: var(--accent-primary);"
           >
             + 새 책 등록
@@ -407,7 +425,12 @@
       <div class="flex flex-col gap-2.5">
         <div class="flex items-center justify-between px-2.5">
           <span class="text-[11px] font-semibold uppercase tracking-wider text-muted">주제 태그</span>
-          <button id="clearTagFilterBtn" type="button" class="hidden text-[11px] text-muted hover:text-ink underline">선택 해제</button>
+          <button
+            id="clearTagFilterBtn"
+            type="button"
+            data-action="clear-tag-filter"
+            class="hidden text-[11px] text-muted hover:text-ink underline"
+          >선택 해제</button>
         </div>
         <div id="tagCloudContainer" class="flex flex-wrap gap-1.5 px-1">
           <!-- Dynamically populated tag pills -->
@@ -418,7 +441,7 @@
       <div class="mt-auto pt-4 border-t border-hairline px-2.5 text-[11px] text-muted flex items-center justify-between">
         <span id="storageEngineLabel" class="flex items-center gap-1.5">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-          IndexedDB 로컬 보관 중
+          로컬 서재 준비됨
         </span>
         <span class="font-mono">Offline-First</span>
       </div>
@@ -431,7 +454,7 @@
       <section id="remindSection" class="surface-subtle border border-hairline rounded-2xl p-4 sm:p-5 transition">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2.5">
-            <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs" style="background-color: var(--accent-primary-soft); color: var(--accent-primary);">✦</span>
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs" style="background-color: var(--accent-primary-soft); color: var(--accent-primary);">✦</span>
             <div>
               <h2 class="font-literary font-bold text-sm sm:text-base text-ink">오늘의 리마인드 카드</h2>
               <p class="text-[11px] text-muted">서재 속에 잠들어 있던 문장과 여백의 사유를 다시 꺼내 봅니다.</p>
@@ -440,19 +463,20 @@
 
           <div class="flex items-center gap-2">
             <button
-              id="shuffleRemindBtn"
               type="button"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink transition"
+              data-action="shuffle-remind"
+              class="min-h-[40px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink active:scale-95 transition"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              다른 문장 섞기
+              <span class="pointer-events-none">다른 문장 섞기</span>
             </button>
             <button
               id="toggleRemindCollapseBtn"
               type="button"
-              class="px-2.5 py-1.5 rounded-xl border border-hairline surface-card text-xs text-muted hover:text-ink transition"
+              data-action="toggle-remind-collapse"
+              class="min-h-[40px] px-3 py-1.5 rounded-xl border border-hairline surface-card text-xs text-muted hover:text-ink transition"
             >
               접기
             </button>
@@ -474,7 +498,7 @@
               src=""
               alt="도서 표지"
               onerror="this.classList.add('hidden')"
-              class="hidden w-12 h-16 object-cover rounded-lg border border-hairline shrink-0 shadow-xs"
+              class="hidden w-12 h-16 object-cover rounded-lg border border-hairline shrink-0 shadow-2xs"
             />
             <div id="bookBannerSpine" class="w-2.5 self-stretch rounded-full shrink-0" style="background-color: #2E5A44;"></div>
             <div class="min-w-0">
@@ -490,20 +514,20 @@
 
           <div class="flex flex-wrap items-center gap-2">
             <button
-              id="exportBookMdBtn"
               type="button"
-              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold hover:opacity-85 transition"
+              data-action="export-book-markdown"
+              class="min-h-[40px] inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold hover:opacity-85 transition"
               style="color: var(--accent-sage);"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              이 책 Markdown 내보내기
+              <span class="pointer-events-none">이 책 Markdown 내보내기</span>
             </button>
             <button
-              id="editCurrentBookBtn"
               type="button"
-              class="px-3 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink transition"
+              data-action="edit-current-book"
+              class="min-h-[40px] px-3 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink transition"
             >
               책 정보 수정
             </button>
@@ -519,10 +543,10 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <label for="sortSelect" class="text-xs text-muted">정렬:</label>
+            <label for="sortSelect" class="text-xs text-muted shrink-0">정렬:</label>
             <select
               id="sortSelect"
-              class="surface-card border border-hairline rounded-xl px-3 py-1.5 text-xs font-medium text-ink focus:outline-none cursor-pointer"
+              class="min-h-[40px] surface-card border border-hairline rounded-xl px-3 py-1.5 text-ink focus:outline-none cursor-pointer"
             >
               <option value="newest">최신 기록순</option>
               <option value="oldest">오래된순</option>
@@ -544,38 +568,48 @@
   <!-- ======================================================================= -->
   <!-- MODAL 1: EXCERPT COMPOSER & EDITOR (CREATE / EDIT)                      -->
   <!-- ======================================================================= -->
-  <div id="excerptModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/55 backdrop-blur-xs">
-    <div class="surface-card border border-hairline rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+  <div id="excerptModal" hidden class="modal-backdrop hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60">
+    <div
+      class="surface-card border border-hairline rounded-t-2xl sm:rounded-2xl w-full max-w-2xl max-h-[92dvh] flex flex-col shadow-2xl overflow-hidden"
+      style="padding-bottom: env(safe-area-inset-bottom);"
+    >
       <!-- Modal Header -->
-      <div class="px-5 py-4 border-b border-hairline flex items-center justify-between">
+      <div class="px-5 py-3.5 border-b border-hairline flex items-center justify-between shrink-0">
         <h3 id="excerptModalTitle" class="font-literary font-bold text-base sm:text-lg text-ink">새 발췌 문장 & 여백 메모 기록</h3>
-        <button type="button" id="closeExcerptModalBtn" class="p-1.5 rounded-lg text-muted hover:text-ink surface-elevated text-xs">✕</button>
+        <button
+          type="button"
+          data-action="close-excerpt-modal"
+          class="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-muted hover:text-ink surface-elevated text-sm"
+        >✕</button>
       </div>
 
       <!-- Modal Scrollable Form Body -->
-      <form id="excerptForm" class="p-5 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm">
+      <form id="excerptForm" class="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4">
         <input type="hidden" id="editExcerptId" value="" />
 
-        <!-- Book Selection + Inline New Book Toggle -->
+        <!-- Book Selection + Inline New Book & Barcode Scan Triggers -->
         <div class="flex flex-col gap-2">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <label for="excerptBookSelect" class="font-semibold text-ink">도서 선택 <span class="text-rose-600">*</span></label>
+            <label for="excerptBookSelect" class="font-semibold text-sm text-ink">도서 선택 <span class="text-rose-600">*</span></label>
             <div class="flex items-center gap-3">
               <button
                 type="button"
-                id="openBarcodeBookModalFromExcerptBtn"
-                class="inline-flex items-center gap-1 text-xs font-semibold hover:underline"
+                data-action="open-barcode-from-excerpt"
+                class="min-h-[36px] inline-flex items-center gap-1 text-xs font-semibold hover:underline"
                 style="color: var(--accent-sage);"
               >
-                <span>📷 바코드 스캔 등록</span>
+                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 8v8m3-8v8m4-8v8m3-8v8" />
+                </svg>
+                <span class="pointer-events-none">바코드 스캔 등록</span>
               </button>
               <button
                 type="button"
-                id="toggleInlineBookFormBtn"
-                class="text-xs font-semibold hover:underline"
+                data-action="toggle-inline-book"
+                class="min-h-[36px] text-xs font-semibold hover:underline"
                 style="color: var(--accent-primary);"
               >
-                + 새 책 바로 등록하기
+                + 새 책 바로 등록
               </button>
             </div>
           </div>
@@ -583,28 +617,28 @@
           <select
             id="excerptBookSelect"
             required
-            class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2.5 text-ink focus:outline-none"
+            class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none"
           ></select>
 
           <!-- Collapsible Inline Book Creator -->
           <div id="inlineNewBookBox" class="hidden surface-elevated border border-hairline rounded-xl p-3.5 flex flex-col gap-2.5 mt-1">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-ink">새 책 정보 입력</span>
-              <button type="button" id="cancelInlineBookBtn" class="text-xs text-muted hover:text-ink">취소</button>
+              <span class="text-xs font-bold text-ink">새 책 정보 간편 입력</span>
+              <button type="button" data-action="close-inline-book" class="text-xs text-muted hover:text-ink px-2 py-1">취소</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <input id="inlineBookTitle" type="text" placeholder="책 제목 (예: 사피엔스)" class="surface-card border border-hairline rounded-lg px-3 py-2 text-xs text-ink focus:outline-none" />
-              <input id="inlineBookAuthor" type="text" placeholder="저자 (예: 유발 하라리)" class="surface-card border border-hairline rounded-lg px-3 py-2 text-xs text-ink focus:outline-none" />
-              <input id="inlineBookPublisher" type="text" placeholder="출판사 (선택)" class="surface-card border border-hairline rounded-lg px-3 py-2 text-xs text-ink focus:outline-none" />
-              <input id="inlineBookCategory" type="text" placeholder="분야 (예: 인문/역사)" class="surface-card border border-hairline rounded-lg px-3 py-2 text-xs text-ink focus:outline-none" />
+              <input id="inlineBookTitle" type="text" placeholder="책 제목 (예: 사피엔스)" class="min-h-[42px] surface-card border border-hairline rounded-lg px-3 py-2 text-ink focus:outline-none" />
+              <input id="inlineBookAuthor" type="text" placeholder="저자 (예: 유발 하라리)" class="min-h-[42px] surface-card border border-hairline rounded-lg px-3 py-2 text-ink focus:outline-none" />
+              <input id="inlineBookPublisher" type="text" placeholder="출판사 (선택)" class="min-h-[42px] surface-card border border-hairline rounded-lg px-3 py-2 text-ink focus:outline-none" />
+              <input id="inlineBookCategory" type="text" placeholder="분야 (예: 인문/역사)" class="min-h-[42px] surface-card border border-hairline rounded-lg px-3 py-2 text-ink focus:outline-none" />
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
               <div class="flex items-center gap-2">
                 <span class="text-xs text-secondary">책등 색상:</span>
-                <div id="inlineSpineSwatches" class="flex items-center gap-1.5"></div>
+                <div id="inlineSpineSwatches" class="flex items-center gap-2"></div>
                 <input type="hidden" id="inlineBookSpineColor" value="#9A3412" />
               </div>
-              <button type="button" id="saveInlineBookBtn" class="btn-primary px-3 py-1.5 rounded-lg text-xs font-semibold">책 등록 후 선택</button>
+              <button type="button" data-action="save-inline-book" class="btn-primary min-h-[40px] px-3.5 py-1.5 rounded-lg text-xs font-semibold">책 등록 후 선택</button>
             </div>
           </div>
         </div>
@@ -612,51 +646,67 @@
         <!-- Page & Chapter -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label for="excerptPageInput" class="block font-semibold text-ink mb-1">페이지</label>
+            <label for="excerptPageInput" class="block font-semibold text-sm text-ink mb-1">페이지</label>
             <input
               id="excerptPageInput"
               type="text"
               placeholder="예: 142 또는 p.142"
-              class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink font-mono text-xs sm:text-sm focus:outline-none"
+              class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink font-mono focus:outline-none"
             />
           </div>
+          <div class="sm:col-span-2">
+            <label for="excerptChapterInput" class="block font-semibold text-sm text-ink mb-1">장 / 소제목 (선택)</label>
+            <input
+              id="excerptChapterInput"
+              type="text"
+              placeholder="예: 제3장 두 세계 사이에서"
+              class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none"
+            />
+          </div>
+        </div>
+
         <!-- Quoted Excerpt + Camera OCR Trigger + Highlight Tint Picker -->
         <div>
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
             <div class="flex flex-wrap items-center gap-2">
-              <label for="excerptQuoteInput" class="font-semibold text-ink">발췌 문장 (원문 인용) <span class="text-rose-600">*</span></label>
+              <label for="excerptQuoteInput" class="font-semibold text-sm text-ink">발췌 문장 (원문 인용) <span class="text-rose-600">*</span></label>
               <button
                 type="button"
-                id="openPageOcrModalBtn"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-hairline surface-elevated hover:opacity-85 transition"
+                data-action="open-page-ocr"
+                class="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-hairline surface-elevated active:scale-95 transition"
                 style="color: var(--accent-primary);"
-                title="카메라로 책 페이지를 촬영하고 드래그로 영역을 선택해 텍스트로 변환합니다"
               >
-                <span>📷 카메라로 페이지 찍어 발췌</span>
+                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="pointer-events-none">책 페이지 촬영 / 사진으로 문장 추출</span>
               </button>
             </div>
-            <div class="flex items-center gap-1.5 text-xs">
-              <span class="text-muted mr-1">밑줄 색조:</span>
-              <button type="button" data-hl-choice="none" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium">기본</button>
-              <button type="button" data-hl-choice="yellow" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-yellow-bg);">노랑</button>
-              <button type="button" data-hl-choice="amber" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-amber-bg);">앰버</button>
-              <button type="button" data-hl-choice="sage" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-sage-bg);">세이지</button>
-              <button type="button" data-hl-choice="rose" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-rose-bg);">로즈</button>
+
+            <div class="flex flex-wrap items-center gap-1.5 text-xs">
+              <span class="text-muted mr-0.5">밑줄 색조:</span>
+              <button type="button" data-action="pick-hl" data-hl-choice="none" class="hl-choice-btn min-h-[32px] px-2.5 py-1 rounded-md border text-[11px] font-medium">기본</button>
+              <button type="button" data-action="pick-hl" data-hl-choice="yellow" class="hl-choice-btn min-h-[32px] px-2.5 py-1 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-yellow-bg);">노랑</button>
+              <button type="button" data-action="pick-hl" data-hl-choice="amber" class="hl-choice-btn min-h-[32px] px-2.5 py-1 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-amber-bg);">앰버</button>
+              <button type="button" data-action="pick-hl" data-hl-choice="sage" class="hl-choice-btn min-h-[32px] px-2.5 py-1 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-sage-bg);">세이지</button>
+              <button type="button" data-action="pick-hl" data-hl-choice="rose" class="hl-choice-btn min-h-[32px] px-2.5 py-1 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-rose-bg);">로즈</button>
               <input type="hidden" id="excerptHighlightInput" value="amber" />
             </div>
           </div>
+
           <textarea
             id="excerptQuoteInput"
             rows="4"
             required
-            placeholder="책에서 밑줄 그은 문장을 그대로 옮겨 적으세요..."
+            placeholder="책에서 밑줄 그은 문장을 직접 입력하거나 위 '책 페이지 촬영' 버튼으로 추출하세요..."
             class="w-full font-literary leading-relaxed surface-subtle border border-hairline rounded-xl p-3.5 text-ink focus:outline-none"
           ></textarea>
         </div>
 
         <!-- Marginalia Note -->
         <div>
-          <label for="excerptNoteInput" class="block font-semibold text-ink mb-1">여백 메모 (Marginalia — 나의 사유, 질문, 연결점)</label>
+          <label for="excerptNoteInput" class="block font-semibold text-sm text-ink mb-1">여백 메모 (Marginalia — 나의 사유, 질문, 연결점)</label>
           <textarea
             id="excerptNoteInput"
             rows="3"
@@ -667,14 +717,14 @@
 
         <!-- Tags Input with Chip Builder & Suggestions -->
         <div>
-          <label for="excerptTagTextInput" class="block font-semibold text-ink mb-1">주제 태그</label>
+          <label for="excerptTagTextInput" class="block font-semibold text-sm text-ink mb-1">주제 태그</label>
           <div class="surface-subtle border border-hairline rounded-xl p-2 flex flex-wrap items-center gap-1.5">
             <div id="composerTagChips" class="flex flex-wrap items-center gap-1.5"></div>
             <input
               id="excerptTagTextInput"
               type="text"
               placeholder="태그 입력 후 Enter 또는 쉼표(,)..."
-              class="flex-1 min-w-[160px] bg-transparent text-xs sm:text-sm text-ink px-1.5 py-1 focus:outline-none"
+              class="flex-1 min-w-[160px] min-h-[36px] bg-transparent text-ink px-1.5 py-1 focus:outline-none"
             />
           </div>
           <div id="existingTagSuggestions" class="flex flex-wrap items-center gap-1.5 mt-1.5"></div>
@@ -683,24 +733,22 @@
         <!-- Bi-directional Cross-Reference Selector -->
         <div id="crossRefEditorSection" class="border-t border-hairline pt-3.5">
           <div class="flex items-center justify-between mb-1.5">
-            <label for="crossRefSearchInput" class="font-semibold text-ink flex items-center gap-1.5">
+            <label for="crossRefSearchInput" class="font-semibold text-sm text-ink flex items-center gap-1.5">
               <svg class="w-4 h-4" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
-              상호 참조 연결 (다른 발췌 문장과 양방향 연결)
+              상호 참조 연결 (양방향 연결)
             </label>
             <span id="selectedLinksCountBadge" class="text-xs font-mono text-muted">0개 연결됨</span>
           </div>
 
-          <!-- Selected Linked Excerpts Pills -->
           <div id="selectedCrossRefsList" class="flex flex-col gap-1.5 mb-2"></div>
 
-          <!-- Search & Pick Other Excerpts -->
           <input
             id="crossRefSearchInput"
             type="text"
             placeholder="연결할 다른 발췌 문장이나 책 제목 검색..."
-            class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-xs text-ink focus:outline-none mb-2"
+            class="w-full min-h-[42px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none mb-2"
           />
           <div id="crossRefCandidatesList" class="max-h-36 overflow-y-auto flex flex-col gap-1 surface-subtle border border-hairline rounded-xl p-2">
             <!-- Populated dynamically -->
@@ -709,10 +757,14 @@
 
         <!-- Modal Footer Buttons -->
         <div class="pt-3 border-t border-hairline flex items-center justify-end gap-2">
-          <button type="button" id="cancelExcerptModalBtn" class="px-4 py-2 rounded-xl border border-hairline surface-subtle text-xs sm:text-sm font-medium text-secondary hover:text-ink">
+          <button
+            type="button"
+            data-action="close-excerpt-modal"
+            class="min-h-[44px] px-4 py-2 rounded-xl border border-hairline surface-subtle text-sm font-medium text-secondary hover:text-ink"
+          >
             취소
           </button>
-          <button type="submit" class="btn-primary px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold">
+          <button type="submit" class="btn-primary min-h-[44px] px-5 py-2 rounded-xl text-sm font-semibold">
             서재에 저장하기
           </button>
         </div>
@@ -723,59 +775,75 @@
   <!-- ======================================================================= -->
   <!-- MODAL 2: BOOK CREATE / EDIT MODAL (WITH ISBN BARCODE SCANNER & LOOKUP)  -->
   <!-- ======================================================================= -->
-  <div id="bookModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/55 backdrop-blur-xs">
-    <div class="surface-card border border-hairline rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
-      <div class="px-5 py-4 border-b border-hairline flex items-center justify-between shrink-0">
+  <div id="bookModal" hidden class="modal-backdrop hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60">
+    <div
+      class="surface-card border border-hairline rounded-t-2xl sm:rounded-2xl w-full max-w-lg max-h-[92dvh] flex flex-col shadow-2xl overflow-hidden"
+      style="padding-bottom: env(safe-area-inset-bottom);"
+    >
+      <div class="px-5 py-3.5 border-b border-hairline flex items-center justify-between shrink-0">
         <h3 id="bookModalTitle" class="font-literary font-bold text-base text-ink">새 책 등록</h3>
-        <button type="button" id="closeBookModalBtn" class="p-1.5 rounded-lg text-muted hover:text-ink surface-elevated text-xs">✕</button>
+        <button
+          type="button"
+          data-action="close-book-modal"
+          class="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-muted hover:text-ink surface-elevated text-sm"
+        >✕</button>
       </div>
 
-      <div class="p-5 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm">
+      <div class="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4">
         <!-- ISBN Barcode Scanner & Auto-Lookup Panel -->
         <div class="surface-subtle border border-hairline rounded-xl p-3.5 flex flex-col gap-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="font-bold text-xs text-ink flex items-center gap-1.5">
-              <span>📷 바코드 스캔 / 사진 인식</span>
-              <span class="text-[11px] font-normal text-muted">ISBN 자동 입력</span>
+              <svg class="w-4 h-4" style="color: var(--accent-primary);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 8v8m3-8v8m4-8v8m3-8v8" />
+              </svg>
+              <span>ISBN 바코드 스캔 · 도서 정보 자동 입력</span>
             </span>
             <span id="isbnStatusBadge" class="hidden text-[11px] font-medium px-2 py-0.5 rounded-full surface-elevated text-secondary"></span>
           </div>
 
-          <!-- 3 ISBN Acquisition Controls: Live Camera / Photo Capture / Manual Input -->
+          <!-- 2 Camera/Photo Acquisition Buttons -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button
-              type="button"
               id="toggleLiveBarcodeCamBtn"
-              class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-semibold text-ink hover:opacity-85 transition"
+              type="button"
+              data-action="toggle-barcode-cam"
+              class="min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-semibold text-ink active:scale-95 transition"
             >
-              <span>🎥 실시간 바코드 스캔</span>
+              <svg class="w-4 h-4 pointer-events-none" style="color: var(--accent-primary);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span id="barcodeCamBtnLabel" class="pointer-events-none">실시간 바코드 스캔</span>
             </button>
 
             <label
               for="barcodePhotoInput"
-              class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-semibold text-ink hover:opacity-85 cursor-pointer transition text-center"
+              class="min-h-[44px] inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-semibold text-ink active:scale-95 cursor-pointer transition text-center"
             >
-              <span>📸 바코드 사진 찍기 / 앨범</span>
+              <svg class="w-4 h-4 pointer-events-none" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>바코드 사진 찍기 / 앨범</span>
             </label>
             <input id="barcodePhotoInput" type="file" accept="image/*" capture="environment" class="hidden" />
           </div>
 
-          <!-- Live Camera Barcode Viewport (Hidden until started) -->
+          <!-- Live Camera Barcode Viewport -->
           <div id="barcodeScannerViewport" class="hidden relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-hairline">
-            <video id="barcodeVideoEl" playsinline muted class="w-full h-full object-cover"></video>
-            <!-- Central Laser Target Overlay -->
+            <video id="barcodeVideoEl" playsinline muted autoplay class="w-full h-full object-cover"></video>
             <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div class="w-4/5 h-24 border-2 border-amber-400/80 rounded-lg relative bg-black/10">
+              <div class="w-4/5 h-24 border-2 border-amber-400/85 rounded-lg relative bg-black/10">
                 <div class="barcode-laser-line"></div>
-                <span class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-mono text-white/90 bg-black/60 px-2 py-0.5 rounded whitespace-nowrap">
+                <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-mono text-white bg-black/75 px-2 py-0.5 rounded whitespace-nowrap">
                   책 뒷표지 ISBN 바코드를 사각형 안에 맞추세요
                 </span>
               </div>
             </div>
             <button
               type="button"
-              id="stopLiveBarcodeCamBtn"
-              class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/75 text-white text-[11px] font-semibold hover:bg-black transition"
+              data-action="stop-barcode-cam"
+              class="absolute top-2.5 right-2.5 min-h-[34px] px-3 py-1 rounded-lg bg-black/75 text-white text-xs font-semibold"
             >
               스캐너 닫기 ✕
             </button>
@@ -787,20 +855,20 @@
               id="isbnManualInput"
               type="text"
               inputmode="numeric"
-              placeholder="ISBN 13자리 또는 10자리 입력 (예: 9791190090018)"
-              class="flex-1 surface-card border border-hairline rounded-xl px-3 py-2 text-xs font-mono text-ink focus:outline-none"
+              placeholder="ISBN 13자리 또는 10자리 입력"
+              class="flex-1 min-h-[44px] surface-card border border-hairline rounded-xl px-3 py-2 font-mono text-ink focus:outline-none"
             />
             <button
               type="button"
-              id="lookupIsbnBtn"
-              class="btn-primary px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0"
+              data-action="lookup-isbn"
+              class="btn-primary min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold shrink-0"
             >
-              조회
+              도서 조회
             </button>
           </div>
 
           <!-- Fetched Book Cover Thumbnail Preview -->
-          <div id="bookCoverPreviewBox" class="hidden items-center gap-3 pt-1 border-t border-hairline">
+          <div id="bookCoverPreviewBox" class="hidden items-center gap-3 pt-1.5 border-t border-hairline">
             <img
               id="bookCoverPreviewImg"
               src=""
@@ -812,7 +880,7 @@
               <div class="font-semibold text-ink truncate" id="bookCoverPreviewCaption">도서 정보 자동 입력 완료</div>
               <div class="text-[11px] text-muted mt-0.5">아래 내용을 확인한 뒤 저장하기를 눌러주세요.</div>
             </div>
-            <button type="button" id="clearBookCoverBtn" class="text-[11px] text-muted hover:text-rose-600 px-1.5">표지 제거</button>
+            <button type="button" data-action="clear-book-cover" class="min-h-[36px] text-xs text-muted hover:text-rose-600 px-2">표지 제거</button>
           </div>
         </div>
 
@@ -821,36 +889,36 @@
           <input type="hidden" id="editBookId" value="" />
           <input type="hidden" id="bookCoverUrlInput" value="" />
           <div>
-            <label for="bookTitleInput" class="block font-semibold text-ink mb-1">책 제목 <span class="text-rose-600">*</span></label>
-            <input id="bookTitleInput" type="text" required placeholder="예: 우리가 빛의 속도로 갈 수 없다면" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+            <label for="bookTitleInput" class="block font-semibold text-sm text-ink mb-1">책 제목 <span class="text-rose-600">*</span></label>
+            <input id="bookTitleInput" type="text" required placeholder="예: 우리가 빛의 속도로 갈 수 없다면" class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
           </div>
           <div>
-            <label for="bookAuthorInput" class="block font-semibold text-ink mb-1">저자 <span class="text-rose-600">*</span></label>
-            <input id="bookAuthorInput" type="text" required placeholder="예: 김초엽" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+            <label for="bookAuthorInput" class="block font-semibold text-sm text-ink mb-1">저자 <span class="text-rose-600">*</span></label>
+            <input id="bookAuthorInput" type="text" required placeholder="예: 김초엽" class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
           </div>
-          <div class="grid grid-cols-3 gap-2.5">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div>
-              <label for="bookPublisherInput" class="block font-semibold text-ink mb-1">출판사</label>
-              <input id="bookPublisherInput" type="text" placeholder="예: 허블" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+              <label for="bookPublisherInput" class="block font-semibold text-xs text-ink mb-1">출판사</label>
+              <input id="bookPublisherInput" type="text" placeholder="예: 허블" class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
             </div>
             <div>
-              <label for="bookPublishedYearInput" class="block font-semibold text-ink mb-1">출간연도</label>
-              <input id="bookPublishedYearInput" type="text" placeholder="예: 2019" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 font-mono text-ink focus:outline-none" />
+              <label for="bookPublishedYearInput" class="block font-semibold text-xs text-ink mb-1">출간연도</label>
+              <input id="bookPublishedYearInput" type="text" placeholder="예: 2019" class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 font-mono text-ink focus:outline-none" />
             </div>
             <div>
-              <label for="bookCategoryInput" class="block font-semibold text-ink mb-1">분야 / 분류</label>
-              <input id="bookCategoryInput" type="text" placeholder="예: 한국 SF" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+              <label for="bookCategoryInput" class="block font-semibold text-xs text-ink mb-1">분야 / 분류</label>
+              <input id="bookCategoryInput" type="text" placeholder="예: 한국 SF" class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
             </div>
           </div>
           <div>
-            <span class="block font-semibold text-ink mb-1.5">책등 색상 (Spine Color)</span>
-            <div id="bookModalSpineSwatches" class="flex flex-wrap items-center gap-2"></div>
+            <span class="block font-semibold text-sm text-ink mb-1.5">책등 색상 (Spine Color)</span>
+            <div id="bookModalSpineSwatches" class="flex flex-wrap items-center gap-2.5"></div>
             <input type="hidden" id="bookSpineColorInput" value="#9A3412" />
           </div>
 
           <div class="pt-3 border-t border-hairline flex items-center justify-end gap-2">
-            <button type="button" id="cancelBookModalBtn" class="px-4 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink">취소</button>
-            <button type="submit" class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold">저장하기</button>
+            <button type="button" data-action="close-book-modal" class="min-h-[44px] px-4 py-2 rounded-xl border border-hairline surface-subtle text-sm font-medium text-secondary hover:text-ink">취소</button>
+            <button type="submit" class="btn-primary min-h-[44px] px-5 py-2 rounded-xl text-sm font-semibold">저장하기</button>
           </div>
         </form>
       </div>
@@ -858,17 +926,137 @@
   </div>
 
   <!-- ======================================================================= -->
+  <!-- MODAL 3: MARKDOWN EXPORT & JSON BACKUP / RESTORE MODAL                  -->
+  <!-- ======================================================================= -->
+  <div id="exportBackupModal" hidden class="modal-backdrop hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60">
+    <div
+      class="surface-card border border-hairline rounded-t-2xl sm:rounded-2xl w-full max-w-2xl max-h-[90dvh] flex flex-col shadow-2xl overflow-hidden"
+      style="padding-bottom: env(safe-area-inset-bottom);"
+    >
+      <div class="px-5 py-3.5 border-b border-hairline flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-1.5">
+          <button type="button" data-action="switch-eb-tab" data-modal-tab="markdown" class="eb-tab-btn min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold btn-primary transition">Markdown 내보내기</button>
+          <button type="button" data-action="switch-eb-tab" data-modal-tab="json" class="eb-tab-btn min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold surface-subtle text-secondary hover:text-ink transition">JSON 백업 / 복원</button>
+          <button type="button" data-action="switch-eb-tab" data-modal-tab="manage" class="eb-tab-btn min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold surface-subtle text-secondary hover:text-ink transition">데이터 관리</button>
+        </div>
+        <button
+          type="button"
+          data-action="close-eb-modal"
+          class="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-muted hover:text-ink surface-elevated text-sm"
+        >✕</button>
+      </div>
+
+      <div class="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm">
+        <!-- Tab 1: Markdown Export -->
+        <div id="tabPanelMarkdown" class="flex flex-col gap-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label for="mdScopeSelect" class="font-semibold text-ink">내보내기 범위 선택:</label>
+            <select id="mdScopeSelect" class="min-h-[40px] surface-subtle border border-hairline rounded-xl px-3 py-1.5 text-ink">
+              <option value="filtered">현재 화면의 책 / 필터 결과만 내보내기</option>
+              <option value="all">서재 전체 책과 발췌 내보내기</option>
+            </select>
+          </div>
+
+          <textarea
+            id="markdownPreviewTextarea"
+            rows="11"
+            readonly
+            class="w-full font-mono text-xs leading-relaxed surface-subtle border border-hairline rounded-xl p-3.5 text-ink focus:outline-none"
+          ></textarea>
+
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            <button type="button" data-action="copy-markdown" class="min-h-[44px] px-4 py-2 rounded-xl border border-hairline surface-subtle text-xs sm:text-sm font-semibold text-ink hover:opacity-85">
+              클립보드에 복사
+            </button>
+            <button type="button" data-action="download-markdown" class="btn-primary min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold">
+              Markdown (.md) 다운로드
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab 2: JSON Backup & Restore -->
+        <div id="tabPanelJson" class="hidden flex flex-col gap-4">
+          <div class="surface-subtle border border-hairline rounded-xl p-4 flex flex-col gap-2.5">
+            <h4 class="font-bold text-sm text-ink">전체 서재 JSON 백업</h4>
+            <p class="text-xs text-secondary leading-relaxed">
+              등록된 모든 책 정보, 발췌 문장, 여백 메모, 태그, 양방향 상호 참조 데이터를 하나의 JSON 파일로 안전하게 내려받습니다.
+            </p>
+            <div class="pt-1">
+              <button type="button" data-action="download-json" class="btn-primary min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold">
+                JSON 백업 파일 다운로드
+              </button>
+            </div>
+          </div>
+
+          <div class="surface-subtle border border-hairline rounded-xl p-4 flex flex-col gap-3">
+            <h4 class="font-bold text-sm text-ink">JSON 백업 파일에서 복원</h4>
+            <div class="flex flex-wrap items-center gap-4 text-xs">
+              <label class="inline-flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="jsonImportMode" value="merge" checked class="accent-amber-700" />
+                <span>기존 서재에 중복 없이 병합</span>
+              </label>
+              <label class="inline-flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="jsonImportMode" value="overwrite" class="accent-amber-700" />
+                <span>기존 데이터를 지우고 덮어쓰기</span>
+              </label>
+            </div>
+            <div>
+              <label
+                for="jsonImportFileInput"
+                class="min-h-[44px] inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-hairline surface-card text-xs sm:text-sm font-semibold text-ink cursor-pointer hover:opacity-85"
+              >
+                <span>JSON 백업 파일 선택 (.json)</span>
+              </label>
+              <input id="jsonImportFileInput" type="file" accept=".json,application/json" class="hidden" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Sample Reset / Clear Archive -->
+        <div id="tabPanelManage" class="hidden flex flex-col gap-4">
+          <div class="surface-subtle border border-hairline rounded-xl p-4 flex flex-col gap-2">
+            <h4 class="font-bold text-sm text-ink">큐레이션 샘플 서재 다시 불러오기</h4>
+            <p class="text-xs text-secondary leading-relaxed">
+              『데미안』, 『사일로 연대기』, 『코스모스』 3권과 6개의 샘플 발췌·여백 메모·상호 참조 데이터를 다시 채웁니다.
+            </p>
+            <div class="pt-1">
+              <button type="button" data-action="reset-sample-data" class="min-h-[44px] px-4 py-2 rounded-xl border border-hairline surface-card text-xs sm:text-sm font-semibold text-ink hover:opacity-85">
+                샘플 서재로 초기화
+              </button>
+            </div>
+          </div>
+
+          <div class="surface-subtle border border-rose-500/30 rounded-xl p-4 flex flex-col gap-2">
+            <h4 class="font-bold text-sm text-rose-600">전체 서재 비우기</h4>
+            <p class="text-xs text-secondary leading-relaxed">
+              기기 로컬 저장소에 보관된 모든 도서와 발췌 문장을 영구 삭제합니다. 실행 전 JSON 백업을 권장합니다.
+            </p>
+            <p id="clearConfirmHint" class="hidden text-xs font-semibold text-rose-600">
+              정말로 모든 기록을 삭제하시려면 아래 버튼을 한 번 더 눌러주세요.
+            </p>
+            <div class="pt-1">
+              <button type="button" data-action="clear-all-archive" class="min-h-[44px] px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-white text-xs sm:text-sm font-semibold">
+                전체 데이터 삭제 실행
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
   <!-- MODAL 4: CUSTOM CONFIRMATION DIALOG (NO window.confirm())               -->
   <!-- ======================================================================= -->
-  <div id="confirmDialogModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/55 backdrop-blur-xs">
+  <div id="confirmDialogModal" hidden class="modal-backdrop hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60">
     <div class="surface-card border border-hairline rounded-2xl w-full max-w-sm p-5 shadow-2xl flex flex-col gap-4">
       <div>
         <h3 id="confirmDialogTitle" class="font-literary font-bold text-base text-ink">삭제 확인</h3>
         <p id="confirmDialogMessage" class="text-xs sm:text-sm text-secondary mt-1.5 leading-relaxed"></p>
       </div>
       <div class="flex items-center justify-end gap-2">
-        <button id="confirmDialogCancelBtn" type="button" class="px-3.5 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink">취소</button>
-        <button id="confirmDialogOkBtn" type="button" class="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold">삭제 실행</button>
+        <button id="confirmDialogCancelBtn" type="button" class="min-h-[42px] px-4 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink">취소</button>
+        <button id="confirmDialogOkBtn" type="button" class="min-h-[42px] px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold">삭제 실행</button>
       </div>
     </div>
   </div>
@@ -876,61 +1064,78 @@
   <!-- ======================================================================= -->
   <!-- MODAL 5: PAGE CAPTURE, INTERACTIVE CROP & OCR TEXT EXTRACTION MODAL     -->
   <!-- ======================================================================= -->
-  <div id="pageOcrModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-xs">
-    <div class="surface-card border border-hairline rounded-2xl w-full max-w-4xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden">
+  <div id="pageOcrModal" hidden class="modal-backdrop hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65">
+    <div
+      class="surface-card border border-hairline rounded-t-2xl sm:rounded-2xl w-full max-w-4xl max-h-[94dvh] flex flex-col shadow-2xl overflow-hidden"
+      style="padding-bottom: env(safe-area-inset-bottom);"
+    >
       <!-- Header -->
       <div class="px-5 py-3.5 border-b border-hairline flex items-center justify-between shrink-0">
         <div>
           <h3 class="font-literary font-bold text-base sm:text-lg text-ink">페이지 촬영 및 발췌 영역 선택</h3>
           <p class="text-[11px] text-muted mt-0.5">책 페이지를 촬영한 뒤 손가락이나 마우스로 필요한 문장 영역만 드래그하여 텍스트를 추출합니다.</p>
         </div>
-        <button type="button" id="closePageOcrModalBtn" class="p-1.5 rounded-lg text-muted hover:text-ink surface-elevated text-xs">✕</button>
+        <button
+          type="button"
+          data-action="close-page-ocr"
+          class="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-muted hover:text-ink surface-elevated text-sm"
+        >✕</button>
       </div>
 
       <!-- Scrollable Body -->
-      <div class="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm">
+      <div class="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4">
         <!-- Step 1: Image Input Source Buttons -->
         <div class="flex flex-wrap items-center gap-2">
           <label
             for="ocrCameraFileInput"
-            class="btn-primary inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+            class="btn-primary min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer"
           >
-            <span>📷 카메라로 책 페이지 찍기</span>
+            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>카메라로 책 페이지 찍기</span>
           </label>
           <input id="ocrCameraFileInput" type="file" accept="image/*" capture="environment" class="hidden" />
 
           <label
             for="ocrAlbumFileInput"
-            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold text-ink hover:opacity-85 cursor-pointer transition"
+            class="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold text-ink hover:opacity-85 cursor-pointer transition"
           >
-            <span>🖼️ 앨범에서 이미지 불러오기</span>
+            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>앨범에서 이미지 불러오기</span>
           </label>
           <input id="ocrAlbumFileInput" type="file" accept="image/*" class="hidden" />
 
           <button
             type="button"
-            id="startOcrWebcamBtn"
-            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold text-ink hover:opacity-85 transition"
+            data-action="start-ocr-webcam"
+            class="min-h-[44px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold text-ink hover:opacity-85 transition"
           >
-            <span>🎥 실시간 웹캠 촬영</span>
+            <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span class="pointer-events-none">실시간 웹캠 촬영</span>
           </button>
         </div>
 
         <!-- Optional Live Webcam Capture Viewport -->
-        <div id="ocrWebcamViewport" class="hidden relative w-full max-h-[340px] aspect-video rounded-xl overflow-hidden bg-black border border-hairline">
-          <video id="ocrWebcamVideo" playsinline muted class="w-full h-full object-contain"></video>
+        <div id="ocrWebcamViewport" class="hidden relative w-full max-h-[320px] aspect-video rounded-xl overflow-hidden bg-black border border-hairline">
+          <video id="ocrWebcamVideo" playsinline muted autoplay class="w-full h-full object-contain"></video>
           <div class="absolute bottom-3 inset-x-0 flex items-center justify-center gap-2.5">
             <button
               type="button"
-              id="snapOcrWebcamBtn"
-              class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold shadow-lg"
+              data-action="snap-ocr-webcam"
+              class="btn-primary min-h-[42px] px-4 py-2 rounded-xl text-xs font-semibold shadow-lg"
             >
-              📸 현재 화면 촬영하기
+              현재 화면 촬영하기
             </button>
             <button
               type="button"
-              id="stopOcrWebcamBtn"
-              class="px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-medium hover:bg-black"
+              data-action="stop-ocr-webcam"
+              class="min-h-[42px] px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-medium hover:bg-black"
             >
               취소
             </button>
@@ -945,45 +1150,52 @@
               <span class="font-semibold text-xs text-secondary">1. 추출할 문장 영역 드래그 선택</span>
               <div class="flex items-center gap-1.5">
                 <button
-                  type="button"
                   id="rotateOcrImgBtn"
+                  type="button"
+                  data-action="rotate-ocr-img"
                   disabled
-                  class="px-2.5 py-1 rounded-lg border border-hairline surface-subtle text-xs font-medium text-ink disabled:opacity-40 hover:opacity-85 transition"
+                  class="min-h-[36px] px-3 py-1 rounded-lg border border-hairline surface-subtle text-xs font-medium text-ink disabled:opacity-40 hover:opacity-85 transition"
                 >
                   ↻ 90° 회전
                 </button>
                 <button
-                  type="button"
                   id="selectAllOcrCropBtn"
+                  type="button"
+                  data-action="select-all-ocr-crop"
                   disabled
-                  class="px-2.5 py-1 rounded-lg border border-hairline surface-subtle text-xs font-medium text-ink disabled:opacity-40 hover:opacity-85 transition"
+                  class="min-h-[36px] px-3 py-1 rounded-lg border border-hairline surface-subtle text-xs font-medium text-ink disabled:opacity-40 hover:opacity-85 transition"
                 >
-                  전체 영역 선택
+                  전체 선택
                 </button>
               </div>
             </div>
 
             <div
               id="ocrCropCanvasWrapper"
-              class="relative w-full h-[300px] sm:h-[360px] rounded-xl border border-hairline surface-subtle overflow-hidden flex items-center justify-center select-none touch-none"
+              class="relative w-full h-[290px] sm:h-[360px] rounded-xl border border-hairline surface-subtle overflow-hidden flex items-center justify-center select-none"
+              style="touch-action: none;"
             >
-              <!-- Empty Placeholder before image load -->
               <div id="ocrEmptyPlaceholder" class="text-center p-6 flex flex-col items-center gap-2">
-                <div class="w-11 h-11 rounded-full surface-elevated flex items-center justify-center text-muted text-lg">📖</div>
+                <div class="w-11 h-11 rounded-full surface-elevated flex items-center justify-center text-muted">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
                 <p class="font-literary font-semibold text-sm text-ink">촬영하거나 불러온 페이지가 여기에 표시됩니다</p>
                 <p class="text-xs text-muted max-w-xs leading-relaxed">
-                  페이지를 불러온 뒤 원하는 문단 위를 드래그하면 해당 영역만 잘라내어 한국어·영어 텍스트로 변환합니다.
+                  페이지를 불러온 뒤 원하는 문단 위를 손가락이나 마우스로 드래그하면 해당 영역만 잘라내어 한국어·영어 텍스트로 변환합니다.
                 </p>
               </div>
 
-              <canvas id="ocrCropCanvas" class="hidden max-w-full max-h-full block"></canvas>
+              <canvas id="ocrCropCanvas" class="hidden max-w-full max-h-full block" style="touch-action: none;"></canvas>
             </div>
 
             <button
-              type="button"
               id="runOcrExtractBtn"
+              type="button"
+              data-action="run-ocr-extract"
               disabled
-              class="btn-primary w-full py-2.5 rounded-xl text-xs sm:text-sm font-semibold disabled:opacity-40 disabled:pointer-events-none shadow-xs"
+              class="btn-primary min-h-[46px] w-full py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40 disabled:pointer-events-none shadow-2xs"
             >
               선택 영역 텍스트 추출 (OCR · 한국어/영어)
             </button>
@@ -1004,32 +1216,31 @@
           <div class="lg:col-span-5 flex flex-col gap-2">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <label for="ocrResultPreview" class="font-semibold text-xs text-secondary">2. 인식된 텍스트 미리보기 및 다듬기</label>
-              <label class="inline-flex items-center gap-1.5 text-xs text-ink cursor-pointer select-none">
-                <input id="mergeLineBreaksCheckbox" type="checkbox" checked class="accent-amber-700 rounded" />
+              <label class="inline-flex items-center gap-1.5 text-xs text-ink cursor-pointer select-none min-h-[32px]">
+                <input id="mergeLineBreaksCheckbox" type="checkbox" checked class="w-4 h-4 accent-amber-700 rounded" />
                 <span>불필요한 줄바꿈 자동 병합</span>
               </label>
             </div>
 
             <textarea
               id="ocrResultPreview"
-              rows="12"
+              rows="10"
               placeholder="선택 영역 텍스트 추출 버튼을 누르면 인식된 문장이 이곳에 나타납니다. 적용 전 오탈자를 직접 수정할 수 있습니다."
-              class="w-full font-literary text-xs sm:text-sm leading-relaxed surface-subtle border border-hairline rounded-xl p-3.5 text-ink focus:outline-none"
+              class="w-full font-literary leading-relaxed surface-subtle border border-hairline rounded-xl p-3.5 text-ink focus:outline-none"
             ></textarea>
 
-            <div class="flex items-center justify-between gap-2 pt-1">
+            <div class="flex flex-wrap items-center justify-end gap-2 pt-1">
               <button
                 type="button"
-                id="appendOcrTextBtn"
-                class="px-3 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink transition"
-                title="기존 발췌 문장 뒤에 이어 붙이기"
+                data-action="append-ocr-text"
+                class="min-h-[44px] px-3.5 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink transition"
               >
                 기존 문장에 이어 붙이기
               </button>
               <button
                 type="button"
-                id="applyOcrTextBtn"
-                class="btn-primary px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold"
+                data-action="apply-ocr-text"
+                class="btn-primary min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold"
               >
                 발췌 원문에 적용
               </button>
@@ -1044,8 +1255,7 @@
     /**
      * 여백의 서재 (Marginalia Archive)
      * 100% Client-Side Literary Excerpt Collector & Cross-Referenced Marginalia Archive
-     * Storage: IndexedDB with seamless localStorage fallback
-     * Vision: Native BarcodeDetector + ZXing ISBN Scanner & Interactive Crop + Tesseract.js OCR
+     * Architecture: Immediate Top-Level Event Delegation + 1000ms Timeout IndexedDB + iOS Safari Safe Vision
      */
     (() => {
       'use strict';
@@ -1053,43 +1263,524 @@
       // =========================================================================
       // 1. CONSTANTS & CURATED KOREAN SAMPLE DATASET
       // =========================================================================
-      const DB_NAME = 'MarginaliaArchiveDB';
+      const DB_NAME = 'MarginaliaArchiveDB_v2';
       const DB_VERSION = 1;
-      const LS_FALLBACK_KEY = 'marginalia_archive_fallback_v1';
-      const THEME_STORAGE_KEY = 'marginalia_archive_theme_v1';
+      const LS_FALLBACK_KEY = 'marginalia_archive_v2_data';
+      const THEME_STORAGE_KEY = 'marginalia_archive_theme_v2';
       const ZXING_CDN_URL = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
       const TESSERACT_CDN_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-          };
-          req.onsuccess = (e) => resolve(e.target.result);
-          req.onerror = (e) => reject(e.target.error || new Error('IndexedDB open error'));
-        });
+
+      const SPINE_COLORS = [
+        { name: '테라코타', hex: '#9A3412' },
+        { name: '세이지 그린', hex: '#2E5A44' },
+        { name: '딥 네이비', hex: '#1E3A5F' },
+        { name: '앤틱 골드', hex: '#B45309' },
+        { name: '버건디', hex: '#881337' },
+        { name: '슬레이트', hex: '#334155' },
+      ];
+
+      function getSampleDataset() {
+        const now = Date.now();
+        const day = 86400000;
+        return {
+          books: [
+            {
+              id: 'book-demian',
+              title: '데미안',
+              author: '헤르만 헤세',
+              publisher: '민음사',
+              publishedYear: '2000',
+              isbn: '9788937460449',
+              category: '세계문학 / 성장소설',
+              spineColor: '#9A3412',
+              coverUrl: '',
+              createdAt: now - 14 * day,
+            },
+            {
+              id: 'book-silo',
+              title: '사일로 연대기 1: 울',
+              author: '휴 하위',
+              publisher: '황금가지',
+              publishedYear: '2015',
+              isbn: '9791158880224',
+              category: 'SF / 디스토피아',
+              spineColor: '#334155',
+              coverUrl: '',
+              createdAt: now - 9 * day,
+            },
+            {
+              id: 'book-cosmos',
+              title: '코스모스',
+              author: '칼 세이건',
+              publisher: '사이언스북스',
+              publishedYear: '2006',
+              isbn: '9788983711892',
+              category: '자연과학 / 천문학',
+              spineColor: '#1E3A5F',
+              coverUrl: '',
+              createdAt: now - 4 * day,
+            },
+          ],
+          excerpts: [
+            {
+              id: 'exc-1',
+              bookId: 'book-demian',
+              page: 'p.119',
+              chapter: '제5장 새는 알에서 나오려고 투쟁한다',
+              quote: '새는 알에서 나오려고 투쟁한다. 알은 세계다. 태어나려는 자는 하나의 세계를 깨뜨려야 한다. 새는 신에게로 날아간다. 신의 이름은 아브락사스.',
+              note: '익숙하고 안온한 세계(알)를 스스로 부수는 고통 없이는 다음 차원의 시야로 나아갈 수 없다는 선언. 내가 당연하게 여겨온 전제들을 의심할 때마다 다시 꺼내 읽게 되는 문장.',
+              highlightColor: 'amber',
+              tags: ['자아탐구', '경계와알', '성장'],
+              linkedIds: ['exc-3', 'exc-5'],
+              createdAt: now - 12 * day,
+              updatedAt: now - 12 * day,
+            },
+            {
+              id: 'exc-2',
+              bookId: 'book-demian',
+              page: 'p.154',
+              chapter: '제6장 야곱의 싸움',
+              quote: '사람이 무언가를 정말로 필요로 해서 그것을 찾아내면, 그것은 우연이 아니라 자기 자신이, 자기 자신의 소망과 필연이 그곳으로 인도한 것이다.',
+              note: '우연처럼 보이는 마주침조차 사실은 내가 오랫동안 품어온 질문이 끌어당긴 필연이라는 통찰.',
+              highlightColor: 'yellow',
+              tags: ['자아탐구', '필연'],
+              linkedIds: [],
+              createdAt: now - 10 * day,
+              updatedAt: now - 10 * day,
+            },
+            {
+              id: 'exc-3',
+              bookId: 'book-silo',
+              page: 'p.248',
+              chapter: '3부 추방',
+              quote: '사람들은 바깥세상이 독으로 가득하다고 믿었기 때문에 지하 사일로에 머문 것이 아니라, 계단을 올라가 창밖을 직접 보려는 호기심을 두려워하도록 길들여졌기 때문에 머물렀다.',
+              note: '『데미안』의 "알은 세계다"와 정확히 맞닿아 있는 디스토피아적 변주. 물리적 벽보다 더 단단한 것은 통제된 공포와 질문하지 않는 습관이다.',
+              highlightColor: 'rose',
+              tags: ['경계와알', '진실과통제', '사일로'],
+              linkedIds: ['exc-1', 'exc-4'],
+              createdAt: now - 8 * day,
+              updatedAt: now - 8 * day,
+            },
+            {
+              id: 'exc-4',
+              bookId: 'book-silo',
+              page: 'p.412',
+              chapter: '4부 유산',
+              quote: '기억을 지운다고 해서 역사가 사라지는 것은 아니다. 묻어둔 기록은 언제나 다음 세대의 손끝에서 다시 숨을 쉰다.',
+              note: '기록하고 발췌하는 행위가 왜 단순한 메모를 넘어선 저항이자 보존인지 일깨워 준다.',
+              highlightColor: 'sage',
+              tags: ['기억과기록', '진실과통제'],
+              linkedIds: ['exc-3', 'exc-6'],
+              createdAt: now - 6 * day,
+              updatedAt: now - 6 * day,
+            },
+            {
+              id: 'exc-5',
+              bookId: 'book-cosmos',
+              page: 'p.34',
+              chapter: '제1장 코스모스의 바닷가에서',
+              quote: '우리는 코스모스의 일부다. 우리의 몸을 구성하는 질소와 칼슘과 철은 모두 오래전 별들의 내부에서 빚어진 것이다. 우리는 별의 자녀들이다.',
+              note: '좁은 일상과 사일로의 벽을 넘어 시야를 수십억 년의 우주적 시간으로 확장할 때 비로소 인간의 고독이 연대감으로 바뀐다.',
+              highlightColor: 'sage',
+              tags: ['우주적관점', '경계와알', '연대'],
+              linkedIds: ['exc-1'],
+              createdAt: now - 3 * day,
+              updatedAt: now - 3 * day,
+            },
+            {
+              id: 'exc-6',
+              bookId: 'book-cosmos',
+              page: 'p.562',
+              chapter: '제11장 미래로 띄운 편지',
+              quote: '책은 시간의 경계를 넘어 인간과 인간을 연결하는 가장 경이로운 발명품이다. 나무 조각에 새긴 몇 줄의 기호만으로 수천 년 전 사람의 목소리가 지금 내 머릿속에서 울린다.',
+              note: '『사일로 연대기』의 기록 보존 테마와 이어지는 대목. 내가 남기는 여백 메모 역시 미래의 나에게 띄우는 편지다.',
+              highlightColor: 'amber',
+              tags: ['기억과기록', '우주적관점', '독서의의미'],
+              linkedIds: ['exc-4'],
+              createdAt: now - 1 * day,
+              updatedAt: now - 1 * day,
+            },
+          ],
+        };
       }
 
-      function idbGetAll(storeName) {
+      // =========================================================================
+      // 2. APPLICATION & TRANSIENT STATE
+      // =========================================================================
+      const state = {
+        books: [],
+        excerpts: [],
+        activeView: 'all', // 'all' | 'linked' | 'book'
+        selectedBookId: null,
+        selectedTag: null,
+        searchQuery: '',
+        sortBy: 'newest',
+        darkMode: false,
+        remindCollapsed: false,
+        remindExcerptIds: [],
+      };
+
+      let composerTags = [];
+      let composerLinkedIds = [];
+      let clearArmed = false;
+
+      // Storage runtime flags
+      let dbInstance = null;
+      let useLocalStorageOnly = false;
+
+      // Barcode Scanner & OCR runtime state
+      let barcodeVideoStream = null;
+      let barcodeScanRafId = null;
+      let zxingLoadPromise = null;
+      let tesseractLoadPromise = null;
+
+      let ocrWebcamStream = null;
+      let ocrRawImage = null;
+      let ocrRotationDeg = 0;
+      let ocrRotatedCanvas = null;
+      let ocrDisplayMetrics = null;
+      let ocrCropNorm = { x: 0.08, y: 0.22, w: 0.84, h: 0.36 };
+      let ocrDragState = null;
+      let ocrRawExtractedText = '';
+
+      // =========================================================================
+      // 3. TOP-LEVEL IMMEDIATE EVENT DELEGATION (0ms RESPONSE GUARANTEE)
+      // =========================================================================
+      function handleGlobalAction(action, triggerEl, event) {
+        switch (action) {
+          case 'open-mobile-sidebar':
+            openMobileSidebar();
+            break;
+          case 'close-mobile-sidebar':
+            closeMobileSidebar();
+            break;
+          case 'reset-home-view':
+            state.activeView = 'all';
+            state.selectedBookId = null;
+            state.selectedTag = null;
+            state.searchQuery = '';
+            document.getElementById('globalSearchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderAll();
+            break;
+          case 'clear-search':
+            state.searchQuery = '';
+            document.getElementById('globalSearchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderFeedHeader();
+            renderExcerptsFeed();
+            break;
+          case 'toggle-theme':
+            applyTheme(!state.darkMode);
+            break;
+          case 'open-markdown-modal':
+            openExportBackupModal('markdown', 'filtered');
+            break;
+          case 'open-backup-modal':
+            openExportBackupModal('json', 'all');
+            break;
+          case 'open-new-excerpt':
+            openExcerptModal(null, false);
+            break;
+          case 'close-excerpt-modal':
+            closeExcerptModal();
+            break;
+          case 'open-new-book':
+            closeMobileSidebar();
+            openBookModal(null);
+            break;
+          case 'close-book-modal':
+            closeBookModal();
+            break;
+          case 'open-barcode-from-excerpt':
+            closeExcerptModal();
+            openBookModal(null);
+            startBarcodeCamera();
+            break;
+          case 'toggle-inline-book':
+            document.getElementById('inlineNewBookBox').classList.toggle('hidden');
+            break;
+          case 'close-inline-book':
+            document.getElementById('inlineNewBookBox').classList.add('hidden');
+            break;
+          case 'save-inline-book':
+            saveInlineBookFromExcerptModal();
+            break;
+          case 'pick-hl':
+            setComposerHighlightChoice(triggerEl.dataset.hlChoice || 'none');
+            break;
+          case 'open-page-ocr':
+            openPageOcrModal();
+            break;
+          case 'close-page-ocr':
+            closePageOcrModal();
+            break;
+          case 'start-ocr-webcam':
+            startOcrWebcam();
+            break;
+          case 'snap-ocr-webcam':
+            snapOcrWebcamFrame();
+            break;
+          case 'stop-ocr-webcam':
+            stopOcrWebcam();
+            break;
+          case 'rotate-ocr-img':
+            if (ocrRawImage) {
+              ocrRotationDeg = (ocrRotationDeg + 90) % 360;
+              rebuildOcrRotatedCanvas();
+              renderOcrCropCanvas();
+            }
+            break;
+          case 'select-all-ocr-crop':
+            if (ocrRotatedCanvas) {
+              ocrCropNorm = { x: 0.02, y: 0.02, w: 0.96, h: 0.96 };
+              renderOcrCropCanvas();
+            }
+            break;
+          case 'run-ocr-extract':
+            runSelectedRegionOcr();
+            break;
+          case 'apply-ocr-text':
+            applyOcrResultToQuote(false);
+            break;
+          case 'append-ocr-text':
+            applyOcrResultToQuote(true);
+            break;
+          case 'toggle-barcode-cam':
+            startBarcodeCamera();
+            break;
+          case 'stop-barcode-cam':
+            stopBarcodeCamera();
+            break;
+          case 'lookup-isbn':
+            lookupBookMetadataByIsbn(document.getElementById('isbnManualInput').value);
+            break;
+          case 'clear-book-cover':
+            updateBookCoverPreview('');
+            break;
+          case 'view-all':
+            state.activeView = 'all';
+            state.selectedBookId = null;
+            state.selectedTag = null;
+            closeMobileSidebar();
+            renderAll();
+            break;
+          case 'view-linked':
+            state.activeView = 'linked';
+            state.selectedBookId = null;
+            closeMobileSidebar();
+            renderAll();
+            break;
+          case 'clear-tag-filter':
+            state.selectedTag = null;
+            renderAll();
+            break;
+          case 'shuffle-remind':
+            pickRandomRemindIds();
+            renderRemindSection();
+            break;
+          case 'toggle-remind-collapse':
+            state.remindCollapsed = !state.remindCollapsed;
+            renderRemindSection();
+            break;
+          case 'export-book-markdown':
+            openExportBackupModal('markdown', 'filtered');
+            break;
+          case 'edit-current-book':
+            if (state.selectedBookId) {
+              const b = getBookById(state.selectedBookId);
+              if (b) openBookModal(b);
+            }
+            break;
+          case 'close-eb-modal':
+            closeExportBackupModal();
+            break;
+          case 'switch-eb-tab':
+            switchExportBackupTab(triggerEl.dataset.modalTab || 'markdown');
+            break;
+          case 'copy-markdown':
+            copyToClipboardSafe(
+              document.getElementById('markdownPreviewTextarea').value,
+              'Markdown 문서가 클립보드에 복사되었습니다.'
+            );
+            break;
+          case 'download-markdown': {
+            const md = document.getElementById('markdownPreviewTextarea').value;
+            const dateStr = new Date().toISOString().slice(0, 10);
+            triggerBlobDownload(`Marginalia_Archive_${dateStr}.md`, md, 'text/markdown;charset=utf-8');
+            showToast('Markdown(.md) 파일이 다운로드되었습니다.', 'sage');
+            break;
+          }
+          case 'download-json': {
+            const payload = {
+              app: '여백의 서재 (Marginalia Archive)',
+              version: 2,
+              exportedAt: new Date().toISOString(),
+              books: state.books,
+              excerpts: state.excerpts,
+            };
+            const dateStr = new Date().toISOString().slice(0, 10);
+            triggerBlobDownload(`Marginalia_Archive_${dateStr}.json`, JSON.stringify(payload, null, 2), 'application/json');
+            showToast('전체 서재 JSON 백업 파일이 저장되었습니다.', 'sage');
+            break;
+          }
+          case 'reset-sample-data':
+            resetToSampleArchive();
+            break;
+          case 'clear-all-archive':
+            clearEntireArchive();
+            break;
+          default:
+            break;
+        }
+      }
+
+      // Attach immediate document-level click delegation right away
+      document.addEventListener('click', (e) => {
+        const actionEl = e.target.closest('[data-action]');
+        if (actionEl) {
+          handleGlobalAction(actionEl.dataset.action, actionEl, e);
+        }
+      });
+
+      // =========================================================================
+      // 4. STORAGE LAYER (1000ms TIMEOUT INDEXEDDB + LOCALSTORAGE FALLBACK)
+      // =========================================================================
+      function openDatabaseWithTimeout(timeoutMs = 1000) {
         return new Promise((resolve, reject) => {
-          const tx = dbInstance.transaction(storeName, 'readonly');
-          const store = tx.objectStore(storeName);
-          const req = store.getAll();
-          req.onsuccess = () => resolve(req.result || []);
-          req.onerror = () => reject(req.error);
+          if (!('indexedDB' in window) || !window.indexedDB) {
+            reject(new Error('IndexedDB unavailable'));
+            return;
+          }
+
+          let settled = false;
+          const timer = setTimeout(() => {
+            if (!settled) {
+              settled = true;
+              reject(new Error('IndexedDB open timeout'));
+            }
+          }, timeoutMs);
+
+          try {
+            const req = window.indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = (ev) => {
+              const db = ev.target.result;
+              if (!db.objectStoreNames.contains('books')) {
+                db.createObjectStore('books', { keyPath: 'id' });
+              }
+              if (!db.objectStoreNames.contains('excerpts')) {
+                db.createObjectStore('excerpts', { keyPath: 'id' });
+              }
+              if (!db.objectStoreNames.contains('meta')) {
+                db.createObjectStore('meta', { keyPath: 'key' });
+              }
+            };
+            req.onsuccess = (ev) => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(ev.target.result);
+              }
+            };
+            req.onerror = (ev) => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                reject(ev.target.error || new Error('IndexedDB error'));
+              }
+            };
+            req.onblocked = () => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                reject(new Error('IndexedDB blocked'));
+              }
+            };
+          } catch (err) {
+            if (!settled) {
+              settled = true;
+              clearTimeout(timer);
+              reject(err);
+            }
+          }
         });
       }
 
-      function idbGetMeta(key) {
+      function idbGetAllWithTimeout(storeName, timeoutMs = 1000) {
+        return new Promise((resolve, reject) => {
+          let settled = false;
+          const timer = setTimeout(() => {
+            if (!settled) {
+              settled = true;
+              reject(new Error('IDB read timeout'));
+            }
+          }, timeoutMs);
+
+          try {
+            const tx = dbInstance.transaction(storeName, 'readonly');
+            const req = tx.objectStore(storeName).getAll();
+            req.onsuccess = () => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(req.result || []);
+              }
+            };
+            req.onerror = () => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                reject(req.error);
+              }
+            };
+          } catch (err) {
+            if (!settled) {
+              settled = true;
+              clearTimeout(timer);
+              reject(err);
+            }
+          }
+        });
+      }
+
+      function idbGetMetaWithTimeout(key, timeoutMs = 1000) {
         return new Promise((resolve) => {
+          let settled = false;
+          const timer = setTimeout(() => {
+            if (!settled) {
+              settled = true;
+              resolve(null);
+            }
+          }, timeoutMs);
+
           try {
             const tx = dbInstance.transaction('meta', 'readonly');
             const req = tx.objectStore('meta').get(key);
-            req.onsuccess = () => resolve(req.result ? req.result.value : null);
-            req.onerror = () => resolve(null);
+            req.onsuccess = () => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(req.result ? req.result.value : null);
+              }
+            };
+            req.onerror = () => {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(null);
+              }
+            };
           } catch (_) {
-            resolve(null);
+            if (!settled) {
+              settled = true;
+              clearTimeout(timer);
+              resolve(null);
+            }
           }
         });
       }
 
       async function persistAllToStorage() {
-        // Mirror backup to localStorage as well for maximum resilience
         try {
           localStorage.setItem(
             LS_FALLBACK_KEY,
@@ -1104,6 +1795,7 @@
         if (useLocalStorageOnly || !dbInstance) return;
 
         return new Promise((resolve) => {
+          const timer = setTimeout(resolve, 1000);
           try {
             const tx = dbInstance.transaction(['books', 'excerpts', 'meta'], 'readwrite');
             const bookStore = tx.objectStore('books');
@@ -1117,20 +1809,28 @@
             state.excerpts.forEach((e) => excStore.put(e));
             metaStore.put({ key: 'seeded', value: true });
 
-            tx.oncomplete = () => resolve();
-            tx.onerror = () => resolve();
+            tx.oncomplete = () => {
+              clearTimeout(timer);
+              resolve();
+            };
+            tx.onerror = () => {
+              clearTimeout(timer);
+              resolve();
+            };
           } catch (_) {
+            clearTimeout(timer);
             resolve();
           }
         });
       }
 
       async function loadArchiveFromStorage() {
+        const engineLabel = document.getElementById('storageEngineLabel');
         try {
-          dbInstance = await openDatabase();
-          const seeded = await idbGetMeta('seeded');
-          const books = await idbGetAll('books');
-          const excerpts = await idbGetAll('excerpts');
+          dbInstance = await openDatabaseWithTimeout(1000);
+          const seeded = await idbGetMetaWithTimeout('seeded', 1000);
+          const books = await idbGetAllWithTimeout('books', 1000);
+          const excerpts = await idbGetAllWithTimeout('excerpts', 1000);
 
           if (!seeded && books.length === 0 && excerpts.length === 0) {
             const sample = getSampleDataset();
@@ -1141,40 +1841,68 @@
             state.books = books;
             state.excerpts = excerpts;
           }
-          document.getElementById('storageEngineLabel').innerHTML = `
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-            IndexedDB 로컬 보관 중
-          `;
-        } catch (err) {
-          console.warn('Falling back to localStorage:', err);
+          if (engineLabel) {
+            engineLabel.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> IndexedDB 로컬 보관 중`;
+          }
+        } catch (_) {
           useLocalStorageOnly = true;
-      // Composer transient state
-      let composerTags = [];
-      let composerLinkedIds = [];
-      let useLocalStorageOnly = false;
-      let dbInstance = null;
+          let loadedFromLs = false;
+          try {
+            const raw = localStorage.getItem(LS_FALLBACK_KEY);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && Array.isArray(parsed.books) && Array.isArray(parsed.excerpts)) {
+                state.books = parsed.books;
+                state.excerpts = parsed.excerpts;
+                loadedFromLs = true;
+              }
+            }
+          } catch (__) {}
 
-      // Barcode Scanner & OCR Engine State
-      let barcodeVideoStream = null;
-      let barcodeScanRafId = null;
-      let zxingLoadPromise = null;
-      let tesseractLoadPromise = null;
-
-      // Interactive Crop Canvas State
-      let ocrWebcamStream = null;
-      let ocrRawImage = null;          // Loaded HTMLImageElement
-      let ocrRotationDeg = 0;          // 0, 90, 180, 270
-      let ocrRotatedCanvas = null;     // Full-res rotated source canvas
-      let ocrDisplayMetrics = null;    // { offsetX, offsetY, drawW, drawH, canvasW, canvasH }
-      let ocrCropNorm = { x: 0.1, y: 0.25, w: 0.8, h: 0.35 }; // Normalized 0..1 crop rectangle
-      let ocrDragState = null;         // { mode: 'new'|'move'|handle, startX, startY, origRect }
-      let ocrRawExtractedText = '';
+          if (!loadedFromLs) {
+            const sample = getSampleDataset();
+            state.books = sample.books;
+            state.excerpts = sample.excerpts;
+            try {
+              localStorage.setItem(
+                LS_FALLBACK_KEY,
+                JSON.stringify({ seeded: true, books: state.books, excerpts: state.excerpts })
+              );
+            } catch (__) {}
+          }
+          if (engineLabel) {
+            engineLabel.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> 로컬 스토리지 보관 중`;
+          }
+        }
+      }
 
       // =========================================================================
-      // 3. INDEXEDDB + LOCALSTORAGE PERSISTENCE LAYER
+      // 5. MODAL OPEN/CLOSE HELPERS & UTILITIES
       // =========================================================================
-      // 4. UTILITY HELPERS (ESCAPE, HIGHLIGHT, CLIPBOARD, TOAST, SORTING)
-      // =========================================================================
+      function openModalEl(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.removeAttribute('hidden');
+        el.classList.remove('hidden');
+      }
+
+      function closeModalEl(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.setAttribute('hidden', '');
+        el.classList.add('hidden');
+      }
+
+      function openMobileSidebar() {
+        document.getElementById('sidebarDrawer').classList.remove('-translate-x-full');
+        openModalEl('mobileSidebarBackdrop');
+      }
+
+      function closeMobileSidebar() {
+        document.getElementById('sidebarDrawer').classList.add('-translate-x-full');
+        closeModalEl('mobileSidebarBackdrop');
+      }
+
       function escapeHtml(str) {
         return String(str ?? '')
           .replace(/&/g, '&amp;')
@@ -1214,6 +1942,7 @@
 
       function showToast(message, tone = 'default') {
         const container = document.getElementById('toastContainer');
+        if (!container) return;
         const toast = document.createElement('div');
         let accentBar = 'border-l-4 border-amber-700';
         if (tone === 'sage') accentBar = 'border-l-4 border-emerald-700';
@@ -1248,21 +1977,17 @@
         }
       }
 
-      // Custom Confirmation Dialog (replaces window.confirm)
       function showConfirmDialog({ title, message, okLabel = '삭제 실행', onConfirm }) {
-        const modal = document.getElementById('confirmDialogModal');
         document.getElementById('confirmDialogTitle').textContent = title;
         document.getElementById('confirmDialogMessage').textContent = message;
         const okBtn = document.getElementById('confirmDialogOkBtn');
         const cancelBtn = document.getElementById('confirmDialogCancelBtn');
         okBtn.textContent = okLabel;
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        openModalEl('confirmDialogModal');
 
         const cleanup = () => {
-          modal.classList.add('hidden');
-          modal.classList.remove('flex');
+          closeModalEl('confirmDialogModal');
           okBtn.onclick = null;
           cancelBtn.onclick = null;
         };
@@ -1274,9 +1999,6 @@
         };
       }
 
-      // =========================================================================
-      // 5. THEME & REMIND SHUFFLE LOGIC
-      // =========================================================================
       function applyTheme(isDark) {
         state.darkMode = isDark;
         const html = document.documentElement;
@@ -1366,14 +2088,10 @@
             if (lB !== lA) return lB - lA;
             return (b.createdAt || 0) - (a.createdAt || 0);
           }
-          // Default: newest
           return (b.createdAt || 0) - (a.createdAt || 0);
         });
       }
 
-      /**
-       * Synchronizes bi-directional links for `excerptId` with target `newLinkedIds`
-       */
       function syncBidirectionalLinks(excerptId, newLinkedIds) {
         const cleanSet = new Set((newLinkedIds || []).filter((id) => id !== excerptId && getExcerptById(id)));
 
@@ -1392,9 +2110,6 @@
         });
       }
 
-      /**
-       * Jumps smoothly to any excerpt card in the archive, even if currently hidden by book/tag/search filter
-       */
       function focusExcerptCard(targetExcerptId) {
         const target = getExcerptById(targetExcerptId);
         if (!target) {
@@ -1402,10 +2117,8 @@
           return;
         }
 
-        // Check if target is currently visible in filtered list
         const currentlyVisible = getFilteredAndSortedExcerpts().some((e) => e.id === targetExcerptId);
         if (!currentlyVisible) {
-          // Reset restrictive filters so the target excerpt is visible in the main feed
           state.activeView = 'all';
           state.selectedBookId = null;
           state.selectedTag = null;
@@ -1437,17 +2150,15 @@
         document.getElementById('totalExcerptCount').textContent = totalCount;
         document.getElementById('linkedExcerptCount').textContent = linkedCount;
 
-        // Active Nav Styling
         const navAllBtn = document.getElementById('navAllBtn');
         const navLinkedBtn = document.getElementById('navLinkedBtn');
 
-        const activeNavClass = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold surface-card border border-hairline shadow-2xs text-ink';
-        const idleNavClass = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary hover:text-ink transition';
+        const activeNavClass = 'w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold surface-card border border-hairline shadow-2xs text-ink';
+        const idleNavClass = 'w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary hover:text-ink transition';
 
         navAllBtn.className = state.activeView === 'all' && !state.selectedTag ? activeNavClass : idleNavClass;
         navLinkedBtn.className = state.activeView === 'linked' ? activeNavClass : idleNavClass;
 
-        // Render Bookshelf
         const bookshelfList = document.getElementById('bookshelfList');
         bookshelfList.innerHTML = '';
 
@@ -1459,7 +2170,7 @@
             const isSelected = state.activeView === 'book' && state.selectedBookId === book.id;
 
             const li = document.createElement('li');
-            li.className = `group flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl cursor-pointer transition ${
+            li.className = `group flex items-center justify-between gap-2 px-2.5 py-2 min-h-[46px] rounded-xl cursor-pointer transition ${
               isSelected ? 'surface-card border border-hairline shadow-2xs' : 'hover:opacity-90'
             }`;
 
@@ -1477,13 +2188,13 @@
                   type="button"
                   data-edit-book="${book.id}"
                   title="책 정보 수정"
-                  class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded text-muted hover:text-ink text-[11px] transition"
+                  class="min-h-[32px] min-w-[28px] flex items-center justify-center rounded text-muted hover:text-ink text-xs transition"
                 >✎</button>
                 <button
                   type="button"
                   data-delete-book="${book.id}"
                   title="책 삭제"
-                  class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded text-muted hover:text-rose-600 text-[11px] transition"
+                  class="min-h-[32px] min-w-[28px] flex items-center justify-center rounded text-muted hover:text-rose-600 text-xs transition"
                 >✕</button>
               </div>
             `;
@@ -1498,6 +2209,7 @@
 
             li.querySelector('[data-edit-book]').addEventListener('click', (e) => {
               e.stopPropagation();
+              closeMobileSidebar();
               openBookModal(book);
             });
 
@@ -1535,7 +2247,6 @@
           });
         }
 
-        // Render Tag Cloud
         const tagCounts = new Map();
         state.excerpts.forEach((exc) => {
           (exc.tags || []).forEach((t) => {
@@ -1559,8 +2270,8 @@
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = isTagActive
-              ? 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-white transition'
-              : 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs surface-card border border-hairline text-secondary hover:text-ink transition';
+              ? 'min-h-[34px] inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white transition'
+              : 'min-h-[34px] inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs surface-card border border-hairline text-secondary hover:text-ink transition';
             if (isTagActive) {
               btn.style.backgroundColor = 'var(--accent-sage)';
             }
@@ -1594,7 +2305,6 @@
         grid.classList.remove('hidden');
         toggleBtn.textContent = '접기';
 
-        // Ensure valid remind IDs
         let validIds = state.remindExcerptIds.filter((id) => getExcerptById(id));
         if (validIds.length === 0) {
           pickRandomRemindIds();
@@ -1679,11 +2389,10 @@
           }
         }
 
-        // Active filter chips
         if (state.selectedTag) {
           const chip = document.createElement('button');
           chip.type = 'button';
-          chip.className = 'inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full text-white';
+          chip.className = 'inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full text-white';
           chip.style.backgroundColor = 'var(--accent-sage)';
           chip.innerHTML = `#${escapeHtml(state.selectedTag)} <span>✕</span>`;
           chip.onclick = () => {
@@ -1696,7 +2405,7 @@
         if (state.searchQuery.trim()) {
           const chip = document.createElement('button');
           chip.type = 'button';
-          chip.className = 'inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full surface-elevated border border-hairline text-ink';
+          chip.className = 'inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full surface-elevated border border-hairline text-ink';
           chip.innerHTML = `검색: "${escapeHtml(state.searchQuery.trim())}" <span>✕</span>`;
           chip.onclick = () => {
             state.searchQuery = '';
@@ -1722,13 +2431,11 @@
                 <p class="font-literary font-bold text-base text-ink">표시할 발췌 문장이 없습니다</p>
                 <p class="text-xs text-muted mt-1">검색어나 필터를 해제하거나 새로운 문장과 여백 메모를 기록해 보세요.</p>
               </div>
-              <button type="button" id="emptyNewExcerptBtn" class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold mt-1">
+              <button type="button" data-action="open-new-excerpt" class="btn-primary min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold mt-1">
                 + 첫 발췌 문장 기록하기
               </button>
             </div>
           `;
-          const emptyBtn = document.getElementById('emptyNewExcerptBtn');
-          if (emptyBtn) emptyBtn.onclick = () => openExcerptModal(null);
           return;
         }
 
@@ -1741,22 +2448,20 @@
 
           const card = document.createElement('article');
           card.id = `excerpt-card-${exc.id}`;
-          card.className = 'surface-card border border-hairline rounded-2xl p-5 sm:p-6 flex flex-col gap-4 transition-all duration-200 shadow-2xs';
+          card.className = 'surface-card border border-hairline rounded-2xl p-4 sm:p-6 flex flex-col gap-4 transition-all duration-200 shadow-2xs';
 
-          // Build Tags HTML
           const tagsHtml = (exc.tags || [])
             .map(
               (tag) => `
               <button
                 type="button"
                 data-card-tag="${escapeHtml(tag)}"
-                class="text-xs px-2.5 py-0.5 rounded-full surface-elevated border border-hairline text-secondary hover:text-ink transition"
+                class="min-h-[32px] text-xs px-2.5 py-0.5 rounded-full surface-elevated border border-hairline text-secondary hover:text-ink transition"
               >#${highlightMatch(tag, q)}</button>
             `
             )
             .join('');
 
-          // Build Cross-References HTML
           const crossRefsHtml =
             validLinks.length > 0
               ? `
@@ -1771,12 +2476,12 @@
                   ${validLinks
                     .map((target) => {
                       const targetBook = getBookById(target.bookId);
-                      const snippet = target.quote.replace(/^[“"]|[”"]$/g, '').slice(0, 28);
+                      const snippet = target.quote.replace(/^[“"]|[”"]$/g, '').slice(0, 26);
                       return `
                         <button
                           type="button"
                           data-jump-link="${target.id}"
-                          class="inline-flex items-center gap-1.5 text-left text-xs px-2.5 py-1 rounded-lg border border-hairline surface-subtle hover:border-strong transition max-w-full"
+                          class="min-h-[36px] inline-flex items-center gap-1.5 text-left text-xs px-2.5 py-1 rounded-lg border border-hairline surface-subtle hover:border-strong transition max-w-full"
                         >
                           <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${escapeHtml(targetBook?.spineColor || '#2E5A44')};"></span>
                           <span class="font-semibold text-ink shrink-0">${escapeHtml(targetBook?.title || '도서')}</span>
@@ -1792,14 +2497,12 @@
               : '';
 
           card.innerHTML = `
-            <!-- Card Top Meta Header -->
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-2 min-w-0">
                 <button
                   type="button"
                   data-filter-book="${book ? book.id : ''}"
-                  class="inline-flex items-center gap-2 text-left group min-w-0"
-                  title="이 책의 발췌만 모아보기"
+                  class="min-h-[34px] inline-flex items-center gap-2 text-left group min-w-0"
                 >
                   <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${escapeHtml(book?.spineColor || '#9A3412')};"></span>
                   <span class="font-literary font-bold text-xs sm:text-sm text-ink group-hover:underline truncate">
@@ -1821,12 +2524,10 @@
               </div>
             </div>
 
-            <!-- Quoted Excerpt Block (Literary Serif) -->
             <blockquote class="${tintClass} rounded-r-xl px-4 py-3.5 font-literary text-sm sm:text-[15.5px] leading-[1.85] text-ink whitespace-pre-line">
               ${highlightMatch(exc.quote, q)}
             </blockquote>
 
-            <!-- Marginalia Note Block (Distinct Sans-Serif) -->
             ${
               exc.note
                 ? `<div class="surface-subtle border border-hairline rounded-xl px-4 py-3 flex flex-col gap-1">
@@ -1839,33 +2540,31 @@
                 : ''
             }
 
-            <!-- Tags & Cross-References -->
             ${tagsHtml ? `<div class="flex flex-wrap items-center gap-1.5">${tagsHtml}</div>` : ''}
             ${crossRefsHtml}
 
-            <!-- Card Action Bar -->
             <div class="pt-3 border-t border-hairline flex flex-wrap items-center justify-between gap-2 text-xs">
               <div class="flex flex-wrap items-center gap-1.5">
                 <button
                   type="button"
                   data-copy-exc="${exc.id}"
-                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-hairline surface-subtle text-secondary hover:text-ink transition"
+                  class="min-h-[38px] inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-hairline surface-subtle text-secondary hover:text-ink transition"
                 >
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
-                  인용 복사
+                  <span class="pointer-events-none">인용 복사</span>
                 </button>
 
                 <button
                   type="button"
                   data-link-exc="${exc.id}"
-                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-hairline surface-subtle text-secondary hover:text-ink transition"
+                  class="min-h-[38px] inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-hairline surface-subtle text-secondary hover:text-ink transition"
                 >
-                  <svg class="w-3.5 h-3.5" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg class="w-3.5 h-3.5 pointer-events-none" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
-                  연결 추가
+                  <span class="pointer-events-none">연결 추가</span>
                 </button>
               </div>
 
@@ -1873,14 +2572,14 @@
                 <button
                   type="button"
                   data-edit-exc="${exc.id}"
-                  class="px-2.5 py-1.5 rounded-lg text-secondary hover:text-ink surface-subtle border border-hairline transition"
+                  class="min-h-[38px] px-3 py-1.5 rounded-lg text-secondary hover:text-ink surface-subtle border border-hairline transition"
                 >
                   수정
                 </button>
                 <button
                   type="button"
                   data-delete-exc="${exc.id}"
-                  class="px-2.5 py-1.5 rounded-lg text-muted hover:text-rose-600 surface-subtle border border-hairline transition"
+                  class="min-h-[38px] px-3 py-1.5 rounded-lg text-muted hover:text-rose-600 surface-subtle border border-hairline transition"
                 >
                   삭제
                 </button>
@@ -1888,7 +2587,6 @@
             </div>
           `;
 
-          // Bind Card Interactions
           const bookBtn = card.querySelector('[data-filter-book]');
           if (bookBtn && book) {
             bookBtn.addEventListener('click', () => {
@@ -1958,7 +2656,7 @@
       }
 
       // =========================================================================
-      // 9. BOOK MODAL & ISBN BARCODE SCANNER / METADATA LOOKUP LOGIC
+      // 8. EXTERNAL LIBRARY DYNAMIC LOADERS (ZXING & TESSERACT)
       // =========================================================================
       function loadExternalScriptOnce(url) {
         return new Promise((resolve, reject) => {
@@ -1974,7 +2672,7 @@
             script.dataset.loaded = 'true';
             resolve();
           };
-          script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
+          script.onerror = () => reject(new Error(`Script load failed: ${url}`));
           if (!existing) document.head.appendChild(script);
         });
       }
@@ -2001,6 +2699,9 @@
         return tesseractLoadPromise;
       }
 
+      // =========================================================================
+      // 9. BOOK MODAL, ISBN BARCODE SCANNER & METADATA LOOKUP
+      // =========================================================================
       function normalizeIsbn(raw) {
         if (!raw) return '';
         const cleaned = String(raw).replace(/[^0-9Xx]/g, '').toUpperCase();
@@ -2012,6 +2713,7 @@
 
       function setIsbnStatus(text, tone = 'neutral') {
         const badge = document.getElementById('isbnStatusBadge');
+        if (!badge) return;
         if (!text) {
           badge.classList.add('hidden');
           return;
@@ -2058,22 +2760,22 @@
         if (video) video.srcObject = null;
         const viewport = document.getElementById('barcodeScannerViewport');
         if (viewport) viewport.classList.add('hidden');
-        const btn = document.getElementById('toggleLiveBarcodeCamBtn');
-        if (btn) btn.innerHTML = '<span>🎥 실시간 바코드 스캔</span>';
+        const label = document.getElementById('barcodeCamBtnLabel');
+        if (label) label.textContent = '실시간 바코드 스캔';
       }
 
       async function startBarcodeCamera() {
-        const viewport = document.getElementById('barcodeScannerViewport');
-        const video = document.getElementById('barcodeVideoEl');
-        const btn = document.getElementById('toggleLiveBarcodeCamBtn');
-
         if (barcodeVideoStream) {
           stopBarcodeCamera();
           return;
         }
 
+        const viewport = document.getElementById('barcodeScannerViewport');
+        const video = document.getElementById('barcodeVideoEl');
+        const label = document.getElementById('barcodeCamBtnLabel');
+
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          setIsbnStatus('이 브라우저는 실시간 카메라를 지원하지 않습니다. 사진 찍기/앨범을 이용해 주세요.', 'error');
+          setIsbnStatus('실시간 카메라를 사용할 수 없습니다. [바코드 사진 찍기 / 앨범]을 이용해 주세요.', 'error');
           return;
         }
 
@@ -2081,7 +2783,7 @@
           setIsbnStatus('후면 카메라 연결 중...', 'neutral');
           barcodeVideoStream = await navigator.mediaDevices.getUserMedia({
             video: {
-              facingMode: { ideal: 'environment' },
+              facingMode: 'environment',
               width: { ideal: 1280 },
               height: { ideal: 720 },
             },
@@ -2090,10 +2792,10 @@
           video.srcObject = barcodeVideoStream;
           await video.play();
           viewport.classList.remove('hidden');
-          btn.innerHTML = '<span>⏹ 스캐너 정지</span>';
+          if (label) label.textContent = '스캐너 정지';
           setIsbnStatus('바코드를 비추면 자동으로 인식합니다...', 'neutral');
 
-          // Strategy 1: Native BarcodeDetector API
+          // Strategy 1: Native BarcodeDetector
           if ('BarcodeDetector' in window) {
             let detector;
             try {
@@ -2125,8 +2827,8 @@
             return;
           }
 
-          // Strategy 2: @zxing/library fallback (iOS Safari / Firefox)
-          setIsbnStatus('바코드 디코더(ZXing) 로딩 중...', 'neutral');
+          // Strategy 2: @zxing/library fallback (iOS Safari)
+          setIsbnStatus('바코드 디코더(ZXing) 준비 중...', 'neutral');
           await ensureZXingLoaded();
           setIsbnStatus('바코드를 비추면 자동으로 인식합니다...', 'neutral');
 
@@ -2146,7 +2848,7 @@
 
           const zxingLoop = (now) => {
             if (!barcodeVideoStream) return;
-            if (now - lastCheck > 180 && video.readyState >= 2 && video.videoWidth > 0) {
+            if (now - lastCheck > 200 && video.readyState >= 2 && video.videoWidth > 0) {
               lastCheck = now;
               const targetW = Math.min(960, video.videoWidth);
               const scale = targetW / video.videoWidth;
@@ -2169,9 +2871,7 @@
                     return;
                   }
                 }
-              } catch (_) {
-                // NotFoundException on frames without a clear barcode is normal
-              }
+              } catch (_) {}
             }
             barcodeScanRafId = requestAnimationFrame(zxingLoop);
           };
@@ -2179,7 +2879,7 @@
         } catch (err) {
           console.warn('Barcode camera error:', err);
           stopBarcodeCamera();
-          setIsbnStatus('카메라 접근이 거부되었거나 사용할 수 없습니다. 사진 찍기/앨범을 이용해 주세요.', 'error');
+          setIsbnStatus('카메라 접근이 제한되었습니다. [바코드 사진 찍기 / 앨범]을 이용해 주세요.', 'error');
         }
       }
 
@@ -2196,7 +2896,6 @@
             img.src = imgUrl;
           });
 
-          // Draw scaled image on canvas for reliable decoding even on 12MP mobile photos
           const maxDim = 1400;
           const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
           const canvas = document.createElement('canvas');
@@ -2208,7 +2907,6 @@
 
           let foundIsbn = '';
 
-          // 1. Try native BarcodeDetector first
           if ('BarcodeDetector' in window) {
             try {
               const detector = new window.BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
@@ -2219,7 +2917,6 @@
             } catch (_) {}
           }
 
-          // 2. Fallback to ZXing MultiFormatReader (with 0° and 90° rotation attempts)
           if (!foundIsbn || foundIsbn.length < 10) {
             await ensureZXingLoaded();
             const hints = new Map();
@@ -2245,7 +2942,6 @@
             try {
               foundIsbn = tryDecodeCanvas(canvas);
             } catch (_) {
-              // Try 90-degree rotated canvas in case barcode was photographed vertically
               const rotCanvas = document.createElement('canvas');
               rotCanvas.width = canvas.height;
               rotCanvas.height = canvas.width;
@@ -2255,7 +2951,7 @@
               rCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
               try {
                 foundIsbn = tryDecodeCanvas(rotCanvas);
-              } catch (_) {}
+              } catch (__) {}
             }
           }
 
@@ -2264,7 +2960,7 @@
             showToast(`사진에서 ISBN 바코드 인식 성공: ${foundIsbn}`, 'sage');
             await lookupBookMetadataByIsbn(foundIsbn);
           } else {
-            setIsbnStatus('바코드를 찾지 못했습니다. 바코드가 선명하게 나오도록 다시 찍거나 아래에 번호를 직접 입력해 주세요.', 'error');
+            setIsbnStatus('바코드를 찾지 못했습니다. 바코드 숫자를 직접 입력한 뒤 [도서 조회]를 눌러 주세요.', 'error');
             showToast('바코드를 인식하지 못했습니다. 숫자를 직접 입력해 조회할 수 있습니다.', 'danger');
           }
         } catch (err) {
@@ -2284,7 +2980,7 @@
         document.getElementById('isbnManualInput').value = cleanIsbn;
         setIsbnStatus(`ISBN ${cleanIsbn} 도서 정보 조회 중...`, 'neutral');
 
-        let meta = {
+        const meta = {
           title: '',
           author: '',
           publisher: '',
@@ -2293,7 +2989,6 @@
           coverUrl: '',
         };
 
-        // 1. Query Google Books API
         try {
           const gbRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(cleanIsbn)}`);
           if (gbRes.ok) {
@@ -2314,11 +3009,8 @@
               }
             }
           }
-        } catch (err) {
-          console.warn('Google Books lookup failed:', err);
-        }
+        } catch (_) {}
 
-        // 2. Query Open Library API (fill missing fields or fallback)
         if (!meta.title || !meta.author || !meta.coverUrl || !meta.publisher) {
           try {
             const olRes = await fetch(
@@ -2349,9 +3041,7 @@
                 }
               }
             }
-          } catch (err) {
-            console.warn('Open Library lookup failed:', err);
-          }
+          } catch (_) {}
         }
 
         if (meta.title || meta.author) {
@@ -2373,8 +3063,28 @@
         }
       }
 
+      function renderSpineSwatches(containerId, hiddenInputId, activeHex) {
+        const container = document.getElementById(containerId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+        hiddenInput.value = activeHex;
+        container.innerHTML = '';
+
+        SPINE_COLORS.forEach((c) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.title = c.name;
+          btn.className = `w-7 h-7 rounded-full transition transform ${
+            activeHex === c.hex ? 'ring-2 ring-offset-2 ring-amber-700 scale-110' : 'opacity-80 hover:opacity-100'
+          }`;
+          btn.style.backgroundColor = c.hex;
+          btn.addEventListener('click', () => {
+            renderSpineSwatches(containerId, hiddenInputId, c.hex);
+          });
+          container.appendChild(btn);
+        });
+      }
+
       function openBookModal(bookToEdit = null) {
-        const modal = document.getElementById('bookModal');
         stopBarcodeCamera();
         setIsbnStatus('');
 
@@ -2401,20 +3111,256 @@
           updateBookCoverPreview('');
           renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', '#9A3412');
         }
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        setTimeout(() => document.getElementById('bookTitleInput').focus(), 60);
+
+        openModalEl('bookModal');
       }
 
       function closeBookModal() {
         stopBarcodeCamera();
-        const modal = document.getElementById('bookModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        closeModalEl('bookModal');
       }
 
       // =========================================================================
-      // 9B. PAGE CAMERA CAPTURE, INTERACTIVE CROP CANVAS & TESSERACT OCR ENGINE
+      // 10. EXCERPT COMPOSER MODAL LOGIC
+      // =========================================================================
+      function setComposerHighlightChoice(choice) {
+        document.getElementById('excerptHighlightInput').value = choice;
+        document.querySelectorAll('.hl-choice-btn').forEach((btn) => {
+          if (btn.dataset.hlChoice === choice) {
+            btn.classList.add('ring-2', 'ring-amber-700', 'font-bold');
+          } else {
+            btn.classList.remove('ring-2', 'ring-amber-700', 'font-bold');
+          }
+        });
+      }
+
+      function renderComposerTags() {
+        const chipsContainer = document.getElementById('composerTagChips');
+        chipsContainer.innerHTML = '';
+        composerTags.forEach((tag) => {
+          const chip = document.createElement('span');
+          chip.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white';
+          chip.style.backgroundColor = 'var(--accent-sage)';
+          chip.innerHTML = `#${escapeHtml(tag)} <button type="button" class="hover:opacity-75 ml-0.5 px-1">✕</button>`;
+          chip.querySelector('button').onclick = () => {
+            composerTags = composerTags.filter((t) => t !== tag);
+            renderComposerTags();
+            renderTagSuggestions();
+          };
+          chipsContainer.appendChild(chip);
+        });
+      }
+
+      function renderTagSuggestions() {
+        const sugContainer = document.getElementById('existingTagSuggestions');
+        const allTags = new Set();
+        state.excerpts.forEach((e) => (e.tags || []).forEach((t) => allTags.add(t)));
+        const available = Array.from(allTags).filter((t) => !composerTags.includes(t));
+
+        if (available.length === 0) {
+          sugContainer.innerHTML = '';
+          return;
+        }
+        sugContainer.innerHTML = `<span class="text-[11px] text-muted">기존 태그 제안:</span>`;
+        available.slice(0, 8).forEach((tag) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'min-h-[30px] text-[11px] px-2.5 py-0.5 rounded-full surface-card border border-hairline text-secondary hover:text-ink transition';
+          btn.textContent = `+ #${tag}`;
+          btn.onclick = () => {
+            if (!composerTags.includes(tag)) {
+              composerTags.push(tag);
+              renderComposerTags();
+              renderTagSuggestions();
+            }
+          };
+          sugContainer.appendChild(btn);
+        });
+      }
+
+      function addComposerTagFromRaw(raw) {
+        const cleaned = raw.replace(/^#+/, '').trim().replace(/\s+/g, '');
+        if (cleaned && !composerTags.includes(cleaned)) {
+          composerTags.push(cleaned);
+          renderComposerTags();
+          renderTagSuggestions();
+        }
+      }
+
+      function renderCrossRefEditor() {
+        const editingId = document.getElementById('editExcerptId').value;
+        const query = document.getElementById('crossRefSearchInput').value.trim().toLowerCase();
+        const selectedList = document.getElementById('selectedCrossRefsList');
+        const candidatesList = document.getElementById('crossRefCandidatesList');
+        const countBadge = document.getElementById('selectedLinksCountBadge');
+
+        countBadge.textContent = `${composerLinkedIds.length}개 연결됨`;
+        selectedList.innerHTML = '';
+
+        composerLinkedIds.forEach((lid) => {
+          const target = getExcerptById(lid);
+          if (!target) return;
+          const book = getBookById(target.bookId);
+          const pill = document.createElement('div');
+          pill.className = 'flex items-center justify-between gap-2 px-3 py-2 rounded-lg surface-elevated border border-hairline text-xs';
+          pill.innerHTML = `
+            <div class="truncate">
+              <span class="font-semibold text-ink">${escapeHtml(book?.title || '도서')}</span>
+              <span class="text-muted"> · ${escapeHtml(target.quote.slice(0, 38))}…</span>
+            </div>
+            <button type="button" class="text-muted hover:text-rose-600 shrink-0 px-1.5 py-0.5">연결 해제 ✕</button>
+          `;
+          pill.querySelector('button').onclick = () => {
+            composerLinkedIds = composerLinkedIds.filter((id) => id !== lid);
+            renderCrossRefEditor();
+          };
+          selectedList.appendChild(pill);
+        });
+
+        const candidates = state.excerpts.filter((exc) => {
+          if (exc.id === editingId || composerLinkedIds.includes(exc.id)) return false;
+          if (!query) return true;
+          const book = getBookById(exc.bookId);
+          const hay = `${exc.quote} ${exc.note} ${book ? book.title : ''} ${book ? book.author : ''}`.toLowerCase();
+          return hay.includes(query);
+        });
+
+        candidatesList.innerHTML = '';
+        if (candidates.length === 0) {
+          candidatesList.innerHTML = `<div class="text-xs text-muted py-2 text-center">연결 가능한 다른 발췌 문장이 없습니다.</div>`;
+          return;
+        }
+
+        candidates.forEach((cand) => {
+          const book = getBookById(cand.bookId);
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'w-full min-h-[42px] text-left px-2.5 py-1.5 rounded-lg hover:opacity-85 surface-card border border-hairline text-xs flex items-center justify-between gap-2 transition';
+          row.innerHTML = `
+            <div class="min-w-0 flex-1">
+              <div class="font-semibold text-ink truncate">${escapeHtml(book?.title || '도서')} ${cand.page ? `<span class="font-mono text-[10px] text-muted">${escapeHtml(normalizePageDisplay(cand.page))}</span>` : ''}</div>
+              <div class="text-muted truncate">${escapeHtml(cand.quote)}</div>
+            </div>
+            <span class="text-[11px] font-semibold shrink-0" style="color: var(--accent-sage);">+ 연결</span>
+          `;
+          row.onclick = () => {
+            composerLinkedIds.push(cand.id);
+            renderCrossRefEditor();
+          };
+          candidatesList.appendChild(row);
+        });
+      }
+
+      function populateBookSelectDropdown(selectedId = null) {
+        const select = document.getElementById('excerptBookSelect');
+        select.innerHTML = '';
+        if (state.books.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = '먼저 위에서 새 책을 등록해 주세요';
+          select.appendChild(opt);
+          return;
+        }
+        state.books.forEach((b) => {
+          const opt = document.createElement('option');
+          opt.value = b.id;
+          opt.textContent = `${b.title} — ${b.author}`;
+          if (selectedId && b.id === selectedId) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+
+      async function saveInlineBookFromExcerptModal() {
+        const title = document.getElementById('inlineBookTitle').value.trim();
+        const author = document.getElementById('inlineBookAuthor').value.trim();
+        if (!title || !author) {
+          showToast('새 책의 제목과 저자를 모두 입력해 주세요.', 'danger');
+          return;
+        }
+        const newBook = {
+          id: `book-${Date.now()}`,
+          title,
+          author,
+          publisher: document.getElementById('inlineBookPublisher').value.trim(),
+          publishedYear: '',
+          isbn: '',
+          coverUrl: '',
+          category: document.getElementById('inlineBookCategory').value.trim(),
+          spineColor: document.getElementById('inlineBookSpineColor').value || '#9A3412',
+          createdAt: Date.now(),
+        };
+        state.books.unshift(newBook);
+        await persistAllToStorage();
+        populateBookSelectDropdown(newBook.id);
+        renderSidebar();
+
+        document.getElementById('inlineBookTitle').value = '';
+        document.getElementById('inlineBookAuthor').value = '';
+        document.getElementById('inlineBookPublisher').value = '';
+        document.getElementById('inlineBookCategory').value = '';
+        document.getElementById('inlineNewBookBox').classList.add('hidden');
+        showToast(`『${newBook.title}』이(가) 책장에 등록되었습니다.`, 'sage');
+      }
+
+      function openExcerptModal(excerptToEdit = null, focusCrossRef = false) {
+        document.getElementById('inlineNewBookBox').classList.add('hidden');
+        renderSpineSwatches('inlineSpineSwatches', 'inlineBookSpineColor', '#9A3412');
+
+        if (excerptToEdit) {
+          document.getElementById('excerptModalTitle').textContent = '발췌 문장 & 여백 메모 수정';
+          document.getElementById('editExcerptId').value = excerptToEdit.id;
+          populateBookSelectDropdown(excerptToEdit.bookId);
+          document.getElementById('excerptPageInput').value = excerptToEdit.page || '';
+          document.getElementById('excerptChapterInput').value = excerptToEdit.chapter || '';
+          document.getElementById('excerptQuoteInput').value = excerptToEdit.quote || '';
+          document.getElementById('excerptNoteInput').value = excerptToEdit.note || '';
+          setComposerHighlightChoice(excerptToEdit.highlightColor || 'none');
+          composerTags = [...(excerptToEdit.tags || [])];
+          composerLinkedIds = [...(excerptToEdit.linkedIds || [])];
+        } else {
+          document.getElementById('excerptModalTitle').textContent = '새 발췌 문장 & 여백 메모 기록';
+          document.getElementById('editExcerptId').value = '';
+          const defaultBookId =
+            state.activeView === 'book' && state.selectedBookId
+              ? state.selectedBookId
+              : state.books[0]
+              ? state.books[0].id
+              : null;
+          populateBookSelectDropdown(defaultBookId);
+          document.getElementById('excerptPageInput').value = '';
+          document.getElementById('excerptChapterInput').value = '';
+          document.getElementById('excerptQuoteInput').value = '';
+          document.getElementById('excerptNoteInput').value = '';
+          setComposerHighlightChoice('amber');
+          composerTags = state.selectedTag ? [state.selectedTag] : [];
+          composerLinkedIds = [];
+          if (state.books.length === 0) {
+            document.getElementById('inlineNewBookBox').classList.remove('hidden');
+          }
+        }
+
+        document.getElementById('excerptTagTextInput').value = '';
+        document.getElementById('crossRefSearchInput').value = '';
+        renderComposerTags();
+        renderTagSuggestions();
+        renderCrossRefEditor();
+
+        openModalEl('excerptModal');
+
+        if (focusCrossRef) {
+          setTimeout(() => {
+            const sec = document.getElementById('crossRefEditorSection');
+            if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 80);
+        }
+      }
+
+      function closeExcerptModal() {
+        closeModalEl('excerptModal');
+      }
+
+      // =========================================================================
+      // 11. PAGE CAMERA CAPTURE, POINTER DRAG CROP & TESSERACT OCR ENGINE
       // =========================================================================
       function stopOcrWebcam() {
         if (ocrWebcamStream) {
@@ -2429,15 +3375,15 @@
 
       async function startOcrWebcam() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          showToast('이 브라우저는 실시간 웹캠을 지원하지 않습니다. 카메라 촬영 버튼을 이용해 주세요.', 'danger');
+          showToast('실시간 웹캠을 사용할 수 없습니다. [카메라로 책 페이지 찍기] 버튼을 이용해 주세요.', 'danger');
           return;
         }
         try {
           ocrWebcamStream = await navigator.mediaDevices.getUserMedia({
             video: {
-              facingMode: { ideal: 'environment' },
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
+              facingMode: 'environment',
+              width: { ideal: 1600 },
+              height: { ideal: 1200 },
             },
             audio: false,
           });
@@ -2445,10 +3391,9 @@
           vid.srcObject = ocrWebcamStream;
           await vid.play();
           document.getElementById('ocrWebcamViewport').classList.remove('hidden');
-        } catch (err) {
-          console.warn('OCR webcam error:', err);
+        } catch (_) {
           stopOcrWebcam();
-          showToast('카메라 권한이 거부되었거나 사용할 수 없습니다.', 'danger');
+          showToast('카메라 권한이 거부되었거나 사용할 수 없습니다. 기본 카메라 촬영을 이용해 주세요.', 'danger');
         }
       }
 
@@ -2456,20 +3401,28 @@
         const vid = document.getElementById('ocrWebcamVideo');
         if (!vid || vid.videoWidth === 0) return;
 
+        const maxDim = 1600;
+        const scale = Math.min(1, maxDim / Math.max(vid.videoWidth, vid.videoHeight));
         const snapCanvas = document.createElement('canvas');
-        snapCanvas.width = vid.videoWidth;
-        snapCanvas.height = vid.videoHeight;
+        snapCanvas.width = Math.max(1, Math.round(vid.videoWidth * scale));
+        snapCanvas.height = Math.max(1, Math.round(vid.videoHeight * scale));
         snapCanvas.getContext('2d').drawImage(vid, 0, 0, snapCanvas.width, snapCanvas.height);
 
-        const dataUrl = snapCanvas.toDataURL('image/jpeg', 0.94);
+        const dataUrl = snapCanvas.toDataURL('image/jpeg', 0.92);
         stopOcrWebcam();
         loadOcrImageFromSrc(dataUrl);
       }
 
       function rebuildOcrRotatedCanvas() {
         if (!ocrRawImage) return;
-        const w = ocrRawImage.naturalWidth;
-        const h = ocrRawImage.naturalHeight;
+        const origW = ocrRawImage.naturalWidth;
+        const origH = ocrRawImage.naturalHeight;
+
+        // Bound longest side to 1600px to protect iOS Safari canvas memory limits
+        const maxDim = 1600;
+        const scale = Math.min(1, maxDim / Math.max(origW, origH));
+        const w = Math.max(1, Math.round(origW * scale));
+        const h = Math.max(1, Math.round(origH * scale));
         const isSwapped = ocrRotationDeg % 180 !== 0;
 
         const canvas = document.createElement('canvas');
@@ -2480,7 +3433,7 @@
         ctx.save();
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate((ocrRotationDeg * Math.PI) / 180);
-        ctx.drawImage(ocrRawImage, -w / 2, -h / 2);
+        ctx.drawImage(ocrRawImage, -w / 2, -h / 2, w, h);
         ctx.restore();
 
         ocrRotatedCanvas = canvas;
@@ -2516,8 +3469,8 @@
         if (!ocrRotatedCanvas || !wrapper || !canvas) return;
 
         const wrapRect = wrapper.getBoundingClientRect();
-        const availW = Math.max(260, wrapRect.width - 16);
-        const availH = Math.max(240, wrapRect.height - 16);
+        const availW = Math.max(260, wrapRect.width - 12);
+        const availH = Math.max(240, wrapRect.height - 12);
 
         const srcW = ocrRotatedCanvas.width;
         const srcH = ocrRotatedCanvas.height;
@@ -2525,7 +3478,7 @@
         const drawW = Math.round(srcW * fitScale);
         const drawH = Math.round(srcH * fitScale);
 
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
         canvas.style.width = `${drawW}px`;
         canvas.style.height = `${drawH}px`;
         canvas.width = Math.round(drawW * dpr);
@@ -2537,24 +3490,20 @@
         ctx.save();
         ctx.scale(dpr, dpr);
 
-        // 1. Draw full page image
         ctx.drawImage(ocrRotatedCanvas, 0, 0, drawW, drawH);
 
-        // 2. Compute crop pixel box
         const cx = ocrCropNorm.x * drawW;
         const cy = ocrCropNorm.y * drawH;
         const cw = ocrCropNorm.w * drawW;
         const ch = ocrCropNorm.h * drawH;
 
-        // 3. Dim outside regions (4 surrounding rectangles so inside remains crystal-clear)
         ctx.fillStyle = 'rgba(12, 11, 10, 0.56)';
-        ctx.fillRect(0, 0, drawW, cy); // Top
-        ctx.fillRect(0, cy + ch, drawW, drawH - (cy + ch)); // Bottom
-        ctx.fillRect(0, cy, cx, ch); // Left
-        ctx.fillRect(cx + cw, cy, drawW - (cx + cw), ch); // Right
+        ctx.fillRect(0, 0, drawW, cy);
+        ctx.fillRect(0, cy + ch, drawW, drawH - (cy + ch));
+        ctx.fillRect(0, cy, cx, ch);
+        ctx.fillRect(cx + cw, cy, drawW - (cx + cw), ch);
 
-        // 4. Subtle horizontal reading guide lines inside crop box
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
         ctx.lineWidth = 1;
         ctx.setLineDash([4, 4]);
         for (let i = 1; i <= 2; i++) {
@@ -2566,12 +3515,10 @@
         }
         ctx.setLineDash([]);
 
-        // 5. Crisp selection border
         ctx.strokeStyle = '#f59e0b';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.2;
         ctx.strokeRect(cx, cy, cw, ch);
 
-        // 6. 8 Resize Handles (4 corners + 4 midpoints)
         const handles = [
           { x: cx, y: cy },
           { x: cx + cw / 2, y: cy },
@@ -2587,7 +3534,7 @@
           ctx.strokeStyle = '#9a3412';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, 5.5, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, 6.5, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
         });
@@ -2603,7 +3550,7 @@
         const cw = ocrCropNorm.w * drawW;
         const ch = ocrCropNorm.h * drawH;
 
-        const hitRadius = 16; // Generous radius for touch screens
+        const hitRadius = 20;
         const handleMap = [
           { name: 'nw', x: cx, y: cy },
           { name: 'n', x: cx + cw / 2, y: cy },
@@ -2631,12 +3578,18 @@
         const rect = canvas.getBoundingClientRect();
         const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
         const y = Math.max(0, Math.min(rect.height, clientY - rect.top));
-        return { x, y, w: rect.width, h: rect.height };
+        return { x, y, w: Math.max(1, rect.width), h: Math.max(1, rect.height) };
       }
 
-      function handleCropPointerDown(clientX, clientY) {
+      function handleCropPointerDown(e) {
         if (!ocrRotatedCanvas) return;
-        const pt = getCropCanvasPointerCoords(clientX, clientY);
+        const canvas = document.getElementById('ocrCropCanvas');
+        if (canvas && canvas.setPointerCapture && e.pointerId !== undefined) {
+          try {
+            canvas.setPointerCapture(e.pointerId);
+          } catch (_) {}
+        }
+        const pt = getCropCanvasPointerCoords(e.clientX, e.clientY);
         const mode = hitTestCropHandle(pt.x, pt.y);
         ocrDragState = {
           mode,
@@ -2646,10 +3599,10 @@
         };
       }
 
-      function handleCropPointerMove(clientX, clientY) {
+      function handleCropPointerMove(e) {
         const canvas = document.getElementById('ocrCropCanvas');
         if (!ocrRotatedCanvas || !canvas) return;
-        const pt = getCropCanvasPointerCoords(clientX, clientY);
+        const pt = getCropCanvasPointerCoords(e.clientX, e.clientY);
 
         if (!ocrDragState) {
           const hoverMode = hitTestCropHandle(pt.x, pt.y);
@@ -2674,7 +3627,7 @@
         const dx = curX - ocrDragState.startX;
         const dy = curY - ocrDragState.startY;
         const o = ocrDragState.origRect;
-        const minSize = 0.04;
+        const minSize = 0.05;
 
         if (ocrDragState.mode === 'new') {
           const nx = Math.min(ocrDragState.startX, curX);
@@ -2707,14 +3660,16 @@
         renderOcrCropCanvas();
       }
 
-      function handleCropPointerUp() {
+      function handleCropPointerUp(e) {
+        const canvas = document.getElementById('ocrCropCanvas');
+        if (canvas && canvas.releasePointerCapture && e && e.pointerId !== undefined) {
+          try {
+            canvas.releasePointerCapture(e.pointerId);
+          } catch (_) {}
+        }
         ocrDragState = null;
       }
 
-      /**
-       * Crops the selected region at full resolution and applies grayscale + contrast stretching
-       * so printed book serif characters on warm paper are crisp for Tesseract.js OCR.
-       */
       function buildPreprocessedCropCanvas() {
         const srcW = ocrRotatedCanvas.width;
         const srcH = ocrRotatedCanvas.height;
@@ -2724,8 +3679,7 @@
         const sw = Math.max(20, Math.round(ocrCropNorm.w * srcW));
         const sh = Math.max(20, Math.round(ocrCropNorm.h * srcH));
 
-        // Upscale small crops slightly (up to 1600px width) to boost small font OCR accuracy
-        const scale = sw < 900 ? Math.min(2.0, 1400 / sw) : 1.0;
+        const scale = sw < 900 ? Math.min(1.8, 1300 / sw) : 1.0;
         const outW = Math.round(sw * scale);
         const outH = Math.round(sh * scale);
 
@@ -2737,7 +3691,6 @@
         ctx.fillRect(0, 0, outW, outH);
         ctx.drawImage(ocrRotatedCanvas, sx, sy, sw, sh, 0, 0, outW, outH);
 
-        // Luminance histogram contrast stretch (removes warm paper tint & sharpens ink)
         const imgData = ctx.getImageData(0, 0, outW, outH);
         const data = imgData.data;
         let minLum = 255;
@@ -2753,7 +3706,6 @@
         for (let i = 0; i < data.length; i += 4) {
           const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
           let norm = ((lum - minLum) / range) * 255;
-          // Gentle S-curve boost for crisp text edges
           norm = norm < 128 ? norm * 0.85 : Math.min(255, 128 + (norm - 128) * 1.18);
           const v = Math.max(0, Math.min(255, Math.round(norm)));
           data[i] = v;
@@ -2765,15 +3717,9 @@
         return outCanvas;
       }
 
-      /**
-       * Merges artificial mid-sentence line breaks caused by narrow book columns
-       * while preserving intentional paragraph breaks.
-       */
       function mergeBookLineBreaks(rawText) {
         if (!rawText) return '';
-        const paragraphs = rawText
-          .replace(/\r\n/g, '\n')
-          .split(/\n{2,}/);
+        const paragraphs = rawText.replace(/\r\n/g, '\n').split(/\n{2,}/);
 
         return paragraphs
           .map((para) => {
@@ -2786,11 +3732,9 @@
             for (let i = 1; i < lines.length; i++) {
               const prev = merged;
               const next = lines[i];
-              // Keep break if previous line clearly ends a sentence
               if (/[.!?。！？…]["”’」』)]?$/.test(prev)) {
                 merged += '\n' + next;
               } else if (prev.endsWith('-')) {
-                // Rejoin hyphenated English word breaks
                 merged = prev.slice(0, -1) + next;
               } else {
                 merged += ' ' + next;
@@ -2864,11 +3808,26 @@
         }
       }
 
+      function applyOcrResultToQuote(appendMode = false) {
+        const text = document.getElementById('ocrResultPreview').value.trim();
+        if (!text) {
+          showToast('적용할 추출 텍스트가 없습니다.', 'danger');
+          return;
+        }
+        const quoteEl = document.getElementById('excerptQuoteInput');
+        if (appendMode && quoteEl.value.trim()) {
+          quoteEl.value = `${quoteEl.value.trim()}\n${text}`;
+          showToast('추출된 문장이 기존 발췌 원문 뒤에 추가되었습니다.', 'sage');
+        } else {
+          quoteEl.value = text;
+          showToast('추출된 문장이 발췌 원문에 입력되었습니다.', 'sage');
+        }
+        closePageOcrModal();
+      }
+
       function openPageOcrModal() {
-        const modal = document.getElementById('pageOcrModal');
         document.getElementById('ocrProgressContainer').classList.add('hidden');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        openModalEl('pageOcrModal');
         if (ocrRotatedCanvas) {
           requestAnimationFrame(renderOcrCropCanvas);
         }
@@ -2876,285 +3835,17 @@
 
       function closePageOcrModal() {
         stopOcrWebcam();
-        const modal = document.getElementById('pageOcrModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        closeModalEl('pageOcrModal');
       }
 
       // =========================================================================
-      // 10. MARKDOWN EXPORT & JSON BACKUP / SETTINGS MODAL LOGIC
-      // =========================================================================
-      function renderSpineSwatches(containerId, hiddenInputId, activeHex) {
-        const container = document.getElementById(containerId);
-        const hiddenInput = document.getElementById(hiddenInputId);
-        hiddenInput.value = activeHex;
-        container.innerHTML = '';
-
-        SPINE_COLORS.forEach((c) => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.title = c.name;
-          btn.className = `w-6 h-6 rounded-full transition transform ${
-            activeHex === c.hex ? 'ring-2 ring-offset-2 ring-amber-700 scale-110' : 'opacity-80 hover:opacity-100'
-          }`;
-          btn.style.backgroundColor = c.hex;
-          btn.addEventListener('click', () => {
-            renderSpineSwatches(containerId, hiddenInputId, c.hex);
-          });
-          container.appendChild(btn);
-        });
-      }
-
-      function setComposerHighlightChoice(choice) {
-        document.getElementById('excerptHighlightInput').value = choice;
-        document.querySelectorAll('.hl-choice-btn').forEach((btn) => {
-          if (btn.dataset.hlChoice === choice) {
-            btn.classList.add('ring-2', 'ring-amber-700', 'font-bold');
-          } else {
-            btn.classList.remove('ring-2', 'ring-amber-700', 'font-bold');
-          }
-        });
-      }
-
-      function renderComposerTags() {
-        const chipsContainer = document.getElementById('composerTagChips');
-        chipsContainer.innerHTML = '';
-        composerTags.forEach((tag) => {
-          const chip = document.createElement('span');
-          chip.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium text-white';
-          chip.style.backgroundColor = 'var(--accent-sage)';
-          chip.innerHTML = `#${escapeHtml(tag)} <button type="button" class="hover:opacity-75 ml-0.5">✕</button>`;
-          chip.querySelector('button').onclick = () => {
-            composerTags = composerTags.filter((t) => t !== tag);
-            renderComposerTags();
-            renderTagSuggestions();
-          };
-          chipsContainer.appendChild(chip);
-        });
-      }
-
-      function renderTagSuggestions() {
-        const sugContainer = document.getElementById('existingTagSuggestions');
-        const allTags = new Set();
-        state.excerpts.forEach((e) => (e.tags || []).forEach((t) => allTags.add(t)));
-        const available = Array.from(allTags).filter((t) => !composerTags.includes(t));
-
-        if (available.length === 0) {
-          sugContainer.innerHTML = '';
-          return;
-        }
-        sugContainer.innerHTML = `<span class="text-[11px] text-muted">기존 태그 제안:</span>`;
-        available.slice(0, 8).forEach((tag) => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'text-[11px] px-2 py-0.5 rounded-full surface-card border border-hairline text-secondary hover:text-ink transition';
-          btn.textContent = `+ #${tag}`;
-          btn.onclick = () => {
-            if (!composerTags.includes(tag)) {
-              composerTags.push(tag);
-              renderComposerTags();
-              renderTagSuggestions();
-            }
-          };
-          sugContainer.appendChild(btn);
-        });
-      }
-
-      function addComposerTagFromRaw(raw) {
-        const cleaned = raw.replace(/^#+/, '').trim().replace(/\s+/g, '');
-        if (cleaned && !composerTags.includes(cleaned)) {
-          composerTags.push(cleaned);
-          renderComposerTags();
-          renderTagSuggestions();
-        }
-      }
-
-      function renderCrossRefEditor() {
-        const editingId = document.getElementById('editExcerptId').value;
-        const query = document.getElementById('crossRefSearchInput').value.trim().toLowerCase();
-        const selectedList = document.getElementById('selectedCrossRefsList');
-        const candidatesList = document.getElementById('crossRefCandidatesList');
-        const countBadge = document.getElementById('selectedLinksCountBadge');
-
-        countBadge.textContent = `${composerLinkedIds.length}개 연결됨`;
-        selectedList.innerHTML = '';
-
-        composerLinkedIds.forEach((lid) => {
-          const target = getExcerptById(lid);
-          if (!target) return;
-          const book = getBookById(target.bookId);
-          const pill = document.createElement('div');
-          pill.className = 'flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg surface-elevated border border-hairline text-xs';
-          pill.innerHTML = `
-            <div class="truncate">
-              <span class="font-semibold text-ink">${escapeHtml(book?.title || '도서')}</span>
-              <span class="text-muted"> · ${escapeHtml(target.quote.slice(0, 42))}…</span>
-            </div>
-            <button type="button" class="text-muted hover:text-rose-600 shrink-0">연결 해제 ✕</button>
-          `;
-          pill.querySelector('button').onclick = () => {
-            composerLinkedIds = composerLinkedIds.filter((id) => id !== lid);
-            renderCrossRefEditor();
-          };
-          selectedList.appendChild(pill);
-        });
-
-        // Filter candidates (exclude self & already linked)
-        const candidates = state.excerpts.filter((exc) => {
-          if (exc.id === editingId || composerLinkedIds.includes(exc.id)) return false;
-          if (!query) return true;
-          const book = getBookById(exc.bookId);
-          const hay = `${exc.quote} ${exc.note} ${book ? book.title : ''} ${book ? book.author : ''}`.toLowerCase();
-          return hay.includes(query);
-        });
-
-        candidatesList.innerHTML = '';
-        if (candidates.length === 0) {
-          candidatesList.innerHTML = `<div class="text-xs text-muted py-2 text-center">연결 가능한 다른 발췌 문장이 없습니다.</div>`;
-          return;
-        }
-
-        candidates.forEach((cand) => {
-          const book = getBookById(cand.bookId);
-          const row = document.createElement('button');
-          row.type = 'button';
-          row.className = 'w-full text-left px-2.5 py-1.5 rounded-lg hover:opacity-85 surface-card border border-hairline text-xs flex items-center justify-between gap-2 transition';
-          row.innerHTML = `
-            <div class="min-w-0 flex-1">
-              <div class="font-semibold text-ink truncate">${escapeHtml(book?.title || '도서')} ${cand.page ? `<span class="font-mono text-[10px] text-muted">${escapeHtml(normalizePageDisplay(cand.page))}</span>` : ''}</div>
-              <div class="text-muted truncate">${escapeHtml(cand.quote)}</div>
-            </div>
-            <span class="text-[11px] font-semibold shrink-0" style="color: var(--accent-sage);">+ 연결</span>
-          `;
-          row.onclick = () => {
-            composerLinkedIds.push(cand.id);
-            renderCrossRefEditor();
-          };
-          candidatesList.appendChild(row);
-        });
-      }
-
-      function populateBookSelectDropdown(selectedId = null) {
-        const select = document.getElementById('excerptBookSelect');
-        select.innerHTML = '';
-        if (state.books.length === 0) {
-          const opt = document.createElement('option');
-          opt.value = '';
-          opt.textContent = '먼저 위에서 새 책을 등록해 주세요';
-          select.appendChild(opt);
-          return;
-        }
-        state.books.forEach((b) => {
-          const opt = document.createElement('option');
-          opt.value = b.id;
-          opt.textContent = `${b.title} — ${b.author}`;
-          if (selectedId && b.id === selectedId) opt.selected = true;
-          select.appendChild(opt);
-        });
-      }
-
-      function openExcerptModal(excerptToEdit = null, focusCrossRef = false) {
-        const modal = document.getElementById('excerptModal');
-        document.getElementById('inlineNewBookBox').classList.add('hidden');
-        renderSpineSwatches('inlineSpineSwatches', 'inlineBookSpineColor', '#9A3412');
-
-        if (excerptToEdit) {
-          document.getElementById('excerptModalTitle').textContent = '발췌 문장 & 여백 메모 수정';
-          document.getElementById('editExcerptId').value = excerptToEdit.id;
-          populateBookSelectDropdown(excerptToEdit.bookId);
-          document.getElementById('excerptPageInput').value = excerptToEdit.page || '';
-          document.getElementById('excerptChapterInput').value = excerptToEdit.chapter || '';
-          document.getElementById('excerptQuoteInput').value = excerptToEdit.quote || '';
-          document.getElementById('excerptNoteInput').value = excerptToEdit.note || '';
-          setComposerHighlightChoice(excerptToEdit.highlightColor || 'none');
-          composerTags = [...(excerptToEdit.tags || [])];
-          composerLinkedIds = [...(excerptToEdit.linkedIds || [])];
-        } else {
-          document.getElementById('excerptModalTitle').textContent = '새 발췌 문장 & 여백 메모 기록';
-          document.getElementById('editExcerptId').value = '';
-          const defaultBookId =
-            state.activeView === 'book' && state.selectedBookId
-              ? state.selectedBookId
-              : state.books[0]
-              ? state.books[0].id
-              : null;
-          populateBookSelectDropdown(defaultBookId);
-          document.getElementById('excerptPageInput').value = '';
-          document.getElementById('excerptChapterInput').value = '';
-          document.getElementById('excerptQuoteInput').value = '';
-          document.getElementById('excerptNoteInput').value = '';
-          setComposerHighlightChoice('amber');
-          composerTags = state.selectedTag ? [state.selectedTag] : [];
-          composerLinkedIds = [];
-          if (state.books.length === 0) {
-            document.getElementById('inlineNewBookBox').classList.remove('hidden');
-          }
-        }
-
-        document.getElementById('excerptTagTextInput').value = '';
-        document.getElementById('crossRefSearchInput').value = '';
-        renderComposerTags();
-        renderTagSuggestions();
-        renderCrossRefEditor();
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-
-        if (focusCrossRef) {
-          setTimeout(() => {
-            const sec = document.getElementById('crossRefEditorSection');
-            sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            document.getElementById('crossRefSearchInput').focus();
-          }, 80);
-        } else {
-          setTimeout(() => document.getElementById('excerptQuoteInput').focus(), 60);
-        }
-      }
-
-      function closeExcerptModal() {
-        const modal = document.getElementById('excerptModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-
-      // =========================================================================
-      // 9. BOOK MODAL LOGIC
-      // =========================================================================
-      function openBookModal(bookToEdit = null) {
-        const modal = document.getElementById('bookModal');
-        if (bookToEdit) {
-          document.getElementById('bookModalTitle').textContent = '책 정보 수정';
-          document.getElementById('editBookId').value = bookToEdit.id;
-          document.getElementById('bookTitleInput').value = bookToEdit.title;
-          document.getElementById('bookAuthorInput').value = bookToEdit.author;
-          document.getElementById('bookPublisherInput').value = bookToEdit.publisher || '';
-          document.getElementById('bookCategoryInput').value = bookToEdit.category || '';
-          renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', bookToEdit.spineColor || '#9A3412');
-        } else {
-          document.getElementById('bookModalTitle').textContent = '새 책 등록';
-          document.getElementById('editBookId').value = '';
-          document.getElementById('bookTitleInput').value = '';
-          document.getElementById('bookAuthorInput').value = '';
-          document.getElementById('bookPublisherInput').value = '';
-          document.getElementById('bookCategoryInput').value = '';
-          renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', '#9A3412');
-        }
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        setTimeout(() => document.getElementById('bookTitleInput').focus(), 60);
-      }
-
-      function closeBookModal() {
-        const modal = document.getElementById('bookModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-
-      // =========================================================================
-      // 10. MARKDOWN EXPORT & JSON BACKUP MODAL LOGIC
+      // 12. MARKDOWN EXPORT & JSON BACKUP / RESTORE LOGIC
       // =========================================================================
       function buildMarkdownDocument(scope = 'filtered') {
-        const targetExcerpts = scope === 'all' ? [...state.excerpts].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)) : getFilteredAndSortedExcerpts();
+        const targetExcerpts =
+          scope === 'all'
+            ? [...state.excerpts].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+            : getFilteredAndSortedExcerpts();
         const lines = [];
         lines.push(`# 여백의 서재 (Marginalia Archive)`);
         lines.push(`> 내보내기 일시: ${new Date().toLocaleString('ko-KR')} · 총 ${targetExcerpts.length}개의 발췌 기록`);
@@ -3165,7 +3856,6 @@
           return lines.join('\n');
         }
 
-        // Group excerpts by book
         const groupedByBook = new Map();
         targetExcerpts.forEach((exc) => {
           const bId = exc.bookId || 'unknown';
@@ -3210,9 +3900,9 @@
       function switchExportBackupTab(tabName) {
         document.querySelectorAll('.eb-tab-btn').forEach((btn) => {
           if (btn.dataset.modalTab === tabName) {
-            btn.className = 'eb-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold btn-primary transition';
+            btn.className = 'eb-tab-btn min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold btn-primary transition';
           } else {
-            btn.className = 'eb-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold surface-subtle text-secondary hover:text-ink transition';
+            btn.className = 'eb-tab-btn min-h-[38px] px-3 py-1.5 rounded-lg text-xs font-semibold surface-subtle text-secondary hover:text-ink transition';
           }
         });
 
@@ -3227,19 +3917,15 @@
       }
 
       function openExportBackupModal(initialTab = 'markdown', defaultScope = 'filtered') {
-        const modal = document.getElementById('exportBackupModal');
         document.getElementById('mdScopeSelect').value = defaultScope;
         document.getElementById('clearConfirmHint').classList.add('hidden');
         clearArmed = false;
         switchExportBackupTab(initialTab);
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        openModalEl('exportBackupModal');
       }
 
       function closeExportBackupModal() {
-        const modal = document.getElementById('exportBackupModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        closeModalEl('exportBackupModal');
       }
 
       function triggerBlobDownload(filename, content, mimeType) {
@@ -3254,48 +3940,43 @@
         URL.revokeObjectURL(url);
       }
 
-      // =========================================================================
-      // 11. MOBILE SIDEBAR DRAWER HELPERS
-      // =========================================================================
-      function openMobileSidebar() {
-        document.getElementById('sidebarDrawer').classList.remove('-translate-x-full');
-        document.getElementById('mobileSidebarBackdrop').classList.remove('hidden');
+      async function resetToSampleArchive() {
+        const sample = getSampleDataset();
+        state.books = sample.books;
+        state.excerpts = sample.excerpts;
+        state.activeView = 'all';
+        state.selectedBookId = null;
+        state.selectedTag = null;
+        pickRandomRemindIds();
+        await persistAllToStorage();
+        closeExportBackupModal();
+        renderAll();
+        showToast('큐레이션 샘플 서재가 초기화되었습니다.', 'sage');
       }
 
-      function closeMobileSidebar() {
-        document.getElementById('sidebarDrawer').classList.add('-translate-x-full');
-        document.getElementById('mobileSidebarBackdrop').classList.add('hidden');
+      async function clearEntireArchive() {
+        if (!clearArmed) {
+          clearArmed = true;
+          document.getElementById('clearConfirmHint').classList.remove('hidden');
+          return;
+        }
+        clearArmed = false;
+        state.books = [];
+        state.excerpts = [];
+        state.remindExcerptIds = [];
+        state.activeView = 'all';
+        state.selectedBookId = null;
+        state.selectedTag = null;
+        await persistAllToStorage();
+        closeExportBackupModal();
+        renderAll();
+        showToast('서재의 모든 데이터가 비워졌습니다.', 'danger');
       }
 
       // =========================================================================
-      // 12. EVENT LISTENERS BINDING
+      // 13. FORM & INPUT EVENT LISTENERS
       // =========================================================================
-      let clearArmed = false;
-
-      function bindEventListeners() {
-        // Mobile Drawer
-        document.getElementById('openMobileSidebarBtn').onclick = openMobileSidebar;
-        document.getElementById('closeMobileSidebarBtn').onclick = closeMobileSidebar;
-        document.getElementById('mobileSidebarBackdrop').onclick = closeMobileSidebar;
-
-        // Brand Reset
-        document.getElementById('brandHomeBtn').onclick = (e) => {
-          e.preventDefault();
-          state.activeView = 'all';
-          state.selectedBookId = null;
-          state.selectedTag = null;
-          state.searchQuery = '';
-          document.getElementById('globalSearchInput').value = '';
-          document.getElementById('clearSearchBtn').classList.add('hidden');
-          renderAll();
-        };
-
-        // Theme Toggle
-        document.getElementById('themeToggleBtn').onclick = () => {
-          applyTheme(!state.darkMode);
-        };
-
-        // Global Search
+      function bindFormAndInputListeners() {
         const searchInput = document.getElementById('globalSearchInput');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
         searchInput.addEventListener('input', (e) => {
@@ -3304,78 +3985,13 @@
           renderFeedHeader();
           renderExcerptsFeed();
         });
-        clearSearchBtn.onclick = () => {
-          state.searchQuery = '';
-          searchInput.value = '';
-          clearSearchBtn.classList.add('hidden');
-          renderFeedHeader();
-          renderExcerptsFeed();
-          searchInput.focus();
-        };
 
-        // Sidebar Navigation
-        document.getElementById('navAllBtn').onclick = () => {
-          state.activeView = 'all';
-          state.selectedBookId = null;
-          state.selectedTag = null;
-          closeMobileSidebar();
-          renderAll();
-        };
-        document.getElementById('navLinkedBtn').onclick = () => {
-          state.activeView = 'linked';
-          state.selectedBookId = null;
-          closeMobileSidebar();
-          renderAll();
-        };
-        document.getElementById('clearTagFilterBtn').onclick = () => {
-          state.selectedTag = null;
-          renderAll();
-        };
-
-        // Sort Selector
         document.getElementById('sortSelect').addEventListener('change', (e) => {
           state.sortBy = e.target.value;
           renderExcerptsFeed();
         });
 
-        // Remind Section Controls
-        document.getElementById('shuffleRemindBtn').onclick = () => {
-          pickRandomRemindIds();
-          renderRemindSection();
-        };
-        document.getElementById('toggleRemindCollapseBtn').onclick = () => {
-          state.remindCollapsed = !state.remindCollapsed;
-          renderRemindSection();
-        };
-
-        // Book Context Banner Actions
-        document.getElementById('exportBookMdBtn').onclick = () => {
-          openExportBackupModal('markdown', 'filtered');
-        };
-        document.getElementById('editCurrentBookBtn').onclick = () => {
-          if (state.selectedBookId) {
-            const book = getBookById(state.selectedBookId);
-            if (book) openBookModal(book);
-          }
-        };
-
-        // Primary Header Modal Triggers
-        document.getElementById('openNewExcerptBtn').onclick = () => openExcerptModal(null);
-        document.getElementById('openNewBookModalBtn').onclick = () => {
-          closeMobileSidebar();
-          openBookModal(null);
-        };
-        document.getElementById('openMarkdownModalBtn').onclick = () => openExportBackupModal('markdown', 'filtered');
-        document.getElementById('openBackupModalBtn').onclick = () => openExportBackupModal('json', 'all');
-
-        // Barcode Scanner & ISBN Lookup Triggers inside Book Modal
-        document.getElementById('openBarcodeBookModalFromExcerptBtn').onclick = () => {
-          closeExcerptModal();
-          openBookModal(null);
-          startBarcodeCamera();
-        };
-        document.getElementById('toggleLiveBarcodeCamBtn').onclick = startBarcodeCamera;
-        document.getElementById('stopLiveBarcodeCamBtn').onclick = stopBarcodeCamera;
+        // Barcode Photo File Input
         document.getElementById('barcodePhotoInput').addEventListener('change', (e) => {
           const file = e.target.files && e.target.files[0];
           if (file) {
@@ -3383,21 +3999,15 @@
             e.target.value = '';
           }
         });
-        document.getElementById('lookupIsbnBtn').onclick = () => {
-          lookupBookMetadataByIsbn(document.getElementById('isbnManualInput').value);
-        };
+
         document.getElementById('isbnManualInput').addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
             lookupBookMetadataByIsbn(e.target.value);
           }
         });
-        document.getElementById('clearBookCoverBtn').onclick = () => updateBookCoverPreview('');
 
-        // Page Camera Capture, Crop & OCR Modal Triggers
-        document.getElementById('openPageOcrModalBtn').onclick = openPageOcrModal;
-        document.getElementById('closePageOcrModalBtn').onclick = closePageOcrModal;
-
+        // OCR Camera & Album File Inputs
         document.getElementById('ocrCameraFileInput').addEventListener('change', (e) => {
           const file = e.target.files && e.target.files[0];
           if (file) {
@@ -3407,6 +4017,7 @@
             e.target.value = '';
           }
         });
+
         document.getElementById('ocrAlbumFileInput').addEventListener('change', (e) => {
           const file = e.target.files && e.target.files[0];
           if (file) {
@@ -3416,129 +4027,21 @@
             e.target.value = '';
           }
         });
-        document.getElementById('startOcrWebcamBtn').onclick = startOcrWebcam;
-        document.getElementById('snapOcrWebcamBtn').onclick = snapOcrWebcamFrame;
-        document.getElementById('stopOcrWebcamBtn').onclick = stopOcrWebcam;
 
-        document.getElementById('rotateOcrImgBtn').onclick = () => {
-          if (!ocrRawImage) return;
-          ocrRotationDeg = (ocrRotationDeg + 90) % 360;
-          rebuildOcrRotatedCanvas();
-          renderOcrCropCanvas();
-        };
-        document.getElementById('selectAllOcrCropBtn').onclick = () => {
-          if (!ocrRotatedCanvas) return;
-          ocrCropNorm = { x: 0.02, y: 0.02, w: 0.96, h: 0.96 };
-          renderOcrCropCanvas();
-        };
-        document.getElementById('runOcrExtractBtn').onclick = runSelectedRegionOcr;
         document.getElementById('mergeLineBreaksCheckbox').addEventListener('change', refreshOcrPreviewText);
 
-        document.getElementById('applyOcrTextBtn').onclick = () => {
-          const text = document.getElementById('ocrResultPreview').value.trim();
-          if (!text) {
-            showToast('적용할 추출 텍스트가 없습니다.', 'danger');
-            return;
-          }
-          document.getElementById('excerptQuoteInput').value = text;
-          closePageOcrModal();
-          showToast('추출된 문장이 발췌 원문에 입력되었습니다.', 'sage');
-        };
-        document.getElementById('appendOcrTextBtn').onclick = () => {
-          const text = document.getElementById('ocrResultPreview').value.trim();
-          if (!text) {
-            showToast('이어 붙일 추출 텍스트가 없습니다.', 'danger');
-            return;
-          }
-          const quoteEl = document.getElementById('excerptQuoteInput');
-          quoteEl.value = quoteEl.value.trim() ? `${quoteEl.value.trim()}\n${text}` : text;
-          closePageOcrModal();
-          showToast('추출된 문장이 기존 발췌 원문 뒤에 추가되었습니다.', 'sage');
-        };
-
-        // Interactive Crop Canvas Mouse & Touch Events
+        // Pointer Events on Crop Canvas (Touch + Mouse unified)
         const cropCanvas = document.getElementById('ocrCropCanvas');
-        cropCanvas.addEventListener('mousedown', (e) => {
-          handleCropPointerDown(e.clientX, e.clientY);
-        });
-        window.addEventListener('mousemove', (e) => {
-          if (!document.getElementById('pageOcrModal').classList.contains('hidden')) {
-            handleCropPointerMove(e.clientX, e.clientY);
-          }
-        });
-        window.addEventListener('mouseup', handleCropPointerUp);
-
-        cropCanvas.addEventListener(
-          'touchstart',
-          (e) => {
-            if (e.touches && e.touches[0]) {
-              e.preventDefault();
-              handleCropPointerDown(e.touches[0].clientX, e.touches[0].clientY);
-            }
-          },
-          { passive: false }
-        );
-        cropCanvas.addEventListener(
-          'touchmove',
-          (e) => {
-            if (e.touches && e.touches[0]) {
-              e.preventDefault();
-              handleCropPointerMove(e.touches[0].clientX, e.touches[0].clientY);
-            }
-          },
-          { passive: false }
-        );
-        cropCanvas.addEventListener('touchend', handleCropPointerUp);
+        cropCanvas.addEventListener('pointerdown', handleCropPointerDown);
+        cropCanvas.addEventListener('pointermove', handleCropPointerMove);
+        cropCanvas.addEventListener('pointerup', handleCropPointerUp);
+        cropCanvas.addEventListener('pointercancel', handleCropPointerUp);
 
         window.addEventListener('resize', () => {
-          if (!document.getElementById('pageOcrModal').classList.contains('hidden') && ocrRotatedCanvas) {
+          if (!document.getElementById('pageOcrModal').hasAttribute('hidden') && ocrRotatedCanvas) {
             renderOcrCropCanvas();
           }
         });
-
-        // Excerpt Modal Controls
-        document.getElementById('closeExcerptModalBtn').onclick = closeExcerptModal;
-        document.getElementById('cancelExcerptModalBtn').onclick = closeExcerptModal;
-
-        document.querySelectorAll('.hl-choice-btn').forEach((btn) => {
-          btn.onclick = () => setComposerHighlightChoice(btn.dataset.hlChoice);
-        });
-
-        // Inline Book Creation inside Excerpt Modal
-        document.getElementById('toggleInlineBookFormBtn').onclick = () => {
-          document.getElementById('inlineNewBookBox').classList.toggle('hidden');
-        };
-        document.getElementById('cancelInlineBookBtn').onclick = () => {
-          document.getElementById('inlineNewBookBox').classList.add('hidden');
-        };
-        document.getElementById('saveInlineBookBtn').onclick = async () => {
-          const title = document.getElementById('inlineBookTitle').value.trim();
-          const author = document.getElementById('inlineBookAuthor').value.trim();
-          if (!title || !author) {
-            showToast('새 책의 제목과 저자를 모두 입력해 주세요.', 'danger');
-            return;
-          }
-          const newBook = {
-            id: `book-${Date.now()}`,
-            title,
-            author,
-            publisher: document.getElementById('inlineBookPublisher').value.trim(),
-            category: document.getElementById('inlineBookCategory').value.trim(),
-            spineColor: document.getElementById('inlineBookSpineColor').value || '#9A3412',
-            createdAt: Date.now(),
-          };
-          state.books.unshift(newBook);
-          await persistAllToStorage();
-          populateBookSelectDropdown(newBook.id);
-          renderSidebar();
-
-          document.getElementById('inlineBookTitle').value = '';
-          document.getElementById('inlineBookAuthor').value = '';
-          document.getElementById('inlineBookPublisher').value = '';
-          document.getElementById('inlineBookCategory').value = '';
-          document.getElementById('inlineNewBookBox').classList.add('hidden');
-          showToast(`『${newBook.title}』이(가) 책장에 등록되었습니다.`, 'sage');
-        };
 
         // Tag Input in Composer
         const tagInput = document.getElementById('excerptTagTextInput');
@@ -3560,10 +4063,9 @@
           }
         });
 
-        // Cross-Reference Search in Composer
         document.getElementById('crossRefSearchInput').addEventListener('input', renderCrossRefEditor);
 
-        // Excerpt Form Submit (Create or Update)
+        // Excerpt Form Submit
         document.getElementById('excerptForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           const bookId = document.getElementById('excerptBookSelect').value;
@@ -3626,10 +4128,7 @@
           renderAll();
         });
 
-        // Book Modal Controls
-        document.getElementById('closeBookModalBtn').onclick = closeBookModal;
-        document.getElementById('cancelBookModalBtn').onclick = closeBookModal;
-
+        // Book Form Submit
         document.getElementById('bookForm').addEventListener('submit', async (e) => {
           e.preventDefault();
           const title = document.getElementById('bookTitleInput').value.trim();
@@ -3678,37 +4177,10 @@
           renderAll();
         });
 
-        // Export & Backup Modal Controls
-        document.getElementById('closeExportBackupModalBtn').onclick = closeExportBackupModal;
-        document.querySelectorAll('.eb-tab-btn').forEach((btn) => {
-          btn.onclick = () => switchExportBackupTab(btn.dataset.modalTab);
-        });
+        // Markdown Scope & JSON Import File Input
         document.getElementById('mdScopeSelect').addEventListener('change', (e) => {
           document.getElementById('markdownPreviewTextarea').value = buildMarkdownDocument(e.target.value);
         });
-        document.getElementById('copyMarkdownBtn').onclick = () => {
-          const md = document.getElementById('markdownPreviewTextarea').value;
-          copyToClipboardSafe(md, 'Markdown 문서가 클립보드에 복사되었습니다.');
-        };
-        document.getElementById('downloadMarkdownBtn').onclick = () => {
-          const md = document.getElementById('markdownPreviewTextarea').value;
-          const dateStr = new Date().toISOString().slice(0, 10);
-          triggerBlobDownload(`Marginalia_Archive_${dateStr}.md`, md, 'text/markdown;charset=utf-8');
-          showToast('Markdown(.md) 파일이 다운로드되었습니다.', 'sage');
-        };
-
-        document.getElementById('downloadJsonBackupBtn').onclick = () => {
-          const payload = {
-            app: '여백의 서재 (Marginalia Archive)',
-            version: 1,
-            exportedAt: new Date().toISOString(),
-            books: state.books,
-            excerpts: state.excerpts,
-          };
-          const dateStr = new Date().toISOString().slice(0, 10);
-          triggerBlobDownload(`Marginalia_Archive_${dateStr}.json`, JSON.stringify(payload, null, 2), 'application/json');
-          showToast('전체 서재 JSON 백업 파일이 저장되었습니다.', 'sage');
-        };
 
         document.getElementById('jsonImportFileInput').addEventListener('change', (e) => {
           const file = e.target.files && e.target.files[0];
@@ -3748,46 +4220,13 @@
           reader.readAsText(file);
         });
 
-        document.getElementById('resetSampleDataBtn').onclick = async () => {
-          const sample = getSampleDataset();
-          state.books = sample.books;
-          state.excerpts = sample.excerpts;
-          state.activeView = 'all';
-          state.selectedBookId = null;
-          state.selectedTag = null;
-          pickRandomRemindIds();
-          await persistAllToStorage();
-          closeExportBackupModal();
-          renderAll();
-          showToast('큐레이션 샘플 데이터가 초기화되었습니다.', 'sage');
-        };
-
-        document.getElementById('clearAllArchiveBtn').onclick = async () => {
-          if (!clearArmed) {
-            clearArmed = true;
-            document.getElementById('clearConfirmHint').classList.remove('hidden');
-            return;
-          }
-          clearArmed = false;
-          state.books = [];
-          state.excerpts = [];
-          state.remindExcerptIds = [];
-          state.activeView = 'all';
-          state.selectedBookId = null;
-          state.selectedTag = null;
-          await persistAllToStorage();
-          closeExportBackupModal();
-          renderAll();
-          showToast('서재의 모든 데이터가 비워졌습니다.', 'danger');
-        };
-
-        // Global Keyboard Shortcuts (N: New Excerpt, /: Focus Search, Esc: Close Modals)
+        // Global Keyboard Shortcuts
         window.addEventListener('keydown', (e) => {
           const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
           const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select';
 
           if (e.key === 'Escape') {
-            if (!document.getElementById('pageOcrModal').classList.contains('hidden')) {
+            if (!document.getElementById('pageOcrModal').hasAttribute('hidden')) {
               closePageOcrModal();
               return;
             }
@@ -3795,8 +4234,7 @@
             closeBookModal();
             closeExportBackupModal();
             closeMobileSidebar();
-            document.getElementById('confirmDialogModal').classList.add('hidden');
-            document.getElementById('confirmDialogModal').classList.remove('flex');
+            closeModalEl('confirmDialogModal');
             if (isTyping) document.activeElement.blur();
             return;
           }
@@ -3808,34 +4246,33 @@
             searchInput.focus();
           } else if (e.key === 'n' || e.key === 'N') {
             e.preventDefault();
-            openExcerptModal(null);
+            openExcerptModal(null, false);
           }
         });
       }
 
       // =========================================================================
-      // 13. INITIALIZATION
+      // 14. INITIALIZATION BOOTSTRAP
       // =========================================================================
       async function init() {
-        // Restore theme preference
         try {
           const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-          if (savedTheme === 'dark') {
-            applyTheme(true);
-          } else {
-            applyTheme(false);
-          }
+          applyTheme(savedTheme === 'dark');
         } catch (_) {
           applyTheme(false);
         }
 
+        bindFormAndInputListeners();
         await loadArchiveFromStorage();
         pickRandomRemindIds();
-        bindEventListeners();
         renderAll();
       }
 
-      window.addEventListener('DOMContentLoaded', init);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     })();
   </script>
 </body>

@@ -1,0 +1,3842 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>여백의 서재 (Marginalia Archive) — 발췌 문장과 여백의 사유 아카이브</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Noto Serif KR"', 'Georgia', 'serif'],
+            sans: ['Pretendard', '"Noto Sans KR"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg-paper: #FAF8F4;
+      --bg-card: #FFFFFF;
+      --bg-card-subtle: #FDFBF7;
+      --bg-elevated: #F3EFE6;
+      --text-ink: #1F1E1B;
+      --text-secondary: #5C564C;
+      --text-muted: #8A8275;
+      --accent-primary: #9A3412;
+      --accent-primary-hover: #B45309;
+      --accent-primary-soft: rgba(154, 52, 18, 0.09);
+      --accent-sage: #2E5A44;
+      --accent-sage-soft: rgba(46, 90, 68, 0.10);
+      --border-hairline: #E6E0D4;
+      --border-strong: #D4CBB9;
+
+      /* Highlight Tints (Light Paper Mode) */
+      --hl-none-bg: rgba(243, 239, 230, 0.45);
+      --hl-none-border: #C7BFA9;
+      --hl-yellow-bg: #FEF9C3;
+      --hl-yellow-border: #D97706;
+      --hl-amber-bg: #FFEDD5;
+      --hl-amber-border: #C2410C;
+      --hl-sage-bg: #E4F2EA;
+      --hl-sage-border: #2E5A44;
+      --hl-rose-bg: #FFE4E6;
+      --hl-rose-border: #BE123C;
+    }
+
+    html.dark {
+      --bg-paper: #161615;
+      --bg-card: #201F1D;
+      --bg-card-subtle: #1B1A18;
+      --bg-elevated: #2A2825;
+      --text-ink: #EAE6DF;
+      --text-secondary: #B5AEA2;
+      --text-muted: #867F74;
+      --accent-primary: #E07A4F;
+      --accent-primary-hover: #F59E0B;
+      --accent-primary-soft: rgba(224, 122, 79, 0.14);
+      --accent-sage: #58A37D;
+      --accent-sage-soft: rgba(88, 163, 125, 0.15);
+      --border-hairline: #302E2A;
+      --border-strong: #44403A;
+
+      /* Highlight Tints (Dark Ink Mode) */
+      --hl-none-bg: rgba(42, 40, 37, 0.55);
+      --hl-none-border: #57524A;
+      --hl-yellow-bg: rgba(234, 179, 8, 0.14);
+      --hl-yellow-border: #EAB308;
+      --hl-amber-bg: rgba(224, 122, 79, 0.16);
+      --hl-amber-border: #E07A4F;
+      --hl-sage-bg: rgba(88, 163, 125, 0.17);
+      --hl-sage-border: #58A37D;
+      --hl-rose-bg: rgba(244, 63, 94, 0.15);
+      --hl-rose-border: #FB7185;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-paper);
+      color: var(--text-ink);
+      font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      transition: background-color 0.22s ease, color 0.22s ease;
+      overflow-x: hidden;
+    }
+
+    .font-literary {
+      font-family: 'Noto Serif KR', Georgia, serif;
+    }
+
+    .surface-paper {
+      background-color: var(--bg-paper);
+    }
+    .surface-card {
+      background-color: var(--bg-card);
+      border-color: var(--border-hairline);
+    }
+    .surface-subtle {
+      background-color: var(--bg-card-subtle);
+      border-color: var(--border-hairline);
+    }
+    .surface-elevated {
+      background-color: var(--bg-elevated);
+      border-color: var(--border-hairline);
+    }
+    .text-ink {
+      color: var(--text-ink);
+    }
+    .text-secondary {
+      color: var(--text-secondary);
+    }
+    .text-muted {
+      color: var(--text-muted);
+    }
+    .border-hairline {
+      border-color: var(--border-hairline);
+    }
+    .border-strong {
+      border-color: var(--border-strong);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-primary);
+      color: #FFFFFF;
+      transition: background-color 0.16s ease, transform 0.12s ease;
+    }
+    .btn-primary:hover {
+      background-color: var(--accent-primary-hover);
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    /* Excerpt Quote Highlight Variants */
+    .quote-tint-none {
+      background-color: var(--hl-none-bg);
+      border-left: 3px solid var(--hl-none-border);
+    }
+    .quote-tint-yellow {
+      background-color: var(--hl-yellow-bg);
+      border-left: 3px solid var(--hl-yellow-border);
+    }
+    .quote-tint-amber {
+      background-color: var(--hl-amber-bg);
+      border-left: 3px solid var(--hl-amber-border);
+    }
+    .quote-tint-sage {
+      background-color: var(--hl-sage-bg);
+      border-left: 3px solid var(--hl-sage-border);
+    }
+    .quote-tint-rose {
+      background-color: var(--hl-rose-bg);
+      border-left: 3px solid var(--hl-rose-border);
+    }
+
+    /* Search Highlight Mark */
+    mark.search-hl {
+      background-color: rgba(245, 158, 11, 0.32);
+      color: inherit;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    /* Spotlight Pulse when jumping via Remind Card or Cross-Reference */
+    @keyframes spotlightPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(154, 52, 18, 0.45);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(154, 52, 18, 0.15);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(154, 52, 18, 0);
+      }
+    }
+    .card-spotlight {
+      animation: spotlightPulse 1.6s ease-out 2;
+      border-color: var(--accent-primary) !important;
+    }
+
+    /* Barcode Laser Guide Animation */
+    @keyframes scanLaser {
+      0%, 100% {
+        top: 22%;
+        opacity: 0.75;
+      }
+      50% {
+        top: 76%;
+        opacity: 1;
+      }
+    }
+    .barcode-laser-line {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ef4444, #f59e0b, #ef4444, transparent);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.85);
+      animation: scanLaser 2.2s ease-in-out infinite;
+    }
+
+    /* Refined Thin Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-700/20">
+
+  <!-- Toast Notification Stack -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div id="mobileSidebarBackdrop" class="fixed inset-0 z-30 bg-black/45 backdrop-blur-[1px] hidden lg:hidden"></div>
+
+  <!-- 1. TOP STICKY EDITORIAL HEADER -->
+  <header class="sticky top-0 z-30 border-b border-hairline backdrop-blur-md" style="background-color: color-mix(in srgb, var(--bg-paper) 92%, transparent);">
+    <div class="max-w-[1480px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Left: Mobile Menu + Brand Title -->
+      <div class="flex items-center gap-3">
+        <button
+          id="openMobileSidebarBtn"
+          type="button"
+          aria-label="책장 및 태그 메뉴 열기"
+          class="lg:hidden p-2 rounded-lg border border-hairline surface-card text-ink hover:opacity-80 transition"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10" />
+          </svg>
+        </button>
+
+        <a href="#top" id="brandHomeBtn" class="flex items-center gap-2.5 group focus:outline-none">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center border border-hairline surface-card shadow-xs">
+            <svg class="w-5 h-5" style="color: var(--accent-primary);" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-literary font-bold text-base sm:text-lg tracking-tight text-ink">여백의 서재</h1>
+              <span class="hidden sm:inline-block text-[10px] font-medium tracking-widest uppercase px-1.5 py-0.5 rounded border border-hairline text-muted">Marginalia</span>
+            </div>
+            <p class="text-[11px] text-muted hidden sm:block">발췌 문장과 여백의 사유 아카이브</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center: Global Instant Search Bar -->
+      <div class="order-3 md:order-2 w-full md:w-auto md:flex-1 md:max-w-md lg:max-w-lg">
+        <div class="relative flex items-center">
+          <svg class="w-4 h-4 text-muted absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+          </svg>
+          <input
+            id="globalSearchInput"
+            type="text"
+            placeholder="발췌 문장, 여백 메모, 책 제목, 저자, #태그 검색..."
+            aria-label="전체 서재 검색"
+            class="w-full surface-card border border-hairline rounded-xl pl-10 pr-16 py-2 text-xs sm:text-sm text-ink placeholder:text-muted focus:outline-none focus:border-amber-700/60 transition"
+          />
+          <div class="absolute right-2.5 flex items-center gap-1">
+            <button
+              id="clearSearchBtn"
+              type="button"
+              aria-label="검색어 지우기"
+              class="hidden text-xs text-muted hover:text-ink px-1.5 py-0.5 rounded"
+            >✕</button>
+            <kbd class="hidden sm:inline-block text-[10px] font-mono text-muted px-1.5 py-0.5 rounded border border-hairline surface-subtle">/</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Theme Toggle, Export/Backup & Primary Compose CTA -->
+      <div class="order-2 md:order-3 flex items-center gap-1.5 sm:gap-2">
+        <button
+          id="themeToggleBtn"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink transition"
+          title="라이트 페이퍼 / 다크 잉크 읽기 테마 전환"
+        >
+          <span id="themeIcon" class="text-sm leading-none">🌙</span>
+          <span id="themeLabel" class="hidden sm:inline">다크 잉크</span>
+        </button>
+
+        <button
+          id="openMarkdownModalBtn"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink transition"
+          title="Markdown 리포트 내보내기"
+        >
+          <svg class="w-3.5 h-3.5" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span class="hidden md:inline">Markdown 내보내기</span>
+        </button>
+
+        <button
+          id="openBackupModalBtn"
+          type="button"
+          class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink transition"
+          title="JSON 백업/복원 및 데이터 관리"
+        >
+          <svg class="w-3.5 h-3.5 text-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+          </svg>
+          <span class="hidden xl:inline">JSON 백업/복원</span>
+        </button>
+
+        <button
+          id="openNewExcerptBtn"
+          type="button"
+          class="btn-primary inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold shadow-xs"
+          title="새 발췌 문장과 여백 메모 기록 [단축키 N]"
+        >
+          <span>+ 새 발췌 기록</span>
+          <kbd class="hidden sm:inline-block text-[10px] font-mono bg-white/20 px-1.5 py-0.5 rounded">N</kbd>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. MAIN WORKSPACE LAYOUT -->
+  <div id="top" class="flex-1 max-w-[1480px] w-full mx-auto px-4 sm:px-6 py-6 flex gap-7">
+
+    <!-- LEFT SIDEBAR (Bookshelf & Tag Explorer) -->
+    <aside
+      id="sidebarDrawer"
+      class="fixed inset-y-0 left-0 z-40 w-[285px] lg:w-[270px] lg:static lg:z-auto shrink-0 surface-paper lg:bg-transparent border-r lg:border-r-0 border-hairline p-5 lg:p-0 overflow-y-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out flex flex-col gap-6"
+    >
+      <!-- Mobile Drawer Close Header -->
+      <div class="flex items-center justify-between lg:hidden pb-3 border-b border-hairline">
+        <span class="font-literary font-bold text-base text-ink">서재 탐색</span>
+        <button id="closeMobileSidebarBtn" type="button" class="p-1.5 rounded-lg border border-hairline surface-card text-muted hover:text-ink">✕</button>
+      </div>
+
+      <!-- Views Navigation -->
+      <nav aria-label="아카이브 보기 전환" class="flex flex-col gap-1">
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-muted px-2.5 mb-1">아카이브 보기</div>
+        <button
+          id="navAllBtn"
+          type="button"
+          class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition"
+        >
+          <span class="flex items-center gap-2.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            전체 발췌
+          </span>
+          <span id="totalExcerptCount" class="font-mono text-xs px-2 py-0.5 rounded-full surface-elevated text-secondary">0</span>
+        </button>
+
+        <button
+          id="navLinkedBtn"
+          type="button"
+          class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition"
+        >
+          <span class="flex items-center gap-2.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+            상호 참조 연결됨
+          </span>
+          <span id="linkedExcerptCount" class="font-mono text-xs px-2 py-0.5 rounded-full surface-elevated text-secondary">0</span>
+        </button>
+      </nav>
+
+      <!-- Bookshelf Section -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between px-2.5">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-muted">내 책장</span>
+          <button
+            id="openNewBookModalBtn"
+            type="button"
+            class="text-xs font-semibold hover:underline"
+            style="color: var(--accent-primary);"
+          >
+            + 새 책 등록
+          </button>
+        </div>
+
+        <ul id="bookshelfList" class="flex flex-col gap-1">
+          <!-- Dynamically populated books -->
+        </ul>
+      </div>
+
+      <!-- Topic Tags Cloud -->
+      <div class="flex flex-col gap-2.5">
+        <div class="flex items-center justify-between px-2.5">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-muted">주제 태그</span>
+          <button id="clearTagFilterBtn" type="button" class="hidden text-[11px] text-muted hover:text-ink underline">선택 해제</button>
+        </div>
+        <div id="tagCloudContainer" class="flex flex-wrap gap-1.5 px-1">
+          <!-- Dynamically populated tag pills -->
+        </div>
+      </div>
+
+      <!-- Storage Indicator Footer -->
+      <div class="mt-auto pt-4 border-t border-hairline px-2.5 text-[11px] text-muted flex items-center justify-between">
+        <span id="storageEngineLabel" class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          IndexedDB 로컬 보관 중
+        </span>
+        <span class="font-mono">Offline-First</span>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT AREA -->
+    <main class="flex-1 min-w-0 flex flex-col gap-6">
+
+      <!-- 3. TODAY'S REMIND SECTION ("오늘의 리마인드 카드") -->
+      <section id="remindSection" class="surface-subtle border border-hairline rounded-2xl p-4 sm:p-5 transition">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs" style="background-color: var(--accent-primary-soft); color: var(--accent-primary);">✦</span>
+            <div>
+              <h2 class="font-literary font-bold text-sm sm:text-base text-ink">오늘의 리마인드 카드</h2>
+              <p class="text-[11px] text-muted">서재 속에 잠들어 있던 문장과 여백의 사유를 다시 꺼내 봅니다.</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              id="shuffleRemindBtn"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-hairline surface-card text-xs font-medium text-secondary hover:text-ink transition"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              다른 문장 섞기
+            </button>
+            <button
+              id="toggleRemindCollapseBtn"
+              type="button"
+              class="px-2.5 py-1.5 rounded-xl border border-hairline surface-card text-xs text-muted hover:text-ink transition"
+            >
+              접기
+            </button>
+          </div>
+        </div>
+
+        <div id="remindCardsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-4">
+          <!-- Populated dynamically with up to 3 resurfaced excerpts -->
+        </div>
+      </section>
+
+      <!-- 4. CONTEXTUAL FEED HEADER & SORT CONTROLS -->
+      <section class="flex flex-col gap-3">
+        <!-- Selected Book Summary Banner (Shown when filtering by a specific book) -->
+        <div id="bookContextBanner" class="hidden surface-card border border-hairline rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-start gap-3.5 min-w-0">
+            <img
+              id="bookBannerCover"
+              src=""
+              alt="도서 표지"
+              onerror="this.classList.add('hidden')"
+              class="hidden w-12 h-16 object-cover rounded-lg border border-hairline shrink-0 shadow-xs"
+            />
+            <div id="bookBannerSpine" class="w-2.5 self-stretch rounded-full shrink-0" style="background-color: #2E5A44;"></div>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="bookBannerCategory" class="text-[11px] font-medium px-2 py-0.5 rounded-md surface-elevated text-secondary">카테고리</span>
+                <span id="bookBannerIsbn" class="hidden text-[11px] font-mono px-2 py-0.5 rounded-md surface-elevated text-muted">ISBN</span>
+                <span id="bookBannerCount" class="text-xs font-mono text-muted">발췌 0개</span>
+              </div>
+              <h2 id="bookBannerTitle" class="font-literary font-bold text-lg sm:text-xl text-ink mt-1">책 제목</h2>
+              <p id="bookBannerAuthor" class="text-xs sm:text-sm text-secondary mt-0.5">저자 · 출판사</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              id="exportBookMdBtn"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold hover:opacity-85 transition"
+              style="color: var(--accent-sage);"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              이 책 Markdown 내보내기
+            </button>
+            <button
+              id="editCurrentBookBtn"
+              type="button"
+              class="px-3 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink transition"
+            >
+              책 정보 수정
+            </button>
+          </div>
+        </div>
+
+        <!-- Feed Toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <h2 id="feedHeading" class="font-literary font-bold text-base sm:text-lg text-ink">전체 발췌 아카이브</h2>
+            <span id="feedResultCount" class="font-mono text-xs px-2 py-0.5 rounded-full surface-elevated text-secondary">0건</span>
+            <div id="activeFilterChips" class="flex flex-wrap items-center gap-1.5"></div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <label for="sortSelect" class="text-xs text-muted">정렬:</label>
+            <select
+              id="sortSelect"
+              class="surface-card border border-hairline rounded-xl px-3 py-1.5 text-xs font-medium text-ink focus:outline-none cursor-pointer"
+            >
+              <option value="newest">최신 기록순</option>
+              <option value="oldest">오래된순</option>
+              <option value="page">페이지순</option>
+              <option value="links">연결 많은순</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. EXCERPT CARDS FEED -->
+      <section id="excerptsFeedContainer" class="flex flex-col gap-4 pb-12">
+        <!-- Dynamically populated excerpt cards -->
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 1: EXCERPT COMPOSER & EDITOR (CREATE / EDIT)                      -->
+  <!-- ======================================================================= -->
+  <div id="excerptModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/55 backdrop-blur-xs">
+    <div class="surface-card border border-hairline rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-4 border-b border-hairline flex items-center justify-between">
+        <h3 id="excerptModalTitle" class="font-literary font-bold text-base sm:text-lg text-ink">새 발췌 문장 & 여백 메모 기록</h3>
+        <button type="button" id="closeExcerptModalBtn" class="p-1.5 rounded-lg text-muted hover:text-ink surface-elevated text-xs">✕</button>
+      </div>
+
+      <!-- Modal Scrollable Form Body -->
+      <form id="excerptForm" class="p-5 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm">
+        <input type="hidden" id="editExcerptId" value="" />
+
+        <!-- Book Selection + Inline New Book Toggle -->
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label for="excerptBookSelect" class="font-semibold text-ink">도서 선택 <span class="text-rose-600">*</span></label>
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                id="openBarcodeBookModalFromExcerptBtn"
+                class="inline-flex items-center gap-1 text-xs font-semibold hover:underline"
+                style="color: var(--accent-sage);"
+              >
+                <span>📷 바코드 스캔 등록</span>
+              </button>
+              <button
+                type="button"
+                id="toggleInlineBookFormBtn"
+                class="text-xs font-semibold hover:underline"
+                style="color: var(--accent-primary);"
+              >
+                + 새 책 바로 등록하기
+              </button>
+            </div>
+          </div>
+
+          <select
+            id="excerptBookSelect"
+            required
+            class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2.5 text-ink focus:outline-none"
+          ></select>
+
+          <!-- Collapsible Inline Book Creator -->
+          <div id="inlineNewBookBox" class="hidden surface-elevated border border-hairline rounded-xl p-3.5 flex flex-col gap-2.5 mt-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-ink">새 책 정보 입력</span>
+              <button type="button" id="cancelInlineBookBtn" class="text-xs text-muted hover:text-ink">취소</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input id="inlineBookTitle" type="text" placeholder="책 제목 (예: 사피엔스)" class="surface-card border border-hairline rounded-lg px-3 py-2 text-xs text-ink focus:outline-none" />
+              <input id="inlineBookAuthor" type="text" placeholder="저자 (예: 유발 하라리)" class="surface-card border border-hairline rounded-lg px-3 py-2 text-xs text-ink focus:outline-none" />
+              <input id="inlineBookPublisher" type="text" placeholder="출판사 (선택)" class="surface-card border border-hairline rounded-lg px-3 py-2 text-xs text-ink focus:outline-none" />
+              <input id="inlineBookCategory" type="text" placeholder="분야 (예: 인문/역사)" class="surface-card border border-hairline rounded-lg px-3 py-2 text-xs text-ink focus:outline-none" />
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-secondary">책등 색상:</span>
+                <div id="inlineSpineSwatches" class="flex items-center gap-1.5"></div>
+                <input type="hidden" id="inlineBookSpineColor" value="#9A3412" />
+              </div>
+              <button type="button" id="saveInlineBookBtn" class="btn-primary px-3 py-1.5 rounded-lg text-xs font-semibold">책 등록 후 선택</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page & Chapter -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="excerptPageInput" class="block font-semibold text-ink mb-1">페이지</label>
+            <input
+              id="excerptPageInput"
+              type="text"
+              placeholder="예: 142 또는 p.142"
+              class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink font-mono text-xs sm:text-sm focus:outline-none"
+            />
+          </div>
+        <!-- Quoted Excerpt + Camera OCR Trigger + Highlight Tint Picker -->
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <label for="excerptQuoteInput" class="font-semibold text-ink">발췌 문장 (원문 인용) <span class="text-rose-600">*</span></label>
+              <button
+                type="button"
+                id="openPageOcrModalBtn"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border border-hairline surface-elevated hover:opacity-85 transition"
+                style="color: var(--accent-primary);"
+                title="카메라로 책 페이지를 촬영하고 드래그로 영역을 선택해 텍스트로 변환합니다"
+              >
+                <span>📷 카메라로 페이지 찍어 발췌</span>
+              </button>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs">
+              <span class="text-muted mr-1">밑줄 색조:</span>
+              <button type="button" data-hl-choice="none" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium">기본</button>
+              <button type="button" data-hl-choice="yellow" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-yellow-bg);">노랑</button>
+              <button type="button" data-hl-choice="amber" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-amber-bg);">앰버</button>
+              <button type="button" data-hl-choice="sage" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-sage-bg);">세이지</button>
+              <button type="button" data-hl-choice="rose" class="hl-choice-btn px-2 py-0.5 rounded-md border text-[11px] font-medium" style="background-color: var(--hl-rose-bg);">로즈</button>
+              <input type="hidden" id="excerptHighlightInput" value="amber" />
+            </div>
+          </div>
+          <textarea
+            id="excerptQuoteInput"
+            rows="4"
+            required
+            placeholder="책에서 밑줄 그은 문장을 그대로 옮겨 적으세요..."
+            class="w-full font-literary leading-relaxed surface-subtle border border-hairline rounded-xl p-3.5 text-ink focus:outline-none"
+          ></textarea>
+        </div>
+
+        <!-- Marginalia Note -->
+        <div>
+          <label for="excerptNoteInput" class="block font-semibold text-ink mb-1">여백 메모 (Marginalia — 나의 사유, 질문, 연결점)</label>
+          <textarea
+            id="excerptNoteInput"
+            rows="3"
+            placeholder="이 문장이 건넨 질문, 내 경험과의 접점, 혹은 다른 책에서 읽었던 개념과의 연결을 자유롭게 기록하세요..."
+            class="w-full leading-relaxed surface-subtle border border-hairline rounded-xl p-3.5 text-ink focus:outline-none"
+          ></textarea>
+        </div>
+
+        <!-- Tags Input with Chip Builder & Suggestions -->
+        <div>
+          <label for="excerptTagTextInput" class="block font-semibold text-ink mb-1">주제 태그</label>
+          <div class="surface-subtle border border-hairline rounded-xl p-2 flex flex-wrap items-center gap-1.5">
+            <div id="composerTagChips" class="flex flex-wrap items-center gap-1.5"></div>
+            <input
+              id="excerptTagTextInput"
+              type="text"
+              placeholder="태그 입력 후 Enter 또는 쉼표(,)..."
+              class="flex-1 min-w-[160px] bg-transparent text-xs sm:text-sm text-ink px-1.5 py-1 focus:outline-none"
+            />
+          </div>
+          <div id="existingTagSuggestions" class="flex flex-wrap items-center gap-1.5 mt-1.5"></div>
+        </div>
+
+        <!-- Bi-directional Cross-Reference Selector -->
+        <div id="crossRefEditorSection" class="border-t border-hairline pt-3.5">
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="crossRefSearchInput" class="font-semibold text-ink flex items-center gap-1.5">
+              <svg class="w-4 h-4" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              상호 참조 연결 (다른 발췌 문장과 양방향 연결)
+            </label>
+            <span id="selectedLinksCountBadge" class="text-xs font-mono text-muted">0개 연결됨</span>
+          </div>
+
+          <!-- Selected Linked Excerpts Pills -->
+          <div id="selectedCrossRefsList" class="flex flex-col gap-1.5 mb-2"></div>
+
+          <!-- Search & Pick Other Excerpts -->
+          <input
+            id="crossRefSearchInput"
+            type="text"
+            placeholder="연결할 다른 발췌 문장이나 책 제목 검색..."
+            class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-xs text-ink focus:outline-none mb-2"
+          />
+          <div id="crossRefCandidatesList" class="max-h-36 overflow-y-auto flex flex-col gap-1 surface-subtle border border-hairline rounded-xl p-2">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Modal Footer Buttons -->
+        <div class="pt-3 border-t border-hairline flex items-center justify-end gap-2">
+          <button type="button" id="cancelExcerptModalBtn" class="px-4 py-2 rounded-xl border border-hairline surface-subtle text-xs sm:text-sm font-medium text-secondary hover:text-ink">
+            취소
+          </button>
+          <button type="submit" class="btn-primary px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold">
+            서재에 저장하기
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 2: BOOK CREATE / EDIT MODAL (WITH ISBN BARCODE SCANNER & LOOKUP)  -->
+  <!-- ======================================================================= -->
+  <div id="bookModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/55 backdrop-blur-xs">
+    <div class="surface-card border border-hairline rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-hairline flex items-center justify-between shrink-0">
+        <h3 id="bookModalTitle" class="font-literary font-bold text-base text-ink">새 책 등록</h3>
+        <button type="button" id="closeBookModalBtn" class="p-1.5 rounded-lg text-muted hover:text-ink surface-elevated text-xs">✕</button>
+      </div>
+
+      <div class="p-5 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm">
+        <!-- ISBN Barcode Scanner & Auto-Lookup Panel -->
+        <div class="surface-subtle border border-hairline rounded-xl p-3.5 flex flex-col gap-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-xs text-ink flex items-center gap-1.5">
+              <span>📷 바코드 스캔 / 사진 인식</span>
+              <span class="text-[11px] font-normal text-muted">ISBN 자동 입력</span>
+            </span>
+            <span id="isbnStatusBadge" class="hidden text-[11px] font-medium px-2 py-0.5 rounded-full surface-elevated text-secondary"></span>
+          </div>
+
+          <!-- 3 ISBN Acquisition Controls: Live Camera / Photo Capture / Manual Input -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button
+              type="button"
+              id="toggleLiveBarcodeCamBtn"
+              class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-semibold text-ink hover:opacity-85 transition"
+            >
+              <span>🎥 실시간 바코드 스캔</span>
+            </button>
+
+            <label
+              for="barcodePhotoInput"
+              class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-hairline surface-card text-xs font-semibold text-ink hover:opacity-85 cursor-pointer transition text-center"
+            >
+              <span>📸 바코드 사진 찍기 / 앨범</span>
+            </label>
+            <input id="barcodePhotoInput" type="file" accept="image/*" capture="environment" class="hidden" />
+          </div>
+
+          <!-- Live Camera Barcode Viewport (Hidden until started) -->
+          <div id="barcodeScannerViewport" class="hidden relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-hairline">
+            <video id="barcodeVideoEl" playsinline muted class="w-full h-full object-cover"></video>
+            <!-- Central Laser Target Overlay -->
+            <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div class="w-4/5 h-24 border-2 border-amber-400/80 rounded-lg relative bg-black/10">
+                <div class="barcode-laser-line"></div>
+                <span class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-mono text-white/90 bg-black/60 px-2 py-0.5 rounded whitespace-nowrap">
+                  책 뒷표지 ISBN 바코드를 사각형 안에 맞추세요
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              id="stopLiveBarcodeCamBtn"
+              class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/75 text-white text-[11px] font-semibold hover:bg-black transition"
+            >
+              스캐너 닫기 ✕
+            </button>
+          </div>
+
+          <!-- Manual ISBN Input + Lookup Button -->
+          <div class="flex items-center gap-2">
+            <input
+              id="isbnManualInput"
+              type="text"
+              inputmode="numeric"
+              placeholder="ISBN 13자리 또는 10자리 입력 (예: 9791190090018)"
+              class="flex-1 surface-card border border-hairline rounded-xl px-3 py-2 text-xs font-mono text-ink focus:outline-none"
+            />
+            <button
+              type="button"
+              id="lookupIsbnBtn"
+              class="btn-primary px-3.5 py-2 rounded-xl text-xs font-semibold shrink-0"
+            >
+              조회
+            </button>
+          </div>
+
+          <!-- Fetched Book Cover Thumbnail Preview -->
+          <div id="bookCoverPreviewBox" class="hidden items-center gap-3 pt-1 border-t border-hairline">
+            <img
+              id="bookCoverPreviewImg"
+              src=""
+              alt="조회된 도서 표지"
+              onerror="document.getElementById('bookCoverPreviewBox').classList.add('hidden')"
+              class="w-11 h-16 object-cover rounded-lg border border-hairline shrink-0"
+            />
+            <div class="min-w-0 flex-1 text-xs">
+              <div class="font-semibold text-ink truncate" id="bookCoverPreviewCaption">도서 정보 자동 입력 완료</div>
+              <div class="text-[11px] text-muted mt-0.5">아래 내용을 확인한 뒤 저장하기를 눌러주세요.</div>
+            </div>
+            <button type="button" id="clearBookCoverBtn" class="text-[11px] text-muted hover:text-rose-600 px-1.5">표지 제거</button>
+          </div>
+        </div>
+
+        <!-- Book Metadata Form -->
+        <form id="bookForm" class="flex flex-col gap-3.5">
+          <input type="hidden" id="editBookId" value="" />
+          <input type="hidden" id="bookCoverUrlInput" value="" />
+          <div>
+            <label for="bookTitleInput" class="block font-semibold text-ink mb-1">책 제목 <span class="text-rose-600">*</span></label>
+            <input id="bookTitleInput" type="text" required placeholder="예: 우리가 빛의 속도로 갈 수 없다면" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+          </div>
+          <div>
+            <label for="bookAuthorInput" class="block font-semibold text-ink mb-1">저자 <span class="text-rose-600">*</span></label>
+            <input id="bookAuthorInput" type="text" required placeholder="예: 김초엽" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+          </div>
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label for="bookPublisherInput" class="block font-semibold text-ink mb-1">출판사</label>
+              <input id="bookPublisherInput" type="text" placeholder="예: 허블" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+            </div>
+            <div>
+              <label for="bookPublishedYearInput" class="block font-semibold text-ink mb-1">출간연도</label>
+              <input id="bookPublishedYearInput" type="text" placeholder="예: 2019" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 font-mono text-ink focus:outline-none" />
+            </div>
+            <div>
+              <label for="bookCategoryInput" class="block font-semibold text-ink mb-1">분야 / 분류</label>
+              <input id="bookCategoryInput" type="text" placeholder="예: 한국 SF" class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+            </div>
+          </div>
+          <div>
+            <span class="block font-semibold text-ink mb-1.5">책등 색상 (Spine Color)</span>
+            <div id="bookModalSpineSwatches" class="flex flex-wrap items-center gap-2"></div>
+            <input type="hidden" id="bookSpineColorInput" value="#9A3412" />
+          </div>
+
+          <div class="pt-3 border-t border-hairline flex items-center justify-end gap-2">
+            <button type="button" id="cancelBookModalBtn" class="px-4 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink">취소</button>
+            <button type="submit" class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold">저장하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 4: CUSTOM CONFIRMATION DIALOG (NO window.confirm())               -->
+  <!-- ======================================================================= -->
+  <div id="confirmDialogModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/55 backdrop-blur-xs">
+    <div class="surface-card border border-hairline rounded-2xl w-full max-w-sm p-5 shadow-2xl flex flex-col gap-4">
+      <div>
+        <h3 id="confirmDialogTitle" class="font-literary font-bold text-base text-ink">삭제 확인</h3>
+        <p id="confirmDialogMessage" class="text-xs sm:text-sm text-secondary mt-1.5 leading-relaxed"></p>
+      </div>
+      <div class="flex items-center justify-end gap-2">
+        <button id="confirmDialogCancelBtn" type="button" class="px-3.5 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink">취소</button>
+        <button id="confirmDialogOkBtn" type="button" class="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold">삭제 실행</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 5: PAGE CAPTURE, INTERACTIVE CROP & OCR TEXT EXTRACTION MODAL     -->
+  <!-- ======================================================================= -->
+  <div id="pageOcrModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-xs">
+    <div class="surface-card border border-hairline rounded-2xl w-full max-w-4xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Header -->
+      <div class="px-5 py-3.5 border-b border-hairline flex items-center justify-between shrink-0">
+        <div>
+          <h3 class="font-literary font-bold text-base sm:text-lg text-ink">페이지 촬영 및 발췌 영역 선택</h3>
+          <p class="text-[11px] text-muted mt-0.5">책 페이지를 촬영한 뒤 손가락이나 마우스로 필요한 문장 영역만 드래그하여 텍스트를 추출합니다.</p>
+        </div>
+        <button type="button" id="closePageOcrModalBtn" class="p-1.5 rounded-lg text-muted hover:text-ink surface-elevated text-xs">✕</button>
+      </div>
+
+      <!-- Scrollable Body -->
+      <div class="p-4 sm:p-5 overflow-y-auto flex flex-col gap-4 text-xs sm:text-sm">
+        <!-- Step 1: Image Input Source Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <label
+            for="ocrCameraFileInput"
+            class="btn-primary inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+          >
+            <span>📷 카메라로 책 페이지 찍기</span>
+          </label>
+          <input id="ocrCameraFileInput" type="file" accept="image/*" capture="environment" class="hidden" />
+
+          <label
+            for="ocrAlbumFileInput"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold text-ink hover:opacity-85 cursor-pointer transition"
+          >
+            <span>🖼️ 앨범에서 이미지 불러오기</span>
+          </label>
+          <input id="ocrAlbumFileInput" type="file" accept="image/*" class="hidden" />
+
+          <button
+            type="button"
+            id="startOcrWebcamBtn"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-hairline surface-subtle text-xs font-semibold text-ink hover:opacity-85 transition"
+          >
+            <span>🎥 실시간 웹캠 촬영</span>
+          </button>
+        </div>
+
+        <!-- Optional Live Webcam Capture Viewport -->
+        <div id="ocrWebcamViewport" class="hidden relative w-full max-h-[340px] aspect-video rounded-xl overflow-hidden bg-black border border-hairline">
+          <video id="ocrWebcamVideo" playsinline muted class="w-full h-full object-contain"></video>
+          <div class="absolute bottom-3 inset-x-0 flex items-center justify-center gap-2.5">
+            <button
+              type="button"
+              id="snapOcrWebcamBtn"
+              class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold shadow-lg"
+            >
+              📸 현재 화면 촬영하기
+            </button>
+            <button
+              type="button"
+              id="stopOcrWebcamBtn"
+              class="px-3.5 py-2 rounded-xl bg-black/75 text-white text-xs font-medium hover:bg-black"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Interactive Crop Canvas & Extracted Text Split Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          <!-- Left 7 Cols: Interactive Crop Canvas -->
+          <div class="lg:col-span-7 flex flex-col gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="font-semibold text-xs text-secondary">1. 추출할 문장 영역 드래그 선택</span>
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  id="rotateOcrImgBtn"
+                  disabled
+                  class="px-2.5 py-1 rounded-lg border border-hairline surface-subtle text-xs font-medium text-ink disabled:opacity-40 hover:opacity-85 transition"
+                >
+                  ↻ 90° 회전
+                </button>
+                <button
+                  type="button"
+                  id="selectAllOcrCropBtn"
+                  disabled
+                  class="px-2.5 py-1 rounded-lg border border-hairline surface-subtle text-xs font-medium text-ink disabled:opacity-40 hover:opacity-85 transition"
+                >
+                  전체 영역 선택
+                </button>
+              </div>
+            </div>
+
+            <div
+              id="ocrCropCanvasWrapper"
+              class="relative w-full h-[300px] sm:h-[360px] rounded-xl border border-hairline surface-subtle overflow-hidden flex items-center justify-center select-none touch-none"
+            >
+              <!-- Empty Placeholder before image load -->
+              <div id="ocrEmptyPlaceholder" class="text-center p-6 flex flex-col items-center gap-2">
+                <div class="w-11 h-11 rounded-full surface-elevated flex items-center justify-center text-muted text-lg">📖</div>
+                <p class="font-literary font-semibold text-sm text-ink">촬영하거나 불러온 페이지가 여기에 표시됩니다</p>
+                <p class="text-xs text-muted max-w-xs leading-relaxed">
+                  페이지를 불러온 뒤 원하는 문단 위를 드래그하면 해당 영역만 잘라내어 한국어·영어 텍스트로 변환합니다.
+                </p>
+              </div>
+
+              <canvas id="ocrCropCanvas" class="hidden max-w-full max-h-full block"></canvas>
+            </div>
+
+            <button
+              type="button"
+              id="runOcrExtractBtn"
+              disabled
+              class="btn-primary w-full py-2.5 rounded-xl text-xs sm:text-sm font-semibold disabled:opacity-40 disabled:pointer-events-none shadow-xs"
+            >
+              선택 영역 텍스트 추출 (OCR · 한국어/영어)
+            </button>
+
+            <!-- OCR Progress Bar -->
+            <div id="ocrProgressContainer" class="hidden surface-subtle border border-hairline rounded-xl p-3 flex flex-col gap-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <span id="ocrStatusText" class="font-medium text-ink">OCR 엔진 준비 중...</span>
+                <span id="ocrPercentText" class="font-mono text-muted">0%</span>
+              </div>
+              <div class="w-full h-2 rounded-full surface-elevated overflow-hidden">
+                <div id="ocrProgressBar" class="h-full rounded-full transition-all duration-150" style="width: 0%; background-color: var(--accent-primary);"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right 5 Cols: Recognized Text Preview & Paragraph Merger -->
+          <div class="lg:col-span-5 flex flex-col gap-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label for="ocrResultPreview" class="font-semibold text-xs text-secondary">2. 인식된 텍스트 미리보기 및 다듬기</label>
+              <label class="inline-flex items-center gap-1.5 text-xs text-ink cursor-pointer select-none">
+                <input id="mergeLineBreaksCheckbox" type="checkbox" checked class="accent-amber-700 rounded" />
+                <span>불필요한 줄바꿈 자동 병합</span>
+              </label>
+            </div>
+
+            <textarea
+              id="ocrResultPreview"
+              rows="12"
+              placeholder="선택 영역 텍스트 추출 버튼을 누르면 인식된 문장이 이곳에 나타납니다. 적용 전 오탈자를 직접 수정할 수 있습니다."
+              class="w-full font-literary text-xs sm:text-sm leading-relaxed surface-subtle border border-hairline rounded-xl p-3.5 text-ink focus:outline-none"
+            ></textarea>
+
+            <div class="flex items-center justify-between gap-2 pt-1">
+              <button
+                type="button"
+                id="appendOcrTextBtn"
+                class="px-3 py-2 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink transition"
+                title="기존 발췌 문장 뒤에 이어 붙이기"
+              >
+                기존 문장에 이어 붙이기
+              </button>
+              <button
+                type="button"
+                id="applyOcrTextBtn"
+                class="btn-primary px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold"
+              >
+                발췌 원문에 적용
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * 여백의 서재 (Marginalia Archive)
+     * 100% Client-Side Literary Excerpt Collector & Cross-Referenced Marginalia Archive
+     * Storage: IndexedDB with seamless localStorage fallback
+     * Vision: Native BarcodeDetector + ZXing ISBN Scanner & Interactive Crop + Tesseract.js OCR
+     */
+    (() => {
+      'use strict';
+
+      // =========================================================================
+      // 1. CONSTANTS & CURATED KOREAN SAMPLE DATASET
+      // =========================================================================
+      const DB_NAME = 'MarginaliaArchiveDB';
+      const DB_VERSION = 1;
+      const LS_FALLBACK_KEY = 'marginalia_archive_fallback_v1';
+      const THEME_STORAGE_KEY = 'marginalia_archive_theme_v1';
+      const ZXING_CDN_URL = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
+      const TESSERACT_CDN_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+          };
+          req.onsuccess = (e) => resolve(e.target.result);
+          req.onerror = (e) => reject(e.target.error || new Error('IndexedDB open error'));
+        });
+      }
+
+      function idbGetAll(storeName) {
+        return new Promise((resolve, reject) => {
+          const tx = dbInstance.transaction(storeName, 'readonly');
+          const store = tx.objectStore(storeName);
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      function idbGetMeta(key) {
+        return new Promise((resolve) => {
+          try {
+            const tx = dbInstance.transaction('meta', 'readonly');
+            const req = tx.objectStore('meta').get(key);
+            req.onsuccess = () => resolve(req.result ? req.result.value : null);
+            req.onerror = () => resolve(null);
+          } catch (_) {
+            resolve(null);
+          }
+        });
+      }
+
+      async function persistAllToStorage() {
+        // Mirror backup to localStorage as well for maximum resilience
+        try {
+          localStorage.setItem(
+            LS_FALLBACK_KEY,
+            JSON.stringify({
+              seeded: true,
+              books: state.books,
+              excerpts: state.excerpts,
+            })
+          );
+        } catch (_) {}
+
+        if (useLocalStorageOnly || !dbInstance) return;
+
+        return new Promise((resolve) => {
+          try {
+            const tx = dbInstance.transaction(['books', 'excerpts', 'meta'], 'readwrite');
+            const bookStore = tx.objectStore('books');
+            const excStore = tx.objectStore('excerpts');
+            const metaStore = tx.objectStore('meta');
+
+            bookStore.clear();
+            excStore.clear();
+
+            state.books.forEach((b) => bookStore.put(b));
+            state.excerpts.forEach((e) => excStore.put(e));
+            metaStore.put({ key: 'seeded', value: true });
+
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => resolve();
+          } catch (_) {
+            resolve();
+          }
+        });
+      }
+
+      async function loadArchiveFromStorage() {
+        try {
+          dbInstance = await openDatabase();
+          const seeded = await idbGetMeta('seeded');
+          const books = await idbGetAll('books');
+          const excerpts = await idbGetAll('excerpts');
+
+          if (!seeded && books.length === 0 && excerpts.length === 0) {
+            const sample = getSampleDataset();
+            state.books = sample.books;
+            state.excerpts = sample.excerpts;
+            await persistAllToStorage();
+          } else {
+            state.books = books;
+            state.excerpts = excerpts;
+          }
+          document.getElementById('storageEngineLabel').innerHTML = `
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            IndexedDB 로컬 보관 중
+          `;
+        } catch (err) {
+          console.warn('Falling back to localStorage:', err);
+          useLocalStorageOnly = true;
+      // Composer transient state
+      let composerTags = [];
+      let composerLinkedIds = [];
+      let useLocalStorageOnly = false;
+      let dbInstance = null;
+
+      // Barcode Scanner & OCR Engine State
+      let barcodeVideoStream = null;
+      let barcodeScanRafId = null;
+      let zxingLoadPromise = null;
+      let tesseractLoadPromise = null;
+
+      // Interactive Crop Canvas State
+      let ocrWebcamStream = null;
+      let ocrRawImage = null;          // Loaded HTMLImageElement
+      let ocrRotationDeg = 0;          // 0, 90, 180, 270
+      let ocrRotatedCanvas = null;     // Full-res rotated source canvas
+      let ocrDisplayMetrics = null;    // { offsetX, offsetY, drawW, drawH, canvasW, canvasH }
+      let ocrCropNorm = { x: 0.1, y: 0.25, w: 0.8, h: 0.35 }; // Normalized 0..1 crop rectangle
+      let ocrDragState = null;         // { mode: 'new'|'move'|handle, startX, startY, origRect }
+      let ocrRawExtractedText = '';
+
+      // =========================================================================
+      // 3. INDEXEDDB + LOCALSTORAGE PERSISTENCE LAYER
+      // =========================================================================
+      // 4. UTILITY HELPERS (ESCAPE, HIGHLIGHT, CLIPBOARD, TOAST, SORTING)
+      // =========================================================================
+      function escapeHtml(str) {
+        return String(str ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function highlightMatch(text, query) {
+        const safeText = escapeHtml(text);
+        if (!query || !query.trim()) return safeText;
+        const cleanQuery = query.trim().replace(/^#/, '');
+        if (!cleanQuery) return safeText;
+        const escapedRegex = cleanQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedRegex})`, 'gi');
+        return safeText.replace(regex, '<mark class="search-hl">$1</mark>');
+      }
+
+      function formatDateKorean(ts) {
+        if (!ts) return '';
+        const d = new Date(ts);
+        return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+      }
+
+      function parseNumericPage(pageStr) {
+        if (!pageStr) return Number.MAX_SAFE_INTEGER;
+        const match = String(pageStr).match(/(\d+)/);
+        return match ? parseInt(match[1], 10) : Number.MAX_SAFE_INTEGER;
+      }
+
+      function normalizePageDisplay(pageStr) {
+        const trimmed = String(pageStr || '').trim();
+        if (!trimmed) return '';
+        if (/^\d+$/.test(trimmed)) return `p.${trimmed}`;
+        return trimmed;
+      }
+
+      function showToast(message, tone = 'default') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        let accentBar = 'border-l-4 border-amber-700';
+        if (tone === 'sage') accentBar = 'border-l-4 border-emerald-700';
+        if (tone === 'danger') accentBar = 'border-l-4 border-rose-700';
+
+        toast.className = `pointer-events-auto surface-card border border-hairline ${accentBar} rounded-xl px-4 py-3 shadow-xl text-xs sm:text-sm text-ink flex items-center gap-2.5 max-w-sm transition-all duration-200`;
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(6px)';
+          setTimeout(() => toast.remove(), 220);
+        }, 2800);
+      }
+
+      function copyToClipboardSafe(text, successMsg) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          showToast(successMsg, 'sage');
+        } catch (_) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => showToast(successMsg, 'sage'));
+          }
+        }
+      }
+
+      // Custom Confirmation Dialog (replaces window.confirm)
+      function showConfirmDialog({ title, message, okLabel = '삭제 실행', onConfirm }) {
+        const modal = document.getElementById('confirmDialogModal');
+        document.getElementById('confirmDialogTitle').textContent = title;
+        document.getElementById('confirmDialogMessage').textContent = message;
+        const okBtn = document.getElementById('confirmDialogOkBtn');
+        const cancelBtn = document.getElementById('confirmDialogCancelBtn');
+        okBtn.textContent = okLabel;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        const cleanup = () => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          okBtn.onclick = null;
+          cancelBtn.onclick = null;
+        };
+
+        cancelBtn.onclick = cleanup;
+        okBtn.onclick = () => {
+          cleanup();
+          onConfirm();
+        };
+      }
+
+      // =========================================================================
+      // 5. THEME & REMIND SHUFFLE LOGIC
+      // =========================================================================
+      function applyTheme(isDark) {
+        state.darkMode = isDark;
+        const html = document.documentElement;
+        if (isDark) {
+          html.classList.add('dark');
+          document.getElementById('themeIcon').textContent = '☀️';
+          document.getElementById('themeLabel').textContent = '라이트 페이퍼';
+        } else {
+          html.classList.remove('dark');
+          document.getElementById('themeIcon').textContent = '🌙';
+          document.getElementById('themeLabel').textContent = '다크 잉크';
+        }
+        try {
+          localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light');
+        } catch (_) {}
+      }
+
+      function pickRandomRemindIds() {
+        if (state.excerpts.length <= 3) {
+          state.remindExcerptIds = state.excerpts.map((e) => e.id);
+          return;
+        }
+        const pool = [...state.excerpts];
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        state.remindExcerptIds = pool.slice(0, 3).map((e) => e.id);
+      }
+
+      // =========================================================================
+      // 6. FILTERING, SORTING & BI-DIRECTIONAL CROSS-REFERENCE HELPERS
+      // =========================================================================
+      function getBookById(bookId) {
+        return state.books.find((b) => b.id === bookId) || null;
+      }
+
+      function getExcerptById(excId) {
+        return state.excerpts.find((e) => e.id === excId) || null;
+      }
+
+      function getFilteredAndSortedExcerpts() {
+        const q = state.searchQuery.trim().toLowerCase();
+        const tagQuery = q.startsWith('#') ? q.slice(1) : q;
+
+        const filtered = state.excerpts.filter((exc) => {
+          if (state.activeView === 'linked' && (!exc.linkedIds || exc.linkedIds.length === 0)) {
+            return false;
+          }
+          if (state.activeView === 'book' && state.selectedBookId && exc.bookId !== state.selectedBookId) {
+            return false;
+          }
+          if (state.selectedTag && !(exc.tags || []).includes(state.selectedTag)) {
+            return false;
+          }
+          if (q) {
+            const book = getBookById(exc.bookId);
+            const haystack = [
+              exc.quote,
+              exc.note,
+              exc.chapter,
+              exc.page,
+              book ? book.title : '',
+              book ? book.author : '',
+              ...(exc.tags || []),
+            ]
+              .join(' ')
+              .toLowerCase();
+            if (!haystack.includes(tagQuery)) return false;
+          }
+          return true;
+        });
+
+        return filtered.sort((a, b) => {
+          if (state.sortBy === 'oldest') {
+            return (a.createdAt || 0) - (b.createdAt || 0);
+          }
+          if (state.sortBy === 'page') {
+            const pA = parseNumericPage(a.page);
+            const pB = parseNumericPage(b.page);
+            if (pA !== pB) return pA - pB;
+            return (b.createdAt || 0) - (a.createdAt || 0);
+          }
+          if (state.sortBy === 'links') {
+            const lA = (a.linkedIds || []).length;
+            const lB = (b.linkedIds || []).length;
+            if (lB !== lA) return lB - lA;
+            return (b.createdAt || 0) - (a.createdAt || 0);
+          }
+          // Default: newest
+          return (b.createdAt || 0) - (a.createdAt || 0);
+        });
+      }
+
+      /**
+       * Synchronizes bi-directional links for `excerptId` with target `newLinkedIds`
+       */
+      function syncBidirectionalLinks(excerptId, newLinkedIds) {
+        const cleanSet = new Set((newLinkedIds || []).filter((id) => id !== excerptId && getExcerptById(id)));
+
+        state.excerpts.forEach((other) => {
+          if (other.id === excerptId) {
+            other.linkedIds = Array.from(cleanSet);
+            return;
+          }
+          const otherSet = new Set(other.linkedIds || []);
+          if (cleanSet.has(other.id)) {
+            otherSet.add(excerptId);
+          } else {
+            otherSet.delete(excerptId);
+          }
+          other.linkedIds = Array.from(otherSet);
+        });
+      }
+
+      /**
+       * Jumps smoothly to any excerpt card in the archive, even if currently hidden by book/tag/search filter
+       */
+      function focusExcerptCard(targetExcerptId) {
+        const target = getExcerptById(targetExcerptId);
+        if (!target) {
+          showToast('연결된 발췌 문장을 찾을 수 없습니다.', 'danger');
+          return;
+        }
+
+        // Check if target is currently visible in filtered list
+        const currentlyVisible = getFilteredAndSortedExcerpts().some((e) => e.id === targetExcerptId);
+        if (!currentlyVisible) {
+          // Reset restrictive filters so the target excerpt is visible in the main feed
+          state.activeView = 'all';
+          state.selectedBookId = null;
+          state.selectedTag = null;
+          state.searchQuery = '';
+          document.getElementById('globalSearchInput').value = '';
+          document.getElementById('clearSearchBtn').classList.add('hidden');
+          renderAll();
+          showToast('연결된 문장을 보기 위해 전체 서재 보기로 전환했습니다.', 'sage');
+        }
+
+        requestAnimationFrame(() => {
+          const el = document.getElementById(`excerpt-card-${targetExcerptId}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.remove('card-spotlight');
+            void el.offsetWidth;
+            el.classList.add('card-spotlight');
+          }
+        });
+      }
+
+      // =========================================================================
+      // 7. RENDERING FUNCTIONS (SIDEBAR, REMIND CARDS, MAIN FEED)
+      // =========================================================================
+      function renderSidebar() {
+        const totalCount = state.excerpts.length;
+        const linkedCount = state.excerpts.filter((e) => e.linkedIds && e.linkedIds.length > 0).length;
+
+        document.getElementById('totalExcerptCount').textContent = totalCount;
+        document.getElementById('linkedExcerptCount').textContent = linkedCount;
+
+        // Active Nav Styling
+        const navAllBtn = document.getElementById('navAllBtn');
+        const navLinkedBtn = document.getElementById('navLinkedBtn');
+
+        const activeNavClass = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold surface-card border border-hairline shadow-2xs text-ink';
+        const idleNavClass = 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-secondary hover:text-ink transition';
+
+        navAllBtn.className = state.activeView === 'all' && !state.selectedTag ? activeNavClass : idleNavClass;
+        navLinkedBtn.className = state.activeView === 'linked' ? activeNavClass : idleNavClass;
+
+        // Render Bookshelf
+        const bookshelfList = document.getElementById('bookshelfList');
+        bookshelfList.innerHTML = '';
+
+        if (state.books.length === 0) {
+          bookshelfList.innerHTML = `<li class="px-3 py-3 text-xs text-muted">등록된 책이 없습니다.</li>`;
+        } else {
+          state.books.forEach((book) => {
+            const count = state.excerpts.filter((e) => e.bookId === book.id).length;
+            const isSelected = state.activeView === 'book' && state.selectedBookId === book.id;
+
+            const li = document.createElement('li');
+            li.className = `group flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl cursor-pointer transition ${
+              isSelected ? 'surface-card border border-hairline shadow-2xs' : 'hover:opacity-90'
+            }`;
+
+            li.innerHTML = `
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                <span class="w-1.5 h-8 rounded-full shrink-0" style="background-color: ${escapeHtml(book.spineColor || '#9A3412')};"></span>
+                <div class="min-w-0 flex-1">
+                  <div class="font-literary text-xs font-semibold text-ink truncate">${escapeHtml(book.title)}</div>
+                  <div class="text-[11px] text-muted truncate">${escapeHtml(book.author)}${book.publishedYear ? ` (${escapeHtml(book.publishedYear)})` : ''}</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <span class="font-mono text-[11px] px-1.5 py-0.5 rounded surface-elevated text-secondary">${count}</span>
+                <button
+                  type="button"
+                  data-edit-book="${book.id}"
+                  title="책 정보 수정"
+                  class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded text-muted hover:text-ink text-[11px] transition"
+                >✎</button>
+                <button
+                  type="button"
+                  data-delete-book="${book.id}"
+                  title="책 삭제"
+                  class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded text-muted hover:text-rose-600 text-[11px] transition"
+                >✕</button>
+              </div>
+            `;
+
+            li.addEventListener('click', (e) => {
+              if (e.target.closest('[data-edit-book]') || e.target.closest('[data-delete-book]')) return;
+              state.activeView = 'book';
+              state.selectedBookId = book.id;
+              closeMobileSidebar();
+              renderAll();
+            });
+
+            li.querySelector('[data-edit-book]').addEventListener('click', (e) => {
+              e.stopPropagation();
+              openBookModal(book);
+            });
+
+            li.querySelector('[data-delete-book]').addEventListener('click', (e) => {
+              e.stopPropagation();
+              const attachedCount = state.excerpts.filter((ex) => ex.bookId === book.id).length;
+              showConfirmDialog({
+                title: `『${book.title}』 삭제`,
+                message:
+                  attachedCount > 0
+                    ? `이 책에 기록된 ${attachedCount}개의 발췌 문장과 여백 메모도 함께 삭제됩니다. 계속할까요?`
+                    : '이 책을 책장에서 삭제할까요?',
+                onConfirm: async () => {
+                  const removedIds = new Set(state.excerpts.filter((ex) => ex.bookId === book.id).map((ex) => ex.id));
+                  state.books = state.books.filter((b) => b.id !== book.id);
+                  state.excerpts = state.excerpts
+                    .filter((ex) => ex.bookId !== book.id)
+                    .map((ex) => ({
+                      ...ex,
+                      linkedIds: (ex.linkedIds || []).filter((lid) => !removedIds.has(lid)),
+                    }));
+                  if (state.selectedBookId === book.id) {
+                    state.activeView = 'all';
+                    state.selectedBookId = null;
+                  }
+                  pickRandomRemindIds();
+                  await persistAllToStorage();
+                  renderAll();
+                  showToast('책과 관련 발췌 기록이 삭제되었습니다.', 'danger');
+                },
+              });
+            });
+
+            bookshelfList.appendChild(li);
+          });
+        }
+
+        // Render Tag Cloud
+        const tagCounts = new Map();
+        state.excerpts.forEach((exc) => {
+          (exc.tags || []).forEach((t) => {
+            tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+          });
+        });
+
+        const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+        const tagCloud = document.getElementById('tagCloudContainer');
+        const clearTagBtn = document.getElementById('clearTagFilterBtn');
+        tagCloud.innerHTML = '';
+
+        if (state.selectedTag) clearTagBtn.classList.remove('hidden');
+        else clearTagBtn.classList.add('hidden');
+
+        if (sortedTags.length === 0) {
+          tagCloud.innerHTML = `<span class="text-xs text-muted px-1.5">아직 태그가 없습니다.</span>`;
+        } else {
+          sortedTags.forEach(([tag, count]) => {
+            const isTagActive = state.selectedTag === tag;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = isTagActive
+              ? 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-white transition'
+              : 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs surface-card border border-hairline text-secondary hover:text-ink transition';
+            if (isTagActive) {
+              btn.style.backgroundColor = 'var(--accent-sage)';
+            }
+            btn.innerHTML = `<span>#${escapeHtml(tag)}</span><span class="font-mono text-[10px] opacity-75">${count}</span>`;
+            btn.addEventListener('click', () => {
+              state.selectedTag = isTagActive ? null : tag;
+              closeMobileSidebar();
+              renderAll();
+            });
+            tagCloud.appendChild(btn);
+          });
+        }
+      }
+
+      function renderRemindSection() {
+        const section = document.getElementById('remindSection');
+        const grid = document.getElementById('remindCardsGrid');
+        const toggleBtn = document.getElementById('toggleRemindCollapseBtn');
+
+        if (state.excerpts.length === 0) {
+          section.classList.add('hidden');
+          return;
+        }
+        section.classList.remove('hidden');
+
+        if (state.remindCollapsed) {
+          grid.classList.add('hidden');
+          toggleBtn.textContent = '펼치기';
+          return;
+        }
+        grid.classList.remove('hidden');
+        toggleBtn.textContent = '접기';
+
+        // Ensure valid remind IDs
+        let validIds = state.remindExcerptIds.filter((id) => getExcerptById(id));
+        if (validIds.length === 0) {
+          pickRandomRemindIds();
+          validIds = state.remindExcerptIds;
+        }
+
+        grid.innerHTML = '';
+        validIds.forEach((excId) => {
+          const exc = getExcerptById(excId);
+          if (!exc) return;
+          const book = getBookById(exc.bookId);
+
+          const card = document.createElement('article');
+          card.className = 'surface-card border border-hairline hover:border-strong rounded-xl p-3.5 flex flex-col justify-between gap-2.5 cursor-pointer transition group';
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${escapeHtml(book?.spineColor || '#9A3412')};"></span>
+                  <span class="text-[11px] font-semibold text-secondary truncate">${escapeHtml(book?.title || '미지정 도서')}</span>
+                </div>
+                ${exc.page ? `<span class="font-mono text-[10px] text-muted shrink-0">${escapeHtml(normalizePageDisplay(exc.page))}</span>` : ''}
+              </div>
+              <p class="font-literary text-xs leading-relaxed text-ink line-clamp-3 group-hover:opacity-90">
+                ${escapeHtml(exc.quote)}
+              </p>
+            </div>
+            ${
+              exc.note
+                ? `<div class="pt-2 border-t border-hairline text-[11px] text-muted line-clamp-2">
+                    <span class="font-semibold text-secondary">여백:</span> ${escapeHtml(exc.note)}
+                  </div>`
+                : ''
+            }
+          `;
+          card.addEventListener('click', () => focusExcerptCard(exc.id));
+          grid.appendChild(card);
+        });
+      }
+
+      function renderFeedHeader() {
+        const bookBanner = document.getElementById('bookContextBanner');
+        const heading = document.getElementById('feedHeading');
+        const chipsContainer = document.getElementById('activeFilterChips');
+        chipsContainer.innerHTML = '';
+
+        if (state.activeView === 'book' && state.selectedBookId) {
+          const book = getBookById(state.selectedBookId);
+          if (book) {
+            const count = state.excerpts.filter((e) => e.bookId === book.id).length;
+            bookBanner.classList.remove('hidden');
+            const coverEl = document.getElementById('bookBannerCover');
+            if (book.coverUrl) {
+              coverEl.src = book.coverUrl;
+              coverEl.classList.remove('hidden');
+            } else {
+              coverEl.classList.add('hidden');
+            }
+            document.getElementById('bookBannerSpine').style.backgroundColor = book.spineColor || '#9A3412';
+            document.getElementById('bookBannerCategory').textContent = book.category || '일반 도서';
+            const isbnBadge = document.getElementById('bookBannerIsbn');
+            if (book.isbn) {
+              isbnBadge.textContent = `ISBN ${book.isbn}`;
+              isbnBadge.classList.remove('hidden');
+            } else {
+              isbnBadge.classList.add('hidden');
+            }
+            document.getElementById('bookBannerCount').textContent = `발췌 ${count}개`;
+            document.getElementById('bookBannerTitle').textContent = book.title;
+            const metaParts = [book.author, book.publisher, book.publishedYear ? `${book.publishedYear}년` : ''].filter(Boolean);
+            document.getElementById('bookBannerAuthor').textContent = metaParts.join(' · ');
+            heading.textContent = `『${book.title}』 발췌 목록`;
+          }
+        } else {
+          bookBanner.classList.add('hidden');
+          if (state.activeView === 'linked') {
+            heading.textContent = '상호 참조 연결된 발췌';
+          } else if (state.selectedTag) {
+            heading.textContent = `#${state.selectedTag} 태그 아카이브`;
+          } else {
+            heading.textContent = '전체 발췌 아카이브';
+          }
+        }
+
+        // Active filter chips
+        if (state.selectedTag) {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full text-white';
+          chip.style.backgroundColor = 'var(--accent-sage)';
+          chip.innerHTML = `#${escapeHtml(state.selectedTag)} <span>✕</span>`;
+          chip.onclick = () => {
+            state.selectedTag = null;
+            renderAll();
+          };
+          chipsContainer.appendChild(chip);
+        }
+
+        if (state.searchQuery.trim()) {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full surface-elevated border border-hairline text-ink';
+          chip.innerHTML = `검색: "${escapeHtml(state.searchQuery.trim())}" <span>✕</span>`;
+          chip.onclick = () => {
+            state.searchQuery = '';
+            document.getElementById('globalSearchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderAll();
+          };
+          chipsContainer.appendChild(chip);
+        }
+      }
+
+      function renderExcerptsFeed() {
+        const list = getFilteredAndSortedExcerpts();
+        const container = document.getElementById('excerptsFeedContainer');
+        document.getElementById('feedResultCount').textContent = `${list.length}건`;
+        container.innerHTML = '';
+
+        if (list.length === 0) {
+          container.innerHTML = `
+            <div class="surface-card border border-dashed border-strong rounded-2xl p-10 text-center flex flex-col items-center gap-3">
+              <div class="w-11 h-11 rounded-full surface-elevated flex items-center justify-center text-muted">✎</div>
+              <div>
+                <p class="font-literary font-bold text-base text-ink">표시할 발췌 문장이 없습니다</p>
+                <p class="text-xs text-muted mt-1">검색어나 필터를 해제하거나 새로운 문장과 여백 메모를 기록해 보세요.</p>
+              </div>
+              <button type="button" id="emptyNewExcerptBtn" class="btn-primary px-4 py-2 rounded-xl text-xs font-semibold mt-1">
+                + 첫 발췌 문장 기록하기
+              </button>
+            </div>
+          `;
+          const emptyBtn = document.getElementById('emptyNewExcerptBtn');
+          if (emptyBtn) emptyBtn.onclick = () => openExcerptModal(null);
+          return;
+        }
+
+        const q = state.searchQuery;
+
+        list.forEach((exc) => {
+          const book = getBookById(exc.bookId);
+          const tintClass = `quote-tint-${exc.highlightColor || 'none'}`;
+          const validLinks = (exc.linkedIds || []).map((lid) => getExcerptById(lid)).filter(Boolean);
+
+          const card = document.createElement('article');
+          card.id = `excerpt-card-${exc.id}`;
+          card.className = 'surface-card border border-hairline rounded-2xl p-5 sm:p-6 flex flex-col gap-4 transition-all duration-200 shadow-2xs';
+
+          // Build Tags HTML
+          const tagsHtml = (exc.tags || [])
+            .map(
+              (tag) => `
+              <button
+                type="button"
+                data-card-tag="${escapeHtml(tag)}"
+                class="text-xs px-2.5 py-0.5 rounded-full surface-elevated border border-hairline text-secondary hover:text-ink transition"
+              >#${highlightMatch(tag, q)}</button>
+            `
+            )
+            .join('');
+
+          // Build Cross-References HTML
+          const crossRefsHtml =
+            validLinks.length > 0
+              ? `
+              <div class="flex flex-col gap-1.5 pt-1">
+                <span class="text-[11px] font-semibold text-muted flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  상호 참조 연결 (${validLinks.length})
+                </span>
+                <div class="flex flex-wrap gap-1.5">
+                  ${validLinks
+                    .map((target) => {
+                      const targetBook = getBookById(target.bookId);
+                      const snippet = target.quote.replace(/^[“"]|[”"]$/g, '').slice(0, 28);
+                      return `
+                        <button
+                          type="button"
+                          data-jump-link="${target.id}"
+                          class="inline-flex items-center gap-1.5 text-left text-xs px-2.5 py-1 rounded-lg border border-hairline surface-subtle hover:border-strong transition max-w-full"
+                        >
+                          <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${escapeHtml(targetBook?.spineColor || '#2E5A44')};"></span>
+                          <span class="font-semibold text-ink shrink-0">${escapeHtml(targetBook?.title || '도서')}</span>
+                          ${target.page ? `<span class="font-mono text-[10px] text-muted shrink-0">${escapeHtml(normalizePageDisplay(target.page))}</span>` : ''}
+                          <span class="text-muted truncate">· “${escapeHtml(snippet)}…”</span>
+                        </button>
+                      `;
+                    })
+                    .join('')}
+                </div>
+              </div>
+            `
+              : '';
+
+          card.innerHTML = `
+            <!-- Card Top Meta Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-2 min-w-0">
+                <button
+                  type="button"
+                  data-filter-book="${book ? book.id : ''}"
+                  class="inline-flex items-center gap-2 text-left group min-w-0"
+                  title="이 책의 발췌만 모아보기"
+                >
+                  <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${escapeHtml(book?.spineColor || '#9A3412')};"></span>
+                  <span class="font-literary font-bold text-xs sm:text-sm text-ink group-hover:underline truncate">
+                    ${highlightMatch(book ? book.title : '미지정 도서', q)}
+                  </span>
+                  <span class="text-xs text-muted shrink-0">— ${highlightMatch(book ? book.author : '', q)}</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2 text-xs">
+                ${
+                  exc.page || exc.chapter
+                    ? `<span class="font-mono text-[11px] px-2.5 py-0.5 rounded-full surface-elevated border border-hairline text-secondary">
+                        ${exc.page ? escapeHtml(normalizePageDisplay(exc.page)) : ''}${exc.page && exc.chapter ? ' · ' : ''}${exc.chapter ? highlightMatch(exc.chapter, q) : ''}
+                      </span>`
+                    : ''
+                }
+                <span class="text-[11px] font-mono text-muted">${formatDateKorean(exc.createdAt)}</span>
+              </div>
+            </div>
+
+            <!-- Quoted Excerpt Block (Literary Serif) -->
+            <blockquote class="${tintClass} rounded-r-xl px-4 py-3.5 font-literary text-sm sm:text-[15.5px] leading-[1.85] text-ink whitespace-pre-line">
+              ${highlightMatch(exc.quote, q)}
+            </blockquote>
+
+            <!-- Marginalia Note Block (Distinct Sans-Serif) -->
+            ${
+              exc.note
+                ? `<div class="surface-subtle border border-hairline rounded-xl px-4 py-3 flex flex-col gap-1">
+                    <div class="text-[11px] font-semibold tracking-wide flex items-center gap-1.5" style="color: var(--accent-primary);">
+                      <span>여백 메모</span>
+                      <span class="text-muted font-normal">· Marginalia</span>
+                    </div>
+                    <p class="text-xs sm:text-sm leading-relaxed text-secondary whitespace-pre-line">${highlightMatch(exc.note, q)}</p>
+                  </div>`
+                : ''
+            }
+
+            <!-- Tags & Cross-References -->
+            ${tagsHtml ? `<div class="flex flex-wrap items-center gap-1.5">${tagsHtml}</div>` : ''}
+            ${crossRefsHtml}
+
+            <!-- Card Action Bar -->
+            <div class="pt-3 border-t border-hairline flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  data-copy-exc="${exc.id}"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-hairline surface-subtle text-secondary hover:text-ink transition"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  인용 복사
+                </button>
+
+                <button
+                  type="button"
+                  data-link-exc="${exc.id}"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-hairline surface-subtle text-secondary hover:text-ink transition"
+                >
+                  <svg class="w-3.5 h-3.5" style="color: var(--accent-sage);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  연결 추가
+                </button>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  data-edit-exc="${exc.id}"
+                  class="px-2.5 py-1.5 rounded-lg text-secondary hover:text-ink surface-subtle border border-hairline transition"
+                >
+                  수정
+                </button>
+                <button
+                  type="button"
+                  data-delete-exc="${exc.id}"
+                  class="px-2.5 py-1.5 rounded-lg text-muted hover:text-rose-600 surface-subtle border border-hairline transition"
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+          `;
+
+          // Bind Card Interactions
+          const bookBtn = card.querySelector('[data-filter-book]');
+          if (bookBtn && book) {
+            bookBtn.addEventListener('click', () => {
+              state.activeView = 'book';
+              state.selectedBookId = book.id;
+              renderAll();
+            });
+          }
+
+          card.querySelectorAll('[data-card-tag]').forEach((tBtn) => {
+            tBtn.addEventListener('click', () => {
+              const tag = tBtn.dataset.cardTag;
+              state.selectedTag = state.selectedTag === tag ? null : tag;
+              renderAll();
+            });
+          });
+
+          card.querySelectorAll('[data-jump-link]').forEach((lBtn) => {
+            lBtn.addEventListener('click', () => {
+              focusExcerptCard(lBtn.dataset.jumpLink);
+            });
+          });
+
+          card.querySelector('[data-copy-exc]').addEventListener('click', () => {
+            const citationLines = [
+              `${exc.quote}`,
+              `— ${book ? `${book.author}, 『${book.title}』` : '출처 미상'}${exc.page ? `, ${normalizePageDisplay(exc.page)}` : ''}`,
+            ];
+            if (exc.note) {
+              citationLines.push(`\n[여백 메모] ${exc.note}`);
+            }
+            copyToClipboardSafe(citationLines.join('\n'), '발췌 인용문과 출처가 클립보드에 복사되었습니다.');
+          });
+
+          card.querySelector('[data-link-exc]').addEventListener('click', () => {
+            openExcerptModal(exc, true);
+          });
+
+          card.querySelector('[data-edit-exc]').addEventListener('click', () => {
+            openExcerptModal(exc, false);
+          });
+
+          card.querySelector('[data-delete-exc]').addEventListener('click', () => {
+            showConfirmDialog({
+              title: '발췌 문장 삭제',
+              message: '이 발췌 문장과 여백 메모를 서재에서 삭제할까요? 연결된 상호 참조도 함께 정리됩니다.',
+              onConfirm: async () => {
+                syncBidirectionalLinks(exc.id, []);
+                state.excerpts = state.excerpts.filter((item) => item.id !== exc.id);
+                state.remindExcerptIds = state.remindExcerptIds.filter((id) => id !== exc.id);
+                await persistAllToStorage();
+                renderAll();
+                showToast('발췌 기록이 삭제되었습니다.', 'danger');
+              },
+            });
+          });
+
+          container.appendChild(card);
+        });
+      }
+
+      function renderAll() {
+        renderSidebar();
+        renderRemindSection();
+        renderFeedHeader();
+        renderExcerptsFeed();
+      }
+
+      // =========================================================================
+      // 9. BOOK MODAL & ISBN BARCODE SCANNER / METADATA LOOKUP LOGIC
+      // =========================================================================
+      function loadExternalScriptOnce(url) {
+        return new Promise((resolve, reject) => {
+          const existing = document.querySelector(`script[src="${url}"]`);
+          if (existing && existing.dataset.loaded === 'true') {
+            resolve();
+            return;
+          }
+          const script = existing || document.createElement('script');
+          script.src = url;
+          script.async = true;
+          script.onload = () => {
+            script.dataset.loaded = 'true';
+            resolve();
+          };
+          script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
+          if (!existing) document.head.appendChild(script);
+        });
+      }
+
+      function ensureZXingLoaded() {
+        if (window.ZXing) return Promise.resolve();
+        if (!zxingLoadPromise) {
+          zxingLoadPromise = loadExternalScriptOnce(ZXING_CDN_URL).catch((err) => {
+            zxingLoadPromise = null;
+            throw err;
+          });
+        }
+        return zxingLoadPromise;
+      }
+
+      function ensureTesseractLoaded() {
+        if (window.Tesseract) return Promise.resolve();
+        if (!tesseractLoadPromise) {
+          tesseractLoadPromise = loadExternalScriptOnce(TESSERACT_CDN_URL).catch((err) => {
+            tesseractLoadPromise = null;
+            throw err;
+          });
+        }
+        return tesseractLoadPromise;
+      }
+
+      function normalizeIsbn(raw) {
+        if (!raw) return '';
+        const cleaned = String(raw).replace(/[^0-9Xx]/g, '').toUpperCase();
+        if (cleaned.length === 13 || cleaned.length === 10) return cleaned;
+        const match13 = cleaned.match(/97[89]\d{10}/);
+        if (match13) return match13[0];
+        return cleaned;
+      }
+
+      function setIsbnStatus(text, tone = 'neutral') {
+        const badge = document.getElementById('isbnStatusBadge');
+        if (!text) {
+          badge.classList.add('hidden');
+          return;
+        }
+        badge.textContent = text;
+        badge.classList.remove('hidden');
+        badge.style.color =
+          tone === 'success'
+            ? 'var(--accent-sage)'
+            : tone === 'error'
+            ? '#e11d48'
+            : 'var(--accent-primary)';
+      }
+
+      function updateBookCoverPreview(coverUrl, captionText = '표지 및 도서 정보 확인됨') {
+        const box = document.getElementById('bookCoverPreviewBox');
+        const img = document.getElementById('bookCoverPreviewImg');
+        const hiddenInput = document.getElementById('bookCoverUrlInput');
+        const cap = document.getElementById('bookCoverPreviewCaption');
+
+        hiddenInput.value = coverUrl || '';
+        if (coverUrl) {
+          img.src = coverUrl;
+          cap.textContent = captionText;
+          box.classList.remove('hidden');
+          box.classList.add('flex');
+        } else {
+          img.src = '';
+          box.classList.add('hidden');
+          box.classList.remove('flex');
+        }
+      }
+
+      function stopBarcodeCamera() {
+        if (barcodeScanRafId) {
+          cancelAnimationFrame(barcodeScanRafId);
+          barcodeScanRafId = null;
+        }
+        if (barcodeVideoStream) {
+          barcodeVideoStream.getTracks().forEach((track) => track.stop());
+          barcodeVideoStream = null;
+        }
+        const video = document.getElementById('barcodeVideoEl');
+        if (video) video.srcObject = null;
+        const viewport = document.getElementById('barcodeScannerViewport');
+        if (viewport) viewport.classList.add('hidden');
+        const btn = document.getElementById('toggleLiveBarcodeCamBtn');
+        if (btn) btn.innerHTML = '<span>🎥 실시간 바코드 스캔</span>';
+      }
+
+      async function startBarcodeCamera() {
+        const viewport = document.getElementById('barcodeScannerViewport');
+        const video = document.getElementById('barcodeVideoEl');
+        const btn = document.getElementById('toggleLiveBarcodeCamBtn');
+
+        if (barcodeVideoStream) {
+          stopBarcodeCamera();
+          return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setIsbnStatus('이 브라우저는 실시간 카메라를 지원하지 않습니다. 사진 찍기/앨범을 이용해 주세요.', 'error');
+          return;
+        }
+
+        try {
+          setIsbnStatus('후면 카메라 연결 중...', 'neutral');
+          barcodeVideoStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+            audio: false,
+          });
+          video.srcObject = barcodeVideoStream;
+          await video.play();
+          viewport.classList.remove('hidden');
+          btn.innerHTML = '<span>⏹ 스캐너 정지</span>';
+          setIsbnStatus('바코드를 비추면 자동으로 인식합니다...', 'neutral');
+
+          // Strategy 1: Native BarcodeDetector API
+          if ('BarcodeDetector' in window) {
+            let detector;
+            try {
+              detector = new window.BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+            } catch (_) {
+              detector = new window.BarcodeDetector();
+            }
+
+            const scanLoop = async () => {
+              if (!barcodeVideoStream) return;
+              if (video.readyState >= 2) {
+                try {
+                  const codes = await detector.detect(video);
+                  if (codes && codes.length > 0 && codes[0].rawValue) {
+                    const detectedIsbn = normalizeIsbn(codes[0].rawValue);
+                    if (detectedIsbn.length >= 10) {
+                      stopBarcodeCamera();
+                      document.getElementById('isbnManualInput').value = detectedIsbn;
+                      showToast(`바코드 인식 완료: ${detectedIsbn}`, 'sage');
+                      await lookupBookMetadataByIsbn(detectedIsbn);
+                      return;
+                    }
+                  }
+                } catch (_) {}
+              }
+              barcodeScanRafId = requestAnimationFrame(scanLoop);
+            };
+            barcodeScanRafId = requestAnimationFrame(scanLoop);
+            return;
+          }
+
+          // Strategy 2: @zxing/library fallback (iOS Safari / Firefox)
+          setIsbnStatus('바코드 디코더(ZXing) 로딩 중...', 'neutral');
+          await ensureZXingLoaded();
+          setIsbnStatus('바코드를 비추면 자동으로 인식합니다...', 'neutral');
+
+          const hints = new Map();
+          hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+            window.ZXing.BarcodeFormat.EAN_13,
+            window.ZXing.BarcodeFormat.EAN_8,
+            window.ZXing.BarcodeFormat.UPC_A,
+            window.ZXing.BarcodeFormat.UPC_E,
+          ]);
+          const reader = new window.ZXing.MultiFormatReader();
+          reader.setHints(hints);
+
+          const offscreen = document.createElement('canvas');
+          const offCtx = offscreen.getContext('2d', { willReadFrequently: true });
+          let lastCheck = 0;
+
+          const zxingLoop = (now) => {
+            if (!barcodeVideoStream) return;
+            if (now - lastCheck > 180 && video.readyState >= 2 && video.videoWidth > 0) {
+              lastCheck = now;
+              const targetW = Math.min(960, video.videoWidth);
+              const scale = targetW / video.videoWidth;
+              offscreen.width = targetW;
+              offscreen.height = Math.round(video.videoHeight * scale);
+              offCtx.drawImage(video, 0, 0, offscreen.width, offscreen.height);
+
+              try {
+                const imgData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+                const luminance = new window.ZXing.RGBLuminanceSource(imgData.data, offscreen.width, offscreen.height);
+                const binaryBitmap = new window.ZXing.BinaryBitmap(new window.ZXing.HybridBinarizer(luminance));
+                const result = reader.decode(binaryBitmap);
+                if (result && result.getText()) {
+                  const detectedIsbn = normalizeIsbn(result.getText());
+                  if (detectedIsbn.length >= 10) {
+                    stopBarcodeCamera();
+                    document.getElementById('isbnManualInput').value = detectedIsbn;
+                    showToast(`바코드 인식 완료: ${detectedIsbn}`, 'sage');
+                    lookupBookMetadataByIsbn(detectedIsbn);
+                    return;
+                  }
+                }
+              } catch (_) {
+                // NotFoundException on frames without a clear barcode is normal
+              }
+            }
+            barcodeScanRafId = requestAnimationFrame(zxingLoop);
+          };
+          barcodeScanRafId = requestAnimationFrame(zxingLoop);
+        } catch (err) {
+          console.warn('Barcode camera error:', err);
+          stopBarcodeCamera();
+          setIsbnStatus('카메라 접근이 거부되었거나 사용할 수 없습니다. 사진 찍기/앨범을 이용해 주세요.', 'error');
+        }
+      }
+
+      async function decodeBarcodeFromImageFile(file) {
+        if (!file) return;
+        setIsbnStatus('사진에서 ISBN 바코드 분석 중...', 'neutral');
+
+        try {
+          const imgUrl = URL.createObjectURL(file);
+          const img = new Image();
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = imgUrl;
+          });
+
+          // Draw scaled image on canvas for reliable decoding even on 12MP mobile photos
+          const maxDim = 1400;
+          const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          const ctx = canvas.getContext('2d', { willReadFrequently: true });
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(imgUrl);
+
+          let foundIsbn = '';
+
+          // 1. Try native BarcodeDetector first
+          if ('BarcodeDetector' in window) {
+            try {
+              const detector = new window.BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+              const results = await detector.detect(canvas);
+              if (results && results.length > 0 && results[0].rawValue) {
+                foundIsbn = normalizeIsbn(results[0].rawValue);
+              }
+            } catch (_) {}
+          }
+
+          // 2. Fallback to ZXing MultiFormatReader (with 0° and 90° rotation attempts)
+          if (!foundIsbn || foundIsbn.length < 10) {
+            await ensureZXingLoaded();
+            const hints = new Map();
+            hints.set(window.ZXing.DecodeHintType.TRY_HARDER, true);
+            hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+              window.ZXing.BarcodeFormat.EAN_13,
+              window.ZXing.BarcodeFormat.EAN_8,
+              window.ZXing.BarcodeFormat.UPC_A,
+              window.ZXing.BarcodeFormat.UPC_E,
+            ]);
+            const reader = new window.ZXing.MultiFormatReader();
+            reader.setHints(hints);
+
+            const tryDecodeCanvas = (targetCanvas) => {
+              const tCtx = targetCanvas.getContext('2d', { willReadFrequently: true });
+              const imgData = tCtx.getImageData(0, 0, targetCanvas.width, targetCanvas.height);
+              const lum = new window.ZXing.RGBLuminanceSource(imgData.data, targetCanvas.width, targetCanvas.height);
+              const bmp = new window.ZXing.BinaryBitmap(new window.ZXing.HybridBinarizer(lum));
+              const res = reader.decode(bmp);
+              return res && res.getText() ? normalizeIsbn(res.getText()) : '';
+            };
+
+            try {
+              foundIsbn = tryDecodeCanvas(canvas);
+            } catch (_) {
+              // Try 90-degree rotated canvas in case barcode was photographed vertically
+              const rotCanvas = document.createElement('canvas');
+              rotCanvas.width = canvas.height;
+              rotCanvas.height = canvas.width;
+              const rCtx = rotCanvas.getContext('2d');
+              rCtx.translate(rotCanvas.width / 2, rotCanvas.height / 2);
+              rCtx.rotate(Math.PI / 2);
+              rCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+              try {
+                foundIsbn = tryDecodeCanvas(rotCanvas);
+              } catch (_) {}
+            }
+          }
+
+          if (foundIsbn && foundIsbn.length >= 10) {
+            document.getElementById('isbnManualInput').value = foundIsbn;
+            showToast(`사진에서 ISBN 바코드 인식 성공: ${foundIsbn}`, 'sage');
+            await lookupBookMetadataByIsbn(foundIsbn);
+          } else {
+            setIsbnStatus('바코드를 찾지 못했습니다. 바코드가 선명하게 나오도록 다시 찍거나 아래에 번호를 직접 입력해 주세요.', 'error');
+            showToast('바코드를 인식하지 못했습니다. 숫자를 직접 입력해 조회할 수 있습니다.', 'danger');
+          }
+        } catch (err) {
+          console.error('Barcode photo decode error:', err);
+          setIsbnStatus('바코드 이미지 분석 중 오류가 발생했습니다.', 'error');
+        }
+      }
+
+      async function lookupBookMetadataByIsbn(rawIsbn) {
+        const cleanIsbn = normalizeIsbn(rawIsbn);
+        if (!cleanIsbn || (cleanIsbn.length !== 10 && cleanIsbn.length !== 13)) {
+          setIsbnStatus('올바른 10자리 또는 13자리 ISBN 번호를 입력해 주세요.', 'error');
+          showToast('10자리 또는 13자리 ISBN 번호를 입력해 주세요.', 'danger');
+          return;
+        }
+
+        document.getElementById('isbnManualInput').value = cleanIsbn;
+        setIsbnStatus(`ISBN ${cleanIsbn} 도서 정보 조회 중...`, 'neutral');
+
+        let meta = {
+          title: '',
+          author: '',
+          publisher: '',
+          publishedYear: '',
+          category: '',
+          coverUrl: '',
+        };
+
+        // 1. Query Google Books API
+        try {
+          const gbRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(cleanIsbn)}`);
+          if (gbRes.ok) {
+            const gbData = await gbRes.json();
+            if (gbData.items && gbData.items.length > 0) {
+              const info = gbData.items[0].volumeInfo || {};
+              meta.title = [info.title, info.subtitle].filter(Boolean).join(' : ');
+              meta.author = Array.isArray(info.authors) ? info.authors.join(', ') : '';
+              meta.publisher = info.publisher || '';
+              if (info.publishedDate) {
+                const yMatch = String(info.publishedDate).match(/\d{4}/);
+                meta.publishedYear = yMatch ? yMatch[0] : String(info.publishedDate);
+              }
+              meta.category = Array.isArray(info.categories) && info.categories[0] ? info.categories[0] : '';
+              if (info.imageLinks) {
+                const rawThumb = info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || '';
+                meta.coverUrl = rawThumb.replace(/^http:\/\//i, 'https://');
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('Google Books lookup failed:', err);
+        }
+
+        // 2. Query Open Library API (fill missing fields or fallback)
+        if (!meta.title || !meta.author || !meta.coverUrl || !meta.publisher) {
+          try {
+            const olRes = await fetch(
+              `https://openlibrary.org/api/books?bibkeys=ISBN:${encodeURIComponent(cleanIsbn)}&format=json&jscmd=data`
+            );
+            if (olRes.ok) {
+              const olJson = await olRes.json();
+              const olBook = olJson[`ISBN:${cleanIsbn}`];
+              if (olBook) {
+                if (!meta.title && olBook.title) {
+                  meta.title = [olBook.title, olBook.subtitle].filter(Boolean).join(' : ');
+                }
+                if (!meta.author && Array.isArray(olBook.authors)) {
+                  meta.author = olBook.authors.map((a) => a.name).filter(Boolean).join(', ');
+                }
+                if (!meta.publisher && Array.isArray(olBook.publishers) && olBook.publishers[0]) {
+                  meta.publisher = olBook.publishers[0].name || '';
+                }
+                if (!meta.publishedYear && olBook.publish_date) {
+                  const yMatch = String(olBook.publish_date).match(/\d{4}/);
+                  meta.publishedYear = yMatch ? yMatch[0] : String(olBook.publish_date);
+                }
+                if (!meta.category && Array.isArray(olBook.subjects) && olBook.subjects[0]) {
+                  meta.category = olBook.subjects[0].name || '';
+                }
+                if (!meta.coverUrl && olBook.cover) {
+                  meta.coverUrl = olBook.cover.medium || olBook.cover.large || olBook.cover.small || '';
+                }
+              }
+            }
+          } catch (err) {
+            console.warn('Open Library lookup failed:', err);
+          }
+        }
+
+        if (meta.title || meta.author) {
+          if (meta.title) document.getElementById('bookTitleInput').value = meta.title;
+          if (meta.author) document.getElementById('bookAuthorInput').value = meta.author;
+          if (meta.publisher) document.getElementById('bookPublisherInput').value = meta.publisher;
+          if (meta.publishedYear) document.getElementById('bookPublishedYearInput').value = meta.publishedYear;
+          if (meta.category && !document.getElementById('bookCategoryInput').value) {
+            document.getElementById('bookCategoryInput').value = meta.category;
+          }
+          if (meta.coverUrl) {
+            updateBookCoverPreview(meta.coverUrl, `${meta.title || cleanIsbn} 표지 로드됨`);
+          }
+          setIsbnStatus('도서 메타데이터 자동 입력 완료', 'success');
+          showToast(`『${meta.title || cleanIsbn}』 정보를 불러왔습니다.`, 'sage');
+        } else {
+          setIsbnStatus(`ISBN ${cleanIsbn} 검색 결과 없음 — 아래에 책 제목과 저자를 직접 입력해 주세요.`, 'error');
+          showToast('외부 DB에서 해당 ISBN 정보를 찾지 못했습니다. 직접 입력해 등록해 주세요.', 'danger');
+        }
+      }
+
+      function openBookModal(bookToEdit = null) {
+        const modal = document.getElementById('bookModal');
+        stopBarcodeCamera();
+        setIsbnStatus('');
+
+        if (bookToEdit) {
+          document.getElementById('bookModalTitle').textContent = '책 정보 수정';
+          document.getElementById('editBookId').value = bookToEdit.id;
+          document.getElementById('isbnManualInput').value = bookToEdit.isbn || '';
+          document.getElementById('bookTitleInput').value = bookToEdit.title;
+          document.getElementById('bookAuthorInput').value = bookToEdit.author;
+          document.getElementById('bookPublisherInput').value = bookToEdit.publisher || '';
+          document.getElementById('bookPublishedYearInput').value = bookToEdit.publishedYear || '';
+          document.getElementById('bookCategoryInput').value = bookToEdit.category || '';
+          updateBookCoverPreview(bookToEdit.coverUrl || '', `${bookToEdit.title} 표지`);
+          renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', bookToEdit.spineColor || '#9A3412');
+        } else {
+          document.getElementById('bookModalTitle').textContent = '새 책 등록';
+          document.getElementById('editBookId').value = '';
+          document.getElementById('isbnManualInput').value = '';
+          document.getElementById('bookTitleInput').value = '';
+          document.getElementById('bookAuthorInput').value = '';
+          document.getElementById('bookPublisherInput').value = '';
+          document.getElementById('bookPublishedYearInput').value = '';
+          document.getElementById('bookCategoryInput').value = '';
+          updateBookCoverPreview('');
+          renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', '#9A3412');
+        }
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => document.getElementById('bookTitleInput').focus(), 60);
+      }
+
+      function closeBookModal() {
+        stopBarcodeCamera();
+        const modal = document.getElementById('bookModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      // =========================================================================
+      // 9B. PAGE CAMERA CAPTURE, INTERACTIVE CROP CANVAS & TESSERACT OCR ENGINE
+      // =========================================================================
+      function stopOcrWebcam() {
+        if (ocrWebcamStream) {
+          ocrWebcamStream.getTracks().forEach((t) => t.stop());
+          ocrWebcamStream = null;
+        }
+        const vid = document.getElementById('ocrWebcamVideo');
+        if (vid) vid.srcObject = null;
+        const vp = document.getElementById('ocrWebcamViewport');
+        if (vp) vp.classList.add('hidden');
+      }
+
+      async function startOcrWebcam() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showToast('이 브라우저는 실시간 웹캠을 지원하지 않습니다. 카메라 촬영 버튼을 이용해 주세요.', 'danger');
+          return;
+        }
+        try {
+          ocrWebcamStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            },
+            audio: false,
+          });
+          const vid = document.getElementById('ocrWebcamVideo');
+          vid.srcObject = ocrWebcamStream;
+          await vid.play();
+          document.getElementById('ocrWebcamViewport').classList.remove('hidden');
+        } catch (err) {
+          console.warn('OCR webcam error:', err);
+          stopOcrWebcam();
+          showToast('카메라 권한이 거부되었거나 사용할 수 없습니다.', 'danger');
+        }
+      }
+
+      function snapOcrWebcamFrame() {
+        const vid = document.getElementById('ocrWebcamVideo');
+        if (!vid || vid.videoWidth === 0) return;
+
+        const snapCanvas = document.createElement('canvas');
+        snapCanvas.width = vid.videoWidth;
+        snapCanvas.height = vid.videoHeight;
+        snapCanvas.getContext('2d').drawImage(vid, 0, 0, snapCanvas.width, snapCanvas.height);
+
+        const dataUrl = snapCanvas.toDataURL('image/jpeg', 0.94);
+        stopOcrWebcam();
+        loadOcrImageFromSrc(dataUrl);
+      }
+
+      function rebuildOcrRotatedCanvas() {
+        if (!ocrRawImage) return;
+        const w = ocrRawImage.naturalWidth;
+        const h = ocrRawImage.naturalHeight;
+        const isSwapped = ocrRotationDeg % 180 !== 0;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = isSwapped ? h : w;
+        canvas.height = isSwapped ? w : h;
+
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate((ocrRotationDeg * Math.PI) / 180);
+        ctx.drawImage(ocrRawImage, -w / 2, -h / 2);
+        ctx.restore();
+
+        ocrRotatedCanvas = canvas;
+      }
+
+      function loadOcrImageFromSrc(src, revokeUrl = null) {
+        const img = new Image();
+        img.onload = () => {
+          if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+          ocrRawImage = img;
+          ocrRotationDeg = 0;
+          ocrCropNorm = { x: 0.08, y: 0.22, w: 0.84, h: 0.36 };
+          rebuildOcrRotatedCanvas();
+
+          document.getElementById('ocrEmptyPlaceholder').classList.add('hidden');
+          document.getElementById('ocrCropCanvas').classList.remove('hidden');
+          document.getElementById('rotateOcrImgBtn').disabled = false;
+          document.getElementById('selectAllOcrCropBtn').disabled = false;
+          document.getElementById('runOcrExtractBtn').disabled = false;
+
+          renderOcrCropCanvas();
+        };
+        img.onerror = () => {
+          if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+          showToast('이미지를 불러오는 중 오류가 발생했습니다.', 'danger');
+        };
+        img.src = src;
+      }
+
+      function renderOcrCropCanvas() {
+        const wrapper = document.getElementById('ocrCropCanvasWrapper');
+        const canvas = document.getElementById('ocrCropCanvas');
+        if (!ocrRotatedCanvas || !wrapper || !canvas) return;
+
+        const wrapRect = wrapper.getBoundingClientRect();
+        const availW = Math.max(260, wrapRect.width - 16);
+        const availH = Math.max(240, wrapRect.height - 16);
+
+        const srcW = ocrRotatedCanvas.width;
+        const srcH = ocrRotatedCanvas.height;
+        const fitScale = Math.min(availW / srcW, availH / srcH);
+        const drawW = Math.round(srcW * fitScale);
+        const drawH = Math.round(srcH * fitScale);
+
+        const dpr = window.devicePixelRatio || 1;
+        canvas.style.width = `${drawW}px`;
+        canvas.style.height = `${drawH}px`;
+        canvas.width = Math.round(drawW * dpr);
+        canvas.height = Math.round(drawH * dpr);
+
+        ocrDisplayMetrics = { drawW, drawH };
+
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        // 1. Draw full page image
+        ctx.drawImage(ocrRotatedCanvas, 0, 0, drawW, drawH);
+
+        // 2. Compute crop pixel box
+        const cx = ocrCropNorm.x * drawW;
+        const cy = ocrCropNorm.y * drawH;
+        const cw = ocrCropNorm.w * drawW;
+        const ch = ocrCropNorm.h * drawH;
+
+        // 3. Dim outside regions (4 surrounding rectangles so inside remains crystal-clear)
+        ctx.fillStyle = 'rgba(12, 11, 10, 0.56)';
+        ctx.fillRect(0, 0, drawW, cy); // Top
+        ctx.fillRect(0, cy + ch, drawW, drawH - (cy + ch)); // Bottom
+        ctx.fillRect(0, cy, cx, ch); // Left
+        ctx.fillRect(cx + cw, cy, drawW - (cx + cw), ch); // Right
+
+        // 4. Subtle horizontal reading guide lines inside crop box
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        for (let i = 1; i <= 2; i++) {
+          const gy = cy + (ch * i) / 3;
+          ctx.beginPath();
+          ctx.moveTo(cx, gy);
+          ctx.lineTo(cx + cw, gy);
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+
+        // 5. Crisp selection border
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cx, cy, cw, ch);
+
+        // 6. 8 Resize Handles (4 corners + 4 midpoints)
+        const handles = [
+          { x: cx, y: cy },
+          { x: cx + cw / 2, y: cy },
+          { x: cx + cw, y: cy },
+          { x: cx + cw, y: cy + ch / 2 },
+          { x: cx + cw, y: cy + ch },
+          { x: cx + cw / 2, y: cy + ch },
+          { x: cx, y: cy + ch },
+          { x: cx, y: cy + ch / 2 },
+        ];
+        handles.forEach((pt) => {
+          ctx.fillStyle = '#ffffff';
+          ctx.strokeStyle = '#9a3412';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        });
+
+        ctx.restore();
+      }
+
+      function hitTestCropHandle(px, py) {
+        if (!ocrDisplayMetrics) return 'new';
+        const { drawW, drawH } = ocrDisplayMetrics;
+        const cx = ocrCropNorm.x * drawW;
+        const cy = ocrCropNorm.y * drawH;
+        const cw = ocrCropNorm.w * drawW;
+        const ch = ocrCropNorm.h * drawH;
+
+        const hitRadius = 16; // Generous radius for touch screens
+        const handleMap = [
+          { name: 'nw', x: cx, y: cy },
+          { name: 'n', x: cx + cw / 2, y: cy },
+          { name: 'ne', x: cx + cw, y: cy },
+          { name: 'e', x: cx + cw, y: cy + ch / 2 },
+          { name: 'se', x: cx + cw, y: cy + ch },
+          { name: 's', x: cx + cw / 2, y: cy + ch },
+          { name: 'sw', x: cx, y: cy + ch },
+          { name: 'w', x: cx, y: cy + ch / 2 },
+        ];
+
+        for (const h of handleMap) {
+          if (Math.hypot(px - h.x, py - h.y) <= hitRadius) {
+            return h.name;
+          }
+        }
+        if (px >= cx && px <= cx + cw && py >= cy && py <= cy + ch) {
+          return 'move';
+        }
+        return 'new';
+      }
+
+      function getCropCanvasPointerCoords(clientX, clientY) {
+        const canvas = document.getElementById('ocrCropCanvas');
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+        const y = Math.max(0, Math.min(rect.height, clientY - rect.top));
+        return { x, y, w: rect.width, h: rect.height };
+      }
+
+      function handleCropPointerDown(clientX, clientY) {
+        if (!ocrRotatedCanvas) return;
+        const pt = getCropCanvasPointerCoords(clientX, clientY);
+        const mode = hitTestCropHandle(pt.x, pt.y);
+        ocrDragState = {
+          mode,
+          startX: pt.x / pt.w,
+          startY: pt.y / pt.h,
+          origRect: { ...ocrCropNorm },
+        };
+      }
+
+      function handleCropPointerMove(clientX, clientY) {
+        const canvas = document.getElementById('ocrCropCanvas');
+        if (!ocrRotatedCanvas || !canvas) return;
+        const pt = getCropCanvasPointerCoords(clientX, clientY);
+
+        if (!ocrDragState) {
+          const hoverMode = hitTestCropHandle(pt.x, pt.y);
+          const cursorMap = {
+            nw: 'nwse-resize',
+            se: 'nwse-resize',
+            ne: 'nesw-resize',
+            sw: 'nesw-resize',
+            n: 'ns-resize',
+            s: 'ns-resize',
+            e: 'ew-resize',
+            w: 'ew-resize',
+            move: 'move',
+            new: 'crosshair',
+          };
+          canvas.style.cursor = cursorMap[hoverMode] || 'crosshair';
+          return;
+        }
+
+        const curX = pt.x / pt.w;
+        const curY = pt.y / pt.h;
+        const dx = curX - ocrDragState.startX;
+        const dy = curY - ocrDragState.startY;
+        const o = ocrDragState.origRect;
+        const minSize = 0.04;
+
+        if (ocrDragState.mode === 'new') {
+          const nx = Math.min(ocrDragState.startX, curX);
+          const ny = Math.min(ocrDragState.startY, curY);
+          const nw = Math.max(minSize, Math.abs(curX - ocrDragState.startX));
+          const nh = Math.max(minSize, Math.abs(curY - ocrDragState.startY));
+          ocrCropNorm = {
+            x: Math.max(0, Math.min(1 - minSize, nx)),
+            y: Math.max(0, Math.min(1 - minSize, ny)),
+            w: Math.min(1 - nx, nw),
+            h: Math.min(1 - ny, nh),
+          };
+        } else if (ocrDragState.mode === 'move') {
+          ocrCropNorm.x = Math.max(0, Math.min(1 - o.w, o.x + dx));
+          ocrCropNorm.y = Math.max(0, Math.min(1 - o.h, o.y + dy));
+        } else {
+          let left = o.x;
+          let top = o.y;
+          let right = o.x + o.w;
+          let bottom = o.y + o.h;
+
+          if (ocrDragState.mode.includes('w')) left = Math.max(0, Math.min(right - minSize, o.x + dx));
+          if (ocrDragState.mode.includes('e')) right = Math.min(1, Math.max(left + minSize, o.x + o.w + dx));
+          if (ocrDragState.mode.includes('n')) top = Math.max(0, Math.min(bottom - minSize, o.y + dy));
+          if (ocrDragState.mode.includes('s')) bottom = Math.min(1, Math.max(top + minSize, o.y + o.h + dy));
+
+          ocrCropNorm = { x: left, y: top, w: right - left, h: bottom - top };
+        }
+
+        renderOcrCropCanvas();
+      }
+
+      function handleCropPointerUp() {
+        ocrDragState = null;
+      }
+
+      /**
+       * Crops the selected region at full resolution and applies grayscale + contrast stretching
+       * so printed book serif characters on warm paper are crisp for Tesseract.js OCR.
+       */
+      function buildPreprocessedCropCanvas() {
+        const srcW = ocrRotatedCanvas.width;
+        const srcH = ocrRotatedCanvas.height;
+
+        const sx = Math.max(0, Math.round(ocrCropNorm.x * srcW));
+        const sy = Math.max(0, Math.round(ocrCropNorm.y * srcH));
+        const sw = Math.max(20, Math.round(ocrCropNorm.w * srcW));
+        const sh = Math.max(20, Math.round(ocrCropNorm.h * srcH));
+
+        // Upscale small crops slightly (up to 1600px width) to boost small font OCR accuracy
+        const scale = sw < 900 ? Math.min(2.0, 1400 / sw) : 1.0;
+        const outW = Math.round(sw * scale);
+        const outH = Math.round(sh * scale);
+
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = outW;
+        outCanvas.height = outH;
+        const ctx = outCanvas.getContext('2d', { willReadFrequently: true });
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, outW, outH);
+        ctx.drawImage(ocrRotatedCanvas, sx, sy, sw, sh, 0, 0, outW, outH);
+
+        // Luminance histogram contrast stretch (removes warm paper tint & sharpens ink)
+        const imgData = ctx.getImageData(0, 0, outW, outH);
+        const data = imgData.data;
+        let minLum = 255;
+        let maxLum = 0;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          if (lum < minLum) minLum = lum;
+          if (lum > maxLum) maxLum = lum;
+        }
+
+        const range = Math.max(30, maxLum - minLum);
+        for (let i = 0; i < data.length; i += 4) {
+          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          let norm = ((lum - minLum) / range) * 255;
+          // Gentle S-curve boost for crisp text edges
+          norm = norm < 128 ? norm * 0.85 : Math.min(255, 128 + (norm - 128) * 1.18);
+          const v = Math.max(0, Math.min(255, Math.round(norm)));
+          data[i] = v;
+          data[i + 1] = v;
+          data[i + 2] = v;
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        return outCanvas;
+      }
+
+      /**
+       * Merges artificial mid-sentence line breaks caused by narrow book columns
+       * while preserving intentional paragraph breaks.
+       */
+      function mergeBookLineBreaks(rawText) {
+        if (!rawText) return '';
+        const paragraphs = rawText
+          .replace(/\r\n/g, '\n')
+          .split(/\n{2,}/);
+
+        return paragraphs
+          .map((para) => {
+            const lines = para
+              .split('\n')
+              .map((l) => l.trim())
+              .filter(Boolean);
+            if (lines.length === 0) return '';
+            let merged = lines[0];
+            for (let i = 1; i < lines.length; i++) {
+              const prev = merged;
+              const next = lines[i];
+              // Keep break if previous line clearly ends a sentence
+              if (/[.!?。！？…]["”’」』)]?$/.test(prev)) {
+                merged += '\n' + next;
+              } else if (prev.endsWith('-')) {
+                // Rejoin hyphenated English word breaks
+                merged = prev.slice(0, -1) + next;
+              } else {
+                merged += ' ' + next;
+              }
+            }
+            return merged;
+          })
+          .filter(Boolean)
+          .join('\n\n');
+      }
+
+      function refreshOcrPreviewText() {
+        const shouldMerge = document.getElementById('mergeLineBreaksCheckbox').checked;
+        const previewEl = document.getElementById('ocrResultPreview');
+        previewEl.value = shouldMerge ? mergeBookLineBreaks(ocrRawExtractedText) : ocrRawExtractedText.trim();
+      }
+
+      async function runSelectedRegionOcr() {
+        if (!ocrRotatedCanvas) return;
+
+        const runBtn = document.getElementById('runOcrExtractBtn');
+        const progBox = document.getElementById('ocrProgressContainer');
+        const progBar = document.getElementById('ocrProgressBar');
+        const statusText = document.getElementById('ocrStatusText');
+        const pctText = document.getElementById('ocrPercentText');
+
+        runBtn.disabled = true;
+        progBox.classList.remove('hidden');
+        progBar.style.width = '8%';
+        pctText.textContent = '8%';
+        statusText.textContent = 'OCR 엔진(Tesseract.js) 불러오는 중...';
+
+        try {
+          await ensureTesseractLoaded();
+          const cropCanvas = buildPreprocessedCropCanvas();
+
+          const statusMapKo = {
+            'loading tesseract core': 'OCR 코어 엔진 로딩 중...',
+            'initializing tesseract': '인식기 초기화 중...',
+            'loading language traineddata': '한국어·영어 언어 데이터 다운로드 중...',
+            'initializing api': '텍스트 분석 준비 중...',
+            'recognizing text': '선택 영역 문장 인식 중...',
+          };
+
+          const result = await window.Tesseract.recognize(cropCanvas, 'kor+eng', {
+            logger: (info) => {
+              if (info && typeof info.progress === 'number') {
+                const pct = Math.max(10, Math.min(100, Math.round(info.progress * 100)));
+                progBar.style.width = `${pct}%`;
+                pctText.textContent = `${pct}%`;
+              }
+              if (info && info.status) {
+                statusText.textContent = statusMapKo[info.status] || info.status;
+              }
+            },
+          });
+
+          ocrRawExtractedText = (result && result.data && result.data.text) || '';
+          refreshOcrPreviewText();
+
+          progBar.style.width = '100%';
+          pctText.textContent = '100%';
+          statusText.textContent = '텍스트 추출이 완료되었습니다!';
+          showToast('선택한 페이지 영역의 텍스트가 추출되었습니다.', 'sage');
+        } catch (err) {
+          console.error('OCR extraction failed:', err);
+          statusText.textContent = '텍스트 추출 중 오류가 발생했습니다. 네트워크 연결을 확인해 주세요.';
+          showToast('OCR 텍스트 인식에 실패했습니다.', 'danger');
+        } finally {
+          runBtn.disabled = false;
+        }
+      }
+
+      function openPageOcrModal() {
+        const modal = document.getElementById('pageOcrModal');
+        document.getElementById('ocrProgressContainer').classList.add('hidden');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (ocrRotatedCanvas) {
+          requestAnimationFrame(renderOcrCropCanvas);
+        }
+      }
+
+      function closePageOcrModal() {
+        stopOcrWebcam();
+        const modal = document.getElementById('pageOcrModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      // =========================================================================
+      // 10. MARKDOWN EXPORT & JSON BACKUP / SETTINGS MODAL LOGIC
+      // =========================================================================
+      function renderSpineSwatches(containerId, hiddenInputId, activeHex) {
+        const container = document.getElementById(containerId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+        hiddenInput.value = activeHex;
+        container.innerHTML = '';
+
+        SPINE_COLORS.forEach((c) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.title = c.name;
+          btn.className = `w-6 h-6 rounded-full transition transform ${
+            activeHex === c.hex ? 'ring-2 ring-offset-2 ring-amber-700 scale-110' : 'opacity-80 hover:opacity-100'
+          }`;
+          btn.style.backgroundColor = c.hex;
+          btn.addEventListener('click', () => {
+            renderSpineSwatches(containerId, hiddenInputId, c.hex);
+          });
+          container.appendChild(btn);
+        });
+      }
+
+      function setComposerHighlightChoice(choice) {
+        document.getElementById('excerptHighlightInput').value = choice;
+        document.querySelectorAll('.hl-choice-btn').forEach((btn) => {
+          if (btn.dataset.hlChoice === choice) {
+            btn.classList.add('ring-2', 'ring-amber-700', 'font-bold');
+          } else {
+            btn.classList.remove('ring-2', 'ring-amber-700', 'font-bold');
+          }
+        });
+      }
+
+      function renderComposerTags() {
+        const chipsContainer = document.getElementById('composerTagChips');
+        chipsContainer.innerHTML = '';
+        composerTags.forEach((tag) => {
+          const chip = document.createElement('span');
+          chip.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium text-white';
+          chip.style.backgroundColor = 'var(--accent-sage)';
+          chip.innerHTML = `#${escapeHtml(tag)} <button type="button" class="hover:opacity-75 ml-0.5">✕</button>`;
+          chip.querySelector('button').onclick = () => {
+            composerTags = composerTags.filter((t) => t !== tag);
+            renderComposerTags();
+            renderTagSuggestions();
+          };
+          chipsContainer.appendChild(chip);
+        });
+      }
+
+      function renderTagSuggestions() {
+        const sugContainer = document.getElementById('existingTagSuggestions');
+        const allTags = new Set();
+        state.excerpts.forEach((e) => (e.tags || []).forEach((t) => allTags.add(t)));
+        const available = Array.from(allTags).filter((t) => !composerTags.includes(t));
+
+        if (available.length === 0) {
+          sugContainer.innerHTML = '';
+          return;
+        }
+        sugContainer.innerHTML = `<span class="text-[11px] text-muted">기존 태그 제안:</span>`;
+        available.slice(0, 8).forEach((tag) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'text-[11px] px-2 py-0.5 rounded-full surface-card border border-hairline text-secondary hover:text-ink transition';
+          btn.textContent = `+ #${tag}`;
+          btn.onclick = () => {
+            if (!composerTags.includes(tag)) {
+              composerTags.push(tag);
+              renderComposerTags();
+              renderTagSuggestions();
+            }
+          };
+          sugContainer.appendChild(btn);
+        });
+      }
+
+      function addComposerTagFromRaw(raw) {
+        const cleaned = raw.replace(/^#+/, '').trim().replace(/\s+/g, '');
+        if (cleaned && !composerTags.includes(cleaned)) {
+          composerTags.push(cleaned);
+          renderComposerTags();
+          renderTagSuggestions();
+        }
+      }
+
+      function renderCrossRefEditor() {
+        const editingId = document.getElementById('editExcerptId').value;
+        const query = document.getElementById('crossRefSearchInput').value.trim().toLowerCase();
+        const selectedList = document.getElementById('selectedCrossRefsList');
+        const candidatesList = document.getElementById('crossRefCandidatesList');
+        const countBadge = document.getElementById('selectedLinksCountBadge');
+
+        countBadge.textContent = `${composerLinkedIds.length}개 연결됨`;
+        selectedList.innerHTML = '';
+
+        composerLinkedIds.forEach((lid) => {
+          const target = getExcerptById(lid);
+          if (!target) return;
+          const book = getBookById(target.bookId);
+          const pill = document.createElement('div');
+          pill.className = 'flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg surface-elevated border border-hairline text-xs';
+          pill.innerHTML = `
+            <div class="truncate">
+              <span class="font-semibold text-ink">${escapeHtml(book?.title || '도서')}</span>
+              <span class="text-muted"> · ${escapeHtml(target.quote.slice(0, 42))}…</span>
+            </div>
+            <button type="button" class="text-muted hover:text-rose-600 shrink-0">연결 해제 ✕</button>
+          `;
+          pill.querySelector('button').onclick = () => {
+            composerLinkedIds = composerLinkedIds.filter((id) => id !== lid);
+            renderCrossRefEditor();
+          };
+          selectedList.appendChild(pill);
+        });
+
+        // Filter candidates (exclude self & already linked)
+        const candidates = state.excerpts.filter((exc) => {
+          if (exc.id === editingId || composerLinkedIds.includes(exc.id)) return false;
+          if (!query) return true;
+          const book = getBookById(exc.bookId);
+          const hay = `${exc.quote} ${exc.note} ${book ? book.title : ''} ${book ? book.author : ''}`.toLowerCase();
+          return hay.includes(query);
+        });
+
+        candidatesList.innerHTML = '';
+        if (candidates.length === 0) {
+          candidatesList.innerHTML = `<div class="text-xs text-muted py-2 text-center">연결 가능한 다른 발췌 문장이 없습니다.</div>`;
+          return;
+        }
+
+        candidates.forEach((cand) => {
+          const book = getBookById(cand.bookId);
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'w-full text-left px-2.5 py-1.5 rounded-lg hover:opacity-85 surface-card border border-hairline text-xs flex items-center justify-between gap-2 transition';
+          row.innerHTML = `
+            <div class="min-w-0 flex-1">
+              <div class="font-semibold text-ink truncate">${escapeHtml(book?.title || '도서')} ${cand.page ? `<span class="font-mono text-[10px] text-muted">${escapeHtml(normalizePageDisplay(cand.page))}</span>` : ''}</div>
+              <div class="text-muted truncate">${escapeHtml(cand.quote)}</div>
+            </div>
+            <span class="text-[11px] font-semibold shrink-0" style="color: var(--accent-sage);">+ 연결</span>
+          `;
+          row.onclick = () => {
+            composerLinkedIds.push(cand.id);
+            renderCrossRefEditor();
+          };
+          candidatesList.appendChild(row);
+        });
+      }
+
+      function populateBookSelectDropdown(selectedId = null) {
+        const select = document.getElementById('excerptBookSelect');
+        select.innerHTML = '';
+        if (state.books.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = '먼저 위에서 새 책을 등록해 주세요';
+          select.appendChild(opt);
+          return;
+        }
+        state.books.forEach((b) => {
+          const opt = document.createElement('option');
+          opt.value = b.id;
+          opt.textContent = `${b.title} — ${b.author}`;
+          if (selectedId && b.id === selectedId) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+
+      function openExcerptModal(excerptToEdit = null, focusCrossRef = false) {
+        const modal = document.getElementById('excerptModal');
+        document.getElementById('inlineNewBookBox').classList.add('hidden');
+        renderSpineSwatches('inlineSpineSwatches', 'inlineBookSpineColor', '#9A3412');
+
+        if (excerptToEdit) {
+          document.getElementById('excerptModalTitle').textContent = '발췌 문장 & 여백 메모 수정';
+          document.getElementById('editExcerptId').value = excerptToEdit.id;
+          populateBookSelectDropdown(excerptToEdit.bookId);
+          document.getElementById('excerptPageInput').value = excerptToEdit.page || '';
+          document.getElementById('excerptChapterInput').value = excerptToEdit.chapter || '';
+          document.getElementById('excerptQuoteInput').value = excerptToEdit.quote || '';
+          document.getElementById('excerptNoteInput').value = excerptToEdit.note || '';
+          setComposerHighlightChoice(excerptToEdit.highlightColor || 'none');
+          composerTags = [...(excerptToEdit.tags || [])];
+          composerLinkedIds = [...(excerptToEdit.linkedIds || [])];
+        } else {
+          document.getElementById('excerptModalTitle').textContent = '새 발췌 문장 & 여백 메모 기록';
+          document.getElementById('editExcerptId').value = '';
+          const defaultBookId =
+            state.activeView === 'book' && state.selectedBookId
+              ? state.selectedBookId
+              : state.books[0]
+              ? state.books[0].id
+              : null;
+          populateBookSelectDropdown(defaultBookId);
+          document.getElementById('excerptPageInput').value = '';
+          document.getElementById('excerptChapterInput').value = '';
+          document.getElementById('excerptQuoteInput').value = '';
+          document.getElementById('excerptNoteInput').value = '';
+          setComposerHighlightChoice('amber');
+          composerTags = state.selectedTag ? [state.selectedTag] : [];
+          composerLinkedIds = [];
+          if (state.books.length === 0) {
+            document.getElementById('inlineNewBookBox').classList.remove('hidden');
+          }
+        }
+
+        document.getElementById('excerptTagTextInput').value = '';
+        document.getElementById('crossRefSearchInput').value = '';
+        renderComposerTags();
+        renderTagSuggestions();
+        renderCrossRefEditor();
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        if (focusCrossRef) {
+          setTimeout(() => {
+            const sec = document.getElementById('crossRefEditorSection');
+            sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('crossRefSearchInput').focus();
+          }, 80);
+        } else {
+          setTimeout(() => document.getElementById('excerptQuoteInput').focus(), 60);
+        }
+      }
+
+      function closeExcerptModal() {
+        const modal = document.getElementById('excerptModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      // =========================================================================
+      // 9. BOOK MODAL LOGIC
+      // =========================================================================
+      function openBookModal(bookToEdit = null) {
+        const modal = document.getElementById('bookModal');
+        if (bookToEdit) {
+          document.getElementById('bookModalTitle').textContent = '책 정보 수정';
+          document.getElementById('editBookId').value = bookToEdit.id;
+          document.getElementById('bookTitleInput').value = bookToEdit.title;
+          document.getElementById('bookAuthorInput').value = bookToEdit.author;
+          document.getElementById('bookPublisherInput').value = bookToEdit.publisher || '';
+          document.getElementById('bookCategoryInput').value = bookToEdit.category || '';
+          renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', bookToEdit.spineColor || '#9A3412');
+        } else {
+          document.getElementById('bookModalTitle').textContent = '새 책 등록';
+          document.getElementById('editBookId').value = '';
+          document.getElementById('bookTitleInput').value = '';
+          document.getElementById('bookAuthorInput').value = '';
+          document.getElementById('bookPublisherInput').value = '';
+          document.getElementById('bookCategoryInput').value = '';
+          renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', '#9A3412');
+        }
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => document.getElementById('bookTitleInput').focus(), 60);
+      }
+
+      function closeBookModal() {
+        const modal = document.getElementById('bookModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      // =========================================================================
+      // 10. MARKDOWN EXPORT & JSON BACKUP MODAL LOGIC
+      // =========================================================================
+      function buildMarkdownDocument(scope = 'filtered') {
+        const targetExcerpts = scope === 'all' ? [...state.excerpts].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)) : getFilteredAndSortedExcerpts();
+        const lines = [];
+        lines.push(`# 여백의 서재 (Marginalia Archive)`);
+        lines.push(`> 내보내기 일시: ${new Date().toLocaleString('ko-KR')} · 총 ${targetExcerpts.length}개의 발췌 기록`);
+        lines.push('');
+
+        if (targetExcerpts.length === 0) {
+          lines.push('_내보낼 발췌 문장이 없습니다._');
+          return lines.join('\n');
+        }
+
+        // Group excerpts by book
+        const groupedByBook = new Map();
+        targetExcerpts.forEach((exc) => {
+          const bId = exc.bookId || 'unknown';
+          if (!groupedByBook.has(bId)) groupedByBook.set(bId, []);
+          groupedByBook.get(bId).push(exc);
+        });
+
+        groupedByBook.forEach((excs, bId) => {
+          const book = getBookById(bId);
+          lines.push(`## 『${book ? book.title : '미지정 도서'}』${book ? ` — ${book.author}` : ''}`);
+          if (book && (book.publisher || book.category)) {
+            lines.push(`- 분류: ${[book.category, book.publisher].filter(Boolean).join(' / ')}`);
+          }
+          lines.push('');
+
+          excs.forEach((exc) => {
+            const loc = [exc.page ? normalizePageDisplay(exc.page) : '', exc.chapter].filter(Boolean).join(' · ');
+            if (loc) lines.push(`### ${loc}`);
+            lines.push(`> ${exc.quote.replace(/\n/g, '\n> ')}`);
+            lines.push('');
+            if (exc.note) {
+              lines.push(`- **여백 메모:** ${exc.note}`);
+            }
+            if (exc.tags && exc.tags.length > 0) {
+              lines.push(`- **태그:** ${exc.tags.map((t) => `#${t}`).join(' ')}`);
+            }
+            const links = (exc.linkedIds || []).map((id) => getExcerptById(id)).filter(Boolean);
+            if (links.length > 0) {
+              const linkStrs = links.map((l) => {
+                const lb = getBookById(l.bookId);
+                return `『${lb ? lb.title : '도서'}』 ${l.page ? normalizePageDisplay(l.page) : ''}`;
+              });
+              lines.push(`- **상호 참조:** ${linkStrs.join(', ')}`);
+            }
+            lines.push('');
+          });
+        });
+
+        return lines.join('\n');
+      }
+
+      function switchExportBackupTab(tabName) {
+        document.querySelectorAll('.eb-tab-btn').forEach((btn) => {
+          if (btn.dataset.modalTab === tabName) {
+            btn.className = 'eb-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold btn-primary transition';
+          } else {
+            btn.className = 'eb-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold surface-subtle text-secondary hover:text-ink transition';
+          }
+        });
+
+        document.getElementById('tabPanelMarkdown').classList.toggle('hidden', tabName !== 'markdown');
+        document.getElementById('tabPanelJson').classList.toggle('hidden', tabName !== 'json');
+        document.getElementById('tabPanelManage').classList.toggle('hidden', tabName !== 'manage');
+
+        if (tabName === 'markdown') {
+          const scope = document.getElementById('mdScopeSelect').value;
+          document.getElementById('markdownPreviewTextarea').value = buildMarkdownDocument(scope);
+        }
+      }
+
+      function openExportBackupModal(initialTab = 'markdown', defaultScope = 'filtered') {
+        const modal = document.getElementById('exportBackupModal');
+        document.getElementById('mdScopeSelect').value = defaultScope;
+        document.getElementById('clearConfirmHint').classList.add('hidden');
+        clearArmed = false;
+        switchExportBackupTab(initialTab);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeExportBackupModal() {
+        const modal = document.getElementById('exportBackupModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      function triggerBlobDownload(filename, content, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // =========================================================================
+      // 11. MOBILE SIDEBAR DRAWER HELPERS
+      // =========================================================================
+      function openMobileSidebar() {
+        document.getElementById('sidebarDrawer').classList.remove('-translate-x-full');
+        document.getElementById('mobileSidebarBackdrop').classList.remove('hidden');
+      }
+
+      function closeMobileSidebar() {
+        document.getElementById('sidebarDrawer').classList.add('-translate-x-full');
+        document.getElementById('mobileSidebarBackdrop').classList.add('hidden');
+      }
+
+      // =========================================================================
+      // 12. EVENT LISTENERS BINDING
+      // =========================================================================
+      let clearArmed = false;
+
+      function bindEventListeners() {
+        // Mobile Drawer
+        document.getElementById('openMobileSidebarBtn').onclick = openMobileSidebar;
+        document.getElementById('closeMobileSidebarBtn').onclick = closeMobileSidebar;
+        document.getElementById('mobileSidebarBackdrop').onclick = closeMobileSidebar;
+
+        // Brand Reset
+        document.getElementById('brandHomeBtn').onclick = (e) => {
+          e.preventDefault();
+          state.activeView = 'all';
+          state.selectedBookId = null;
+          state.selectedTag = null;
+          state.searchQuery = '';
+          document.getElementById('globalSearchInput').value = '';
+          document.getElementById('clearSearchBtn').classList.add('hidden');
+          renderAll();
+        };
+
+        // Theme Toggle
+        document.getElementById('themeToggleBtn').onclick = () => {
+          applyTheme(!state.darkMode);
+        };
+
+        // Global Search
+        const searchInput = document.getElementById('globalSearchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        searchInput.addEventListener('input', (e) => {
+          state.searchQuery = e.target.value;
+          clearSearchBtn.classList.toggle('hidden', !state.searchQuery.trim());
+          renderFeedHeader();
+          renderExcerptsFeed();
+        });
+        clearSearchBtn.onclick = () => {
+          state.searchQuery = '';
+          searchInput.value = '';
+          clearSearchBtn.classList.add('hidden');
+          renderFeedHeader();
+          renderExcerptsFeed();
+          searchInput.focus();
+        };
+
+        // Sidebar Navigation
+        document.getElementById('navAllBtn').onclick = () => {
+          state.activeView = 'all';
+          state.selectedBookId = null;
+          state.selectedTag = null;
+          closeMobileSidebar();
+          renderAll();
+        };
+        document.getElementById('navLinkedBtn').onclick = () => {
+          state.activeView = 'linked';
+          state.selectedBookId = null;
+          closeMobileSidebar();
+          renderAll();
+        };
+        document.getElementById('clearTagFilterBtn').onclick = () => {
+          state.selectedTag = null;
+          renderAll();
+        };
+
+        // Sort Selector
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
+          state.sortBy = e.target.value;
+          renderExcerptsFeed();
+        });
+
+        // Remind Section Controls
+        document.getElementById('shuffleRemindBtn').onclick = () => {
+          pickRandomRemindIds();
+          renderRemindSection();
+        };
+        document.getElementById('toggleRemindCollapseBtn').onclick = () => {
+          state.remindCollapsed = !state.remindCollapsed;
+          renderRemindSection();
+        };
+
+        // Book Context Banner Actions
+        document.getElementById('exportBookMdBtn').onclick = () => {
+          openExportBackupModal('markdown', 'filtered');
+        };
+        document.getElementById('editCurrentBookBtn').onclick = () => {
+          if (state.selectedBookId) {
+            const book = getBookById(state.selectedBookId);
+            if (book) openBookModal(book);
+          }
+        };
+
+        // Primary Header Modal Triggers
+        document.getElementById('openNewExcerptBtn').onclick = () => openExcerptModal(null);
+        document.getElementById('openNewBookModalBtn').onclick = () => {
+          closeMobileSidebar();
+          openBookModal(null);
+        };
+        document.getElementById('openMarkdownModalBtn').onclick = () => openExportBackupModal('markdown', 'filtered');
+        document.getElementById('openBackupModalBtn').onclick = () => openExportBackupModal('json', 'all');
+
+        // Barcode Scanner & ISBN Lookup Triggers inside Book Modal
+        document.getElementById('openBarcodeBookModalFromExcerptBtn').onclick = () => {
+          closeExcerptModal();
+          openBookModal(null);
+          startBarcodeCamera();
+        };
+        document.getElementById('toggleLiveBarcodeCamBtn').onclick = startBarcodeCamera;
+        document.getElementById('stopLiveBarcodeCamBtn').onclick = stopBarcodeCamera;
+        document.getElementById('barcodePhotoInput').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (file) {
+            decodeBarcodeFromImageFile(file);
+            e.target.value = '';
+          }
+        });
+        document.getElementById('lookupIsbnBtn').onclick = () => {
+          lookupBookMetadataByIsbn(document.getElementById('isbnManualInput').value);
+        };
+        document.getElementById('isbnManualInput').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            lookupBookMetadataByIsbn(e.target.value);
+          }
+        });
+        document.getElementById('clearBookCoverBtn').onclick = () => updateBookCoverPreview('');
+
+        // Page Camera Capture, Crop & OCR Modal Triggers
+        document.getElementById('openPageOcrModalBtn').onclick = openPageOcrModal;
+        document.getElementById('closePageOcrModalBtn').onclick = closePageOcrModal;
+
+        document.getElementById('ocrCameraFileInput').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (file) {
+            stopOcrWebcam();
+            const url = URL.createObjectURL(file);
+            loadOcrImageFromSrc(url, url);
+            e.target.value = '';
+          }
+        });
+        document.getElementById('ocrAlbumFileInput').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (file) {
+            stopOcrWebcam();
+            const url = URL.createObjectURL(file);
+            loadOcrImageFromSrc(url, url);
+            e.target.value = '';
+          }
+        });
+        document.getElementById('startOcrWebcamBtn').onclick = startOcrWebcam;
+        document.getElementById('snapOcrWebcamBtn').onclick = snapOcrWebcamFrame;
+        document.getElementById('stopOcrWebcamBtn').onclick = stopOcrWebcam;
+
+        document.getElementById('rotateOcrImgBtn').onclick = () => {
+          if (!ocrRawImage) return;
+          ocrRotationDeg = (ocrRotationDeg + 90) % 360;
+          rebuildOcrRotatedCanvas();
+          renderOcrCropCanvas();
+        };
+        document.getElementById('selectAllOcrCropBtn').onclick = () => {
+          if (!ocrRotatedCanvas) return;
+          ocrCropNorm = { x: 0.02, y: 0.02, w: 0.96, h: 0.96 };
+          renderOcrCropCanvas();
+        };
+        document.getElementById('runOcrExtractBtn').onclick = runSelectedRegionOcr;
+        document.getElementById('mergeLineBreaksCheckbox').addEventListener('change', refreshOcrPreviewText);
+
+        document.getElementById('applyOcrTextBtn').onclick = () => {
+          const text = document.getElementById('ocrResultPreview').value.trim();
+          if (!text) {
+            showToast('적용할 추출 텍스트가 없습니다.', 'danger');
+            return;
+          }
+          document.getElementById('excerptQuoteInput').value = text;
+          closePageOcrModal();
+          showToast('추출된 문장이 발췌 원문에 입력되었습니다.', 'sage');
+        };
+        document.getElementById('appendOcrTextBtn').onclick = () => {
+          const text = document.getElementById('ocrResultPreview').value.trim();
+          if (!text) {
+            showToast('이어 붙일 추출 텍스트가 없습니다.', 'danger');
+            return;
+          }
+          const quoteEl = document.getElementById('excerptQuoteInput');
+          quoteEl.value = quoteEl.value.trim() ? `${quoteEl.value.trim()}\n${text}` : text;
+          closePageOcrModal();
+          showToast('추출된 문장이 기존 발췌 원문 뒤에 추가되었습니다.', 'sage');
+        };
+
+        // Interactive Crop Canvas Mouse & Touch Events
+        const cropCanvas = document.getElementById('ocrCropCanvas');
+        cropCanvas.addEventListener('mousedown', (e) => {
+          handleCropPointerDown(e.clientX, e.clientY);
+        });
+        window.addEventListener('mousemove', (e) => {
+          if (!document.getElementById('pageOcrModal').classList.contains('hidden')) {
+            handleCropPointerMove(e.clientX, e.clientY);
+          }
+        });
+        window.addEventListener('mouseup', handleCropPointerUp);
+
+        cropCanvas.addEventListener(
+          'touchstart',
+          (e) => {
+            if (e.touches && e.touches[0]) {
+              e.preventDefault();
+              handleCropPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+            }
+          },
+          { passive: false }
+        );
+        cropCanvas.addEventListener(
+          'touchmove',
+          (e) => {
+            if (e.touches && e.touches[0]) {
+              e.preventDefault();
+              handleCropPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+          },
+          { passive: false }
+        );
+        cropCanvas.addEventListener('touchend', handleCropPointerUp);
+
+        window.addEventListener('resize', () => {
+          if (!document.getElementById('pageOcrModal').classList.contains('hidden') && ocrRotatedCanvas) {
+            renderOcrCropCanvas();
+          }
+        });
+
+        // Excerpt Modal Controls
+        document.getElementById('closeExcerptModalBtn').onclick = closeExcerptModal;
+        document.getElementById('cancelExcerptModalBtn').onclick = closeExcerptModal;
+
+        document.querySelectorAll('.hl-choice-btn').forEach((btn) => {
+          btn.onclick = () => setComposerHighlightChoice(btn.dataset.hlChoice);
+        });
+
+        // Inline Book Creation inside Excerpt Modal
+        document.getElementById('toggleInlineBookFormBtn').onclick = () => {
+          document.getElementById('inlineNewBookBox').classList.toggle('hidden');
+        };
+        document.getElementById('cancelInlineBookBtn').onclick = () => {
+          document.getElementById('inlineNewBookBox').classList.add('hidden');
+        };
+        document.getElementById('saveInlineBookBtn').onclick = async () => {
+          const title = document.getElementById('inlineBookTitle').value.trim();
+          const author = document.getElementById('inlineBookAuthor').value.trim();
+          if (!title || !author) {
+            showToast('새 책의 제목과 저자를 모두 입력해 주세요.', 'danger');
+            return;
+          }
+          const newBook = {
+            id: `book-${Date.now()}`,
+            title,
+            author,
+            publisher: document.getElementById('inlineBookPublisher').value.trim(),
+            category: document.getElementById('inlineBookCategory').value.trim(),
+            spineColor: document.getElementById('inlineBookSpineColor').value || '#9A3412',
+            createdAt: Date.now(),
+          };
+          state.books.unshift(newBook);
+          await persistAllToStorage();
+          populateBookSelectDropdown(newBook.id);
+          renderSidebar();
+
+          document.getElementById('inlineBookTitle').value = '';
+          document.getElementById('inlineBookAuthor').value = '';
+          document.getElementById('inlineBookPublisher').value = '';
+          document.getElementById('inlineBookCategory').value = '';
+          document.getElementById('inlineNewBookBox').classList.add('hidden');
+          showToast(`『${newBook.title}』이(가) 책장에 등록되었습니다.`, 'sage');
+        };
+
+        // Tag Input in Composer
+        const tagInput = document.getElementById('excerptTagTextInput');
+        tagInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addComposerTagFromRaw(tagInput.value);
+            tagInput.value = '';
+          } else if (e.key === 'Backspace' && !tagInput.value && composerTags.length > 0) {
+            composerTags.pop();
+            renderComposerTags();
+            renderTagSuggestions();
+          }
+        });
+        tagInput.addEventListener('blur', () => {
+          if (tagInput.value.trim()) {
+            addComposerTagFromRaw(tagInput.value);
+            tagInput.value = '';
+          }
+        });
+
+        // Cross-Reference Search in Composer
+        document.getElementById('crossRefSearchInput').addEventListener('input', renderCrossRefEditor);
+
+        // Excerpt Form Submit (Create or Update)
+        document.getElementById('excerptForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const bookId = document.getElementById('excerptBookSelect').value;
+          const quote = document.getElementById('excerptQuoteInput').value.trim();
+          if (!bookId) {
+            showToast('먼저 책을 선택하거나 새 책을 등록해 주세요.', 'danger');
+            return;
+          }
+          if (!quote) {
+            showToast('발췌 문장을 입력해 주세요.', 'danger');
+            return;
+          }
+
+          if (tagInput.value.trim()) {
+            addComposerTagFromRaw(tagInput.value);
+            tagInput.value = '';
+          }
+
+          const editId = document.getElementById('editExcerptId').value;
+          const now = Date.now();
+
+          if (editId) {
+            const target = getExcerptById(editId);
+            if (target) {
+              target.bookId = bookId;
+              target.page = document.getElementById('excerptPageInput').value.trim();
+              target.chapter = document.getElementById('excerptChapterInput').value.trim();
+              target.quote = quote;
+              target.note = document.getElementById('excerptNoteInput').value.trim();
+              target.highlightColor = document.getElementById('excerptHighlightInput').value;
+              target.tags = [...composerTags];
+              target.updatedAt = now;
+              syncBidirectionalLinks(target.id, composerLinkedIds);
+            }
+            showToast('발췌 문장과 여백 메모가 수정되었습니다.', 'sage');
+          } else {
+            const newExc = {
+              id: `exc-${now}`,
+              bookId,
+              page: document.getElementById('excerptPageInput').value.trim(),
+              chapter: document.getElementById('excerptChapterInput').value.trim(),
+              quote,
+              note: document.getElementById('excerptNoteInput').value.trim(),
+              highlightColor: document.getElementById('excerptHighlightInput').value,
+              tags: [...composerTags],
+              linkedIds: [...composerLinkedIds],
+              createdAt: now,
+              updatedAt: now,
+            };
+            state.excerpts.unshift(newExc);
+            syncBidirectionalLinks(newExc.id, composerLinkedIds);
+            if (state.remindExcerptIds.length < 3) {
+              pickRandomRemindIds();
+            }
+            showToast('새 발췌 문장이 서재에 기록되었습니다.', 'sage');
+          }
+
+          await persistAllToStorage();
+          closeExcerptModal();
+          renderAll();
+        });
+
+        // Book Modal Controls
+        document.getElementById('closeBookModalBtn').onclick = closeBookModal;
+        document.getElementById('cancelBookModalBtn').onclick = closeBookModal;
+
+        document.getElementById('bookForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const title = document.getElementById('bookTitleInput').value.trim();
+          const author = document.getElementById('bookAuthorInput').value.trim();
+          if (!title || !author) return;
+
+          const isbn = normalizeIsbn(document.getElementById('isbnManualInput').value);
+          const publishedYear = document.getElementById('bookPublishedYearInput').value.trim();
+          const coverUrl = document.getElementById('bookCoverUrlInput').value.trim();
+
+          const editId = document.getElementById('editBookId').value;
+          if (editId) {
+            const book = getBookById(editId);
+            if (book) {
+              book.title = title;
+              book.author = author;
+              book.publisher = document.getElementById('bookPublisherInput').value.trim();
+              book.publishedYear = publishedYear;
+              book.isbn = isbn;
+              book.coverUrl = coverUrl;
+              book.category = document.getElementById('bookCategoryInput').value.trim();
+              book.spineColor = document.getElementById('bookSpineColorInput').value || '#9A3412';
+            }
+            showToast('책 정보가 수정되었습니다.', 'sage');
+          } else {
+            const newBook = {
+              id: `book-${Date.now()}`,
+              title,
+              author,
+              publisher: document.getElementById('bookPublisherInput').value.trim(),
+              publishedYear,
+              isbn,
+              coverUrl,
+              category: document.getElementById('bookCategoryInput').value.trim(),
+              spineColor: document.getElementById('bookSpineColorInput').value || '#9A3412',
+              createdAt: Date.now(),
+            };
+            state.books.unshift(newBook);
+            state.activeView = 'book';
+            state.selectedBookId = newBook.id;
+            showToast(`『${newBook.title}』이(가) 책장에 추가되었습니다.`, 'sage');
+          }
+
+          await persistAllToStorage();
+          closeBookModal();
+          renderAll();
+        });
+
+        // Export & Backup Modal Controls
+        document.getElementById('closeExportBackupModalBtn').onclick = closeExportBackupModal;
+        document.querySelectorAll('.eb-tab-btn').forEach((btn) => {
+          btn.onclick = () => switchExportBackupTab(btn.dataset.modalTab);
+        });
+        document.getElementById('mdScopeSelect').addEventListener('change', (e) => {
+          document.getElementById('markdownPreviewTextarea').value = buildMarkdownDocument(e.target.value);
+        });
+        document.getElementById('copyMarkdownBtn').onclick = () => {
+          const md = document.getElementById('markdownPreviewTextarea').value;
+          copyToClipboardSafe(md, 'Markdown 문서가 클립보드에 복사되었습니다.');
+        };
+        document.getElementById('downloadMarkdownBtn').onclick = () => {
+          const md = document.getElementById('markdownPreviewTextarea').value;
+          const dateStr = new Date().toISOString().slice(0, 10);
+          triggerBlobDownload(`Marginalia_Archive_${dateStr}.md`, md, 'text/markdown;charset=utf-8');
+          showToast('Markdown(.md) 파일이 다운로드되었습니다.', 'sage');
+        };
+
+        document.getElementById('downloadJsonBackupBtn').onclick = () => {
+          const payload = {
+            app: '여백의 서재 (Marginalia Archive)',
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            books: state.books,
+            excerpts: state.excerpts,
+          };
+          const dateStr = new Date().toISOString().slice(0, 10);
+          triggerBlobDownload(`Marginalia_Archive_${dateStr}.json`, JSON.stringify(payload, null, 2), 'application/json');
+          showToast('전체 서재 JSON 백업 파일이 저장되었습니다.', 'sage');
+        };
+
+        document.getElementById('jsonImportFileInput').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const mode = document.querySelector('input[name="jsonImportMode"]:checked')?.value || 'merge';
+          const reader = new FileReader();
+          reader.onload = async () => {
+            try {
+              const parsed = JSON.parse(String(reader.result));
+              if (!Array.isArray(parsed.books) || !Array.isArray(parsed.excerpts)) {
+                throw new Error('Invalid format');
+              }
+              if (mode === 'overwrite') {
+                state.books = parsed.books;
+                state.excerpts = parsed.excerpts;
+              } else {
+                const bookIds = new Set(state.books.map((b) => b.id));
+                const excIds = new Set(state.excerpts.map((x) => x.id));
+                parsed.books.forEach((b) => {
+                  if (!bookIds.has(b.id)) state.books.push(b);
+                });
+                parsed.excerpts.forEach((x) => {
+                  if (!excIds.has(x.id)) state.excerpts.push(x);
+                });
+              }
+              pickRandomRemindIds();
+              await persistAllToStorage();
+              closeExportBackupModal();
+              renderAll();
+              showToast('JSON 백업 데이터를 성공적으로 복원했습니다.', 'sage');
+            } catch (_) {
+              showToast('올바른 여백의 서재 JSON 백업 파일이 아닙니다.', 'danger');
+            } finally {
+              e.target.value = '';
+            }
+          };
+          reader.readAsText(file);
+        });
+
+        document.getElementById('resetSampleDataBtn').onclick = async () => {
+          const sample = getSampleDataset();
+          state.books = sample.books;
+          state.excerpts = sample.excerpts;
+          state.activeView = 'all';
+          state.selectedBookId = null;
+          state.selectedTag = null;
+          pickRandomRemindIds();
+          await persistAllToStorage();
+          closeExportBackupModal();
+          renderAll();
+          showToast('큐레이션 샘플 데이터가 초기화되었습니다.', 'sage');
+        };
+
+        document.getElementById('clearAllArchiveBtn').onclick = async () => {
+          if (!clearArmed) {
+            clearArmed = true;
+            document.getElementById('clearConfirmHint').classList.remove('hidden');
+            return;
+          }
+          clearArmed = false;
+          state.books = [];
+          state.excerpts = [];
+          state.remindExcerptIds = [];
+          state.activeView = 'all';
+          state.selectedBookId = null;
+          state.selectedTag = null;
+          await persistAllToStorage();
+          closeExportBackupModal();
+          renderAll();
+          showToast('서재의 모든 데이터가 비워졌습니다.', 'danger');
+        };
+
+        // Global Keyboard Shortcuts (N: New Excerpt, /: Focus Search, Esc: Close Modals)
+        window.addEventListener('keydown', (e) => {
+          const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+          const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+          if (e.key === 'Escape') {
+            if (!document.getElementById('pageOcrModal').classList.contains('hidden')) {
+              closePageOcrModal();
+              return;
+            }
+            closeExcerptModal();
+            closeBookModal();
+            closeExportBackupModal();
+            closeMobileSidebar();
+            document.getElementById('confirmDialogModal').classList.add('hidden');
+            document.getElementById('confirmDialogModal').classList.remove('flex');
+            if (isTyping) document.activeElement.blur();
+            return;
+          }
+
+          if (isTyping) return;
+
+          if (e.key === '/') {
+            e.preventDefault();
+            searchInput.focus();
+          } else if (e.key === 'n' || e.key === 'N') {
+            e.preventDefault();
+            openExcerptModal(null);
+          }
+        });
+      }
+
+      // =========================================================================
+      // 13. INITIALIZATION
+      // =========================================================================
+      async function init() {
+        // Restore theme preference
+        try {
+          const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+          if (savedTheme === 'dark') {
+            applyTheme(true);
+          } else {
+            applyTheme(false);
+          }
+        } catch (_) {
+          applyTheme(false);
+        }
+
+        await loadArchiveFromStorage();
+        pickRandomRemindIds();
+        bindEventListeners();
+        renderAll();
+      }
+
+      window.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

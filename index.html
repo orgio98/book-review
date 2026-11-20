@@ -799,7 +799,7 @@
               </svg>
               <span>ISBN 바코드 스캔 · 도서 정보 자동 입력</span>
             </span>
-            <span id="isbnStatusBadge" class="hidden text-[11px] font-medium px-2 py-0.5 rounded-full surface-elevated text-secondary"></span>
+            <span id="isbnStatusBadge" class="hidden text-[11px] font-medium leading-snug px-2 py-1 rounded-lg surface-elevated text-secondary"></span>
           </div>
 
           <!-- 2 Camera/Photo Acquisition Buttons -->
@@ -826,17 +826,17 @@
               </svg>
               <span>바코드 사진 찍기 / 앨범</span>
             </label>
-            <input id="barcodePhotoInput" type="file" accept="image/*" capture="environment" class="hidden" />
+            <input id="barcodePhotoInput" type="file" accept="image/*" class="hidden" />
           </div>
 
           <!-- Live Camera Barcode Viewport -->
-          <div id="barcodeScannerViewport" class="hidden relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-hairline">
-            <video id="barcodeVideoEl" playsinline muted autoplay class="w-full h-full object-cover"></video>
+          <div id="barcodeScannerViewport" class="hidden relative w-full max-h-[62dvh] rounded-xl overflow-hidden bg-black border border-hairline" style="aspect-ratio: 3 / 4;">
+            <video id="barcodeVideoEl" playsinline muted autoplay class="w-full h-full object-contain"></video>
             <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div class="w-4/5 h-24 border-2 border-amber-400/85 rounded-lg relative bg-black/10">
+              <div class="w-5/6 h-2/5 border-2 border-amber-400/85 rounded-lg relative bg-black/10">
                 <div class="barcode-laser-line"></div>
                 <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-mono text-white bg-black/75 px-2 py-0.5 rounded whitespace-nowrap">
-                  책 뒷표지 ISBN 바코드를 사각형 안에 맞추세요
+                  15~20cm 거리에서 바코드가 선명해지면 자동 인식됩니다
                 </span>
               </div>
             </div>
@@ -864,7 +864,7 @@
             <img id="barcodePhotoPreviewImg" src="" alt="바코드 촬영 미리보기" class="w-16 h-12 object-cover rounded-lg border border-hairline shrink-0" />
             <div class="min-w-0 flex-1">
               <div id="barcodePhotoStageText" class="text-xs font-semibold text-ink truncate">바코드 이미지 분석 준비 중...</div>
-              <div class="text-[11px] text-muted mt-0.5">전체 · 중앙 · 하단 뒤표지 · 90° 회전 5단계 정밀 스캔</div>
+              <div class="text-[11px] text-muted mt-0.5">원본 해상도에서 전체 → 하단 → 좌우 하단 → 중앙 → 상단 순으로 확대 스캔</div>
             </div>
           </div>
 
@@ -881,7 +881,7 @@
               id="lookupIsbnBtn"
               type="button"
               data-action="lookup-isbn"
-              class="btn-primary min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold shrink-0"
+              class="btn-primary min-h-[44px] px-4 py-2 rounded-xl text-xs font-semibold shrink-0 disabled:opacity-50"
             >
               도서 조회
             </button>
@@ -901,7 +901,7 @@
               data-action="test-sample-isbn"
               data-sample-isbn="9788936434120"
               class="min-h-[30px] px-2.5 py-0.5 rounded-full surface-card border border-hairline text-secondary hover:text-ink font-mono transition"
-            >9788936434120 (아몬드)</button>
+            >9788936434120 (소년이 온다)</button>
             <button
               type="button"
               data-action="test-sample-isbn"
@@ -926,7 +926,7 @@
               class="w-full min-h-[34px] flex items-center justify-between text-left text-[11px] font-semibold text-secondary hover:text-ink"
             >
               <span class="flex items-center gap-1.5 pointer-events-none">
-                <span>⚙ 한국 도서 API 선택 설정 (카카오 / 알라딘 키 입력 시 국내 도서 100% 조회)</span>
+                <span>⚙ 도서 조회 API 키 설정 (국내 도서는 카카오 키 권장)</span>
                 <span id="krApiActiveBadge" class="hidden px-1.5 py-0.5 rounded text-[10px] text-white" style="background-color: var(--accent-sage);">연동됨</span>
               </span>
               <span id="krApiChevron" class="text-muted pointer-events-none">▼</span>
@@ -934,7 +934,7 @@
 
             <div id="krApiSettingsPanel" class="hidden mt-2 p-3 rounded-xl surface-card border border-hairline flex flex-col gap-2.5 text-xs">
               <p class="text-[11px] text-muted leading-relaxed">
-                기본 무료 조회(Google Books · Open Library) 외에 아래 개인 API 키를 저장하면 국내 절판·신간 도서 표지와 상세 서지정보까지 즉시 조회됩니다. (키는 현재 기기 브라우저에만 저장됩니다.)
+                키 없이 쓰는 무료 조회(Google Books · Open Library)는 공용 사용량이 자주 소진되고 국내 도서 수록이 적어 실패하는 일이 많습니다. 아래 키 중 하나를 저장하면 조회가 안정됩니다. (키는 현재 기기 브라우저에만 저장되며, GitHub 저장소 코드에는 넣지 마세요.)
               </p>
               <div>
                 <label for="kakaoRestKeyInput" class="block text-[11px] font-semibold text-ink mb-1">카카오 책 검색 REST API 키 (KakaoAK)</label>
@@ -953,6 +953,16 @@
                   type="password"
                   autocomplete="off"
                   placeholder="예: ttbexample1234001"
+                  class="w-full min-h-[40px] surface-subtle border border-hairline rounded-lg px-3 py-1.5 font-mono text-ink focus:outline-none"
+                />
+              </div>
+              <div>
+                <label for="googleBooksKeyInput" class="block text-[11px] font-semibold text-ink mb-1">Google Books API 키 (선택 · 키 없는 공용 사용량 초과 429 회피)</label>
+                <input
+                  id="googleBooksKeyInput"
+                  type="password"
+                  autocomplete="off"
+                  placeholder="예: AIzaSy..."
                   class="w-full min-h-[40px] surface-subtle border border-hairline rounded-lg px-3 py-1.5 font-mono text-ink focus:outline-none"
                 />
               </div>
@@ -1370,6 +1380,7 @@
       const THEME_STORAGE_KEY = 'marginalia_archive_theme_v2';
       const KAKAO_KEY_STORAGE = 'marginalia_kakao_rest_key_v1';
       const ALADIN_KEY_STORAGE = 'marginalia_aladin_ttb_key_v1';
+      const GOOGLE_KEY_STORAGE = 'marginalia_google_books_key_v1';
       const ZXING_CDN_PRIMARY = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
       const ZXING_CDN_FALLBACK = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
       const TESSERACT_CDN_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
@@ -1535,6 +1546,7 @@
       // Barcode Scanner & OCR runtime state
       let barcodeVideoStream = null;
       let barcodeScanTimerId = null;
+      let barcodeScanBusy = false;
       let barcodeVideoDevices = [];
       let barcodeCurrentDeviceIdx = 0;
       let zxingLoadPromise = null;
@@ -2855,9 +2867,20 @@
         return cleaned;
       }
 
+      function hasValidIsbn13CheckDigit(code) {
+        if (!/^\d{13}$/.test(code)) return false;
+        let sum = 0;
+        for (let i = 0; i < 12; i++) {
+          sum += Number(code[i]) * (i % 2 === 0 ? 1 : 3);
+        }
+        return (10 - (sum % 10)) % 10 === Number(code[12]);
+      }
+
+      // 스캔 결과는 978/979로 시작하고 검증 숫자가 맞는 13자리만 책 바코드로 인정한다.
+      // (가격표·부가기호 등 다른 바코드나 오독으로 스캐너가 멈추는 것을 막는다.)
       function isValidBookBarcode(code) {
         const norm = normalizeIsbn(code);
-        return /^\d{13}$/.test(norm);
+        return /^97[89]\d{10}$/.test(norm) && hasValidIsbn13CheckDigit(norm);
       }
 
       function setIsbnStatus(text, tone = 'neutral') {
@@ -2892,37 +2915,49 @@
         box.classList.add('flex');
       }
 
-      function syncKoreanApiSettingsUi() {
-        let kakaoKey = '';
-        let aladinKey = '';
+      function readSavedApiKeys() {
+        const keys = { kakao: '', aladin: '', google: '' };
         try {
-          kakaoKey = localStorage.getItem(KAKAO_KEY_STORAGE) || '';
-          aladinKey = localStorage.getItem(ALADIN_KEY_STORAGE) || '';
+          keys.kakao = localStorage.getItem(KAKAO_KEY_STORAGE) || '';
+          keys.aladin = localStorage.getItem(ALADIN_KEY_STORAGE) || '';
+          keys.google = localStorage.getItem(GOOGLE_KEY_STORAGE) || '';
         } catch (_) {}
+        return keys;
+      }
 
+      function syncKoreanApiSettingsUi() {
+        const keys = readSavedApiKeys();
         const kakaoInput = document.getElementById('kakaoRestKeyInput');
         const aladinInput = document.getElementById('aladinTtbKeyInput');
+        const googleInput = document.getElementById('googleBooksKeyInput');
         const activeBadge = document.getElementById('krApiActiveBadge');
-        if (kakaoInput) kakaoInput.value = kakaoKey;
-        if (aladinInput) aladinInput.value = aladinKey;
+        if (kakaoInput) kakaoInput.value = keys.kakao;
+        if (aladinInput) aladinInput.value = keys.aladin;
+        if (googleInput) googleInput.value = keys.google;
         if (activeBadge) {
-          activeBadge.classList.toggle('hidden', !kakaoKey && !aladinKey);
+          activeBadge.classList.toggle('hidden', !keys.kakao && !keys.aladin && !keys.google);
         }
       }
 
       function saveKoreanBookstoreApiKeys() {
-        const kakaoKey = (document.getElementById('kakaoRestKeyInput')?.value || '').trim();
-        const aladinKey = (document.getElementById('aladinTtbKeyInput')?.value || '').trim();
+        const pairs = [
+          [KAKAO_KEY_STORAGE, (document.getElementById('kakaoRestKeyInput')?.value || '').trim()],
+          [ALADIN_KEY_STORAGE, (document.getElementById('aladinTtbKeyInput')?.value || '').trim()],
+          [GOOGLE_KEY_STORAGE, (document.getElementById('googleBooksKeyInput')?.value || '').trim()],
+        ];
+        let saved = true;
         try {
-          if (kakaoKey) localStorage.setItem(KAKAO_KEY_STORAGE, kakaoKey);
-          else localStorage.removeItem(KAKAO_KEY_STORAGE);
-
-          if (aladinKey) localStorage.setItem(ALADIN_KEY_STORAGE, aladinKey);
-          else localStorage.removeItem(ALADIN_KEY_STORAGE);
-        } catch (_) {}
+          pairs.forEach(([storageKey, value]) => {
+            if (value) localStorage.setItem(storageKey, value);
+            else localStorage.removeItem(storageKey);
+          });
+        } catch (_) {
+          saved = false;
+        }
 
         syncKoreanApiSettingsUi();
-        showToast('한국 도서 API 설정이 저장되었습니다.', 'sage');
+        if (saved) showToast('도서 조회 API 키 설정이 저장되었습니다.', 'sage');
+        else showToast('이 브라우저에서는 키를 저장할 수 없습니다 (사생활 보호 모드 등).', 'danger');
       }
 
       function updateBookCoverPreview(coverUrl, captionText = '표지 및 도서 정보 확인됨') {
@@ -2947,36 +2982,18 @@
       function createConfiguredZxingReader() {
         const hints = new Map();
         hints.set(window.ZXing.DecodeHintType.TRY_HARDER, true);
-        hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-          window.ZXing.BarcodeFormat.EAN_13,
-          window.ZXing.BarcodeFormat.EAN_8,
-          window.ZXing.BarcodeFormat.UPC_A,
-          window.ZXing.BarcodeFormat.CODE_128,
-        ]);
+        // ISBN 바코드는 EAN-13 하나뿐이다. 형식을 좁히면 더 빠르고 오인식도 줄어든다.
+        hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS, [window.ZXing.BarcodeFormat.EAN_13]);
         const reader = new window.ZXing.MultiFormatReader();
         reader.setHints(hints);
         return reader;
       }
 
-      function enhanceBarcodeCanvasContrast(ctx, width, height) {
-        const imgData = ctx.getImageData(0, 0, width, height);
-        const data = imgData.data;
-        let minLum = 255;
-        let maxLum = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-          if (lum < minLum) minLum = lum;
-          if (lum > maxLum) maxLum = lum;
-        }
-        const range = Math.max(24, maxLum - minLum);
-        for (let i = 0; i < data.length; i += 4) {
-          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-          const stretched = Math.max(0, Math.min(255, Math.round(((lum - minLum) / range) * 255)));
-          data[i] = stretched;
-          data[i + 1] = stretched;
-          data[i + 2] = stretched;
-        }
-        ctx.putImageData(imgData, 0, 0);
+      function isZxingNoBarcodeError(err) {
+        const Z = window.ZXing || {};
+        return [Z.NotFoundException, Z.ChecksumException, Z.FormatException].some(
+          (Cls) => typeof Cls === 'function' && err instanceof Cls
+        );
       }
 
       function decodeCanvasWithZxing(reader, canvas) {
@@ -2990,22 +3007,39 @@
             luminanceSource = new window.ZXing.RGBLuminanceSource(imgData.data, canvas.width, canvas.height);
           }
           const binaryBitmap = new window.ZXing.BinaryBitmap(new window.ZXing.HybridBinarizer(luminanceSource));
-          const result = reader.decode(binaryBitmap);
+          // 주의: reader.decode(bitmap)은 내부에서 setHints(undefined)를 호출해 위에서 넣은
+          // TRY_HARDER·형식 힌트를 지워 버린다. setHints()로 넣은 힌트를 쓰려면 decodeWithState()여야 한다.
+          const result = reader.decodeWithState(binaryBitmap);
           return result && result.getText() ? result.getText() : '';
-        } catch (_) {
+        } catch (err) {
+          // "바코드 없음"은 정상적인 실패다. 그 밖의 오류는 숨기지 않고 콘솔에 남긴다.
+          if (!isZxingNoBarcodeError(err)) console.warn('ZXing decode error:', err);
           return '';
+        } finally {
+          try {
+            reader.reset();
+          } catch (_) {}
         }
       }
 
-      function rotateCanvas90(sourceCanvas) {
-        const rot = document.createElement('canvas');
-        rot.width = sourceCanvas.height;
-        rot.height = sourceCanvas.width;
-        const rCtx = rot.getContext('2d', { willReadFrequently: true });
-        rCtx.translate(rot.width / 2, rot.height / 2);
-        rCtx.rotate(Math.PI / 2);
-        rCtx.drawImage(sourceCanvas, -sourceCanvas.width / 2, -sourceCanvas.height / 2);
-        return rot;
+      function createNativeBarcodeDetector() {
+        if (!('BarcodeDetector' in window)) return null;
+        try {
+          return new window.BarcodeDetector({ formats: ['ean_13'] });
+        } catch (_) {
+          return null;
+        }
+      }
+
+      async function detectWithNativeDetector(detector, canvas) {
+        if (!detector) return '';
+        try {
+          const found = await detector.detect(canvas);
+          const hit = (found || []).find((d) => d && d.rawValue && isValidBookBarcode(d.rawValue));
+          return hit ? hit.rawValue : '';
+        } catch (_) {
+          return '';
+        }
       }
 
       function stopBarcodeCamera() {
@@ -3025,6 +3059,7 @@
         if (lensBtn) lensBtn.classList.add('hidden');
         const label = document.getElementById('barcodeCamBtnLabel');
         if (label) label.textContent = '실시간 바코드 스캔';
+        barcodeScanBusy = false;
       }
 
       async function switchBarcodeRearLens() {
@@ -3054,12 +3089,14 @@
         const lensBtn = document.getElementById('switchBarcodeLensBtn');
 
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-          setIsbnStatus('실시간 카메라를 사용할 수 없습니다. [바코드 사진 찍기 / 앨범]을 이용해 주세요.', 'error');
+          setIsbnStatus('이 브라우저에서는 실시간 카메라를 쓸 수 없습니다. [바코드 사진 찍기 / 앨범]을 이용해 주세요.', 'error');
           return;
         }
 
+        // 1) 카메라 열기 — 실패 원인을 구분해서 알려 준다.
+        let stream = null;
         try {
-          setIsbnStatus('후면 카메라 및 ZXing 바코드 엔진 연결 중...', 'neutral');
+          setIsbnStatus('후면 카메라 연결 중...', 'neutral');
           const videoConstraints = preferredDeviceId
             ? {
                 deviceId: { exact: preferredDeviceId },
@@ -3071,110 +3108,130 @@
                 width: { ideal: 1920 },
                 height: { ideal: 1080 },
               };
+          stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: videoConstraints });
+        } catch (err) {
+          console.warn('Barcode camera error:', err);
+          stopBarcodeCamera();
+          const errName = err && err.name ? err.name : '알 수 없는 오류';
+          const denied = errName === 'NotAllowedError' || errName === 'SecurityError';
+          setIsbnStatus(
+            denied
+              ? '카메라 권한이 거부되었습니다. Safari 설정에서 이 사이트의 카메라를 허용한 뒤 다시 시도해 주세요.'
+              : `카메라를 열 수 없습니다 (${errName}). [바코드 사진 찍기 / 앨범]을 이용해 주세요.`,
+            'error'
+          );
+          return;
+        }
+        barcodeVideoStream = stream;
 
-          barcodeVideoStream = await navigator.mediaDevices.getUserMedia({
-            audio: false,
-            video: videoConstraints,
-          });
-
-          video.setAttribute('playsinline', '');
-          video.setAttribute('muted', '');
-          video.muted = true;
-          video.autoplay = true;
-          video.srcObject = barcodeVideoStream;
+        // 2) 화면에 먼저 보이게 한 뒤 재생한다 (숨겨진 video는 iOS에서 재생이 시작되지 않을 수 있다).
+        viewport.classList.remove('hidden');
+        if (label) label.textContent = '스캐너 정지';
+        video.setAttribute('playsinline', '');
+        video.setAttribute('muted', '');
+        video.muted = true;
+        video.autoplay = true;
+        video.srcObject = stream;
+        try {
           await video.play();
+        } catch (err) {
+          console.warn('Barcode video play() failed:', err);
+        }
+        if (barcodeVideoStream !== stream) return;
 
-          viewport.classList.remove('hidden');
-          if (label) label.textContent = '스캐너 정지';
+        // 미리보기 비율을 실제 카메라 영상에 맞춘다. 세로로 든 아이폰의 영상은 세로형(예: 1080×1920)인데
+        // 16:9 상자에 object-cover로 넣으면 가운데 띠만 확대되어, 초점이 안 맞는 거리까지 다가가게 된다.
+        if (video.videoWidth && video.videoHeight) {
+          viewport.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+        }
 
-          // Enumerate rear cameras so iPhone users can switch between Wide / Ultra-Wide (Macro) lenses
-          try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const allVideoInputs = devices.filter((d) => d.kind === 'videoinput');
-            const rearInputs = allVideoInputs.filter((d) => !/front|전면|user/i.test(d.label || ''));
-            barcodeVideoDevices = rearInputs.length > 0 ? rearInputs : allVideoInputs;
+        // 가능한 기기에서는 2배 줌을 걸어, 초점이 맞는 거리(15~20cm)에서도 바코드가 크게 찍히게 한다.
+        try {
+          const track = stream.getVideoTracks()[0];
+          const caps = track && track.getCapabilities ? track.getCapabilities() : null;
+          if (caps && caps.zoom && caps.zoom.max >= 2) {
+            await track.applyConstraints({ advanced: [{ zoom: Math.min(2, caps.zoom.max) }] });
+          }
+        } catch (_) {}
 
-            const activeTrack = barcodeVideoStream.getVideoTracks()[0];
-            const activeDeviceId = activeTrack?.getSettings?.().deviceId;
-            if (activeDeviceId) {
-              const foundIdx = barcodeVideoDevices.findIndex((d) => d.deviceId === activeDeviceId);
-              if (foundIdx >= 0) barcodeCurrentDeviceIdx = foundIdx;
+        // 후면 렌즈 목록 (광각 / 초광각 전환용)
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const allVideoInputs = devices.filter((d) => d.kind === 'videoinput');
+          const rearInputs = allVideoInputs.filter((d) => !/front|전면|user/i.test(d.label || ''));
+          barcodeVideoDevices = rearInputs.length > 0 ? rearInputs : allVideoInputs;
+
+          const activeTrack = stream.getVideoTracks()[0];
+          const activeDeviceId = activeTrack?.getSettings?.().deviceId;
+          if (activeDeviceId) {
+            const foundIdx = barcodeVideoDevices.findIndex((d) => d.deviceId === activeDeviceId);
+            if (foundIdx >= 0) barcodeCurrentDeviceIdx = foundIdx;
+          }
+
+          if (lensBtn) {
+            if (barcodeVideoDevices.length > 1) {
+              lensBtn.classList.remove('hidden');
+              lensBtn.textContent = `↻ 렌즈 전환 (${barcodeCurrentDeviceIdx + 1}/${barcodeVideoDevices.length})`;
+            } else {
+              lensBtn.classList.add('hidden');
             }
+          }
+        } catch (_) {}
 
-            if (lensBtn) {
-              if (barcodeVideoDevices.length > 1) {
-                lensBtn.classList.remove('hidden');
-                lensBtn.textContent = `↻ 렌즈 전환 (${barcodeCurrentDeviceIdx + 1}/${barcodeVideoDevices.length})`;
-              } else {
-                lensBtn.classList.add('hidden');
-              }
-            }
-          } catch (_) {}
-
+        // 3) 인식 엔진 — 불러오기 실패를 "카메라 문제"로 뭉뚱그리지 않는다.
+        const nativeDetector = createNativeBarcodeDetector();
+        let reader = null;
+        try {
           await ensureZXingLoaded();
-          const reader = createConfiguredZxingReader();
-          const nativeDetector =
-            'BarcodeDetector' in window
-              ? new window.BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'code_128'] })
-              : null;
+          reader = createConfiguredZxingReader();
+        } catch (err) {
+          console.warn('ZXing load failed:', err);
+        }
+        if (barcodeVideoStream !== stream) return;
+        if (!reader && !nativeDetector) {
+          stopBarcodeCamera();
+          setIsbnStatus('바코드 인식 엔진(ZXing)을 불러오지 못했습니다. 네트워크 연결이나 콘텐츠 차단 앱을 확인해 주세요.', 'error');
+          return;
+        }
 
-          setIsbnStatus('사각형 가이드 안에 ISBN 바코드를 비추세요 (초점이 흐리면 렌즈 전환)...', 'neutral');
+        setIsbnStatus('바코드가 선명해지는 거리(약 15~20cm)에서 화면 가운데에 비추세요. 흐리면 조금 더 떼거나 렌즈를 전환하세요.', 'neutral');
 
-          const roiCanvas = document.createElement('canvas');
-          const roiCtx = roiCanvas.getContext('2d', { willReadFrequently: true });
+        const frameCanvas = document.createElement('canvas');
+        const frameCtx = frameCanvas.getContext('2d', { willReadFrequently: true });
 
-          barcodeScanTimerId = setInterval(async () => {
-            if (!barcodeVideoStream || video.readyState < 2 || video.videoWidth === 0) return;
-
-            // Crop center scan guide ROI (74% width x 36% height) where the user aligns the barcode
+        barcodeScanBusy = false;
+        barcodeScanTimerId = setInterval(async () => {
+          // 앞 프레임 분석이 끝나지 않았으면 건너뛴다 (느린 기기에서 작업이 쌓이는 것을 막는다).
+          if (barcodeScanBusy || barcodeVideoStream !== stream || video.readyState < 2 || video.videoWidth === 0) return;
+          barcodeScanBusy = true;
+          try {
+            // 프레임 전체 너비 × 가운데 60% 높이를 원본 해상도에 가깝게 분석한다.
             const vw = video.videoWidth;
             const vh = video.videoHeight;
-            const roiW = Math.round(vw * 0.74);
-            const roiH = Math.round(vh * 0.36);
-            const roiX = Math.round((vw - roiW) / 2);
-            const roiY = Math.round((vh - roiH) / 2);
+            const bandH = Math.round(vh * 0.6);
+            const bandY = Math.round((vh - bandH) / 2);
+            const scale = Math.min(1, 1280 / vw);
+            frameCanvas.width = Math.max(1, Math.round(vw * scale));
+            frameCanvas.height = Math.max(80, Math.round(bandH * scale));
+            frameCtx.drawImage(video, 0, bandY, vw, bandH, 0, 0, frameCanvas.width, frameCanvas.height);
 
-            const targetW = Math.min(960, roiW);
-            const scale = targetW / roiW;
-            roiCanvas.width = targetW;
-            roiCanvas.height = Math.max(80, Math.round(roiH * scale));
-
-            roiCtx.drawImage(video, roiX, roiY, roiW, roiH, 0, 0, roiCanvas.width, roiCanvas.height);
-            enhanceBarcodeCanvasContrast(roiCtx, roiCanvas.width, roiCanvas.height);
-
-            let rawCode = '';
-
-            if (nativeDetector) {
-              try {
-                const detected = await nativeDetector.detect(roiCanvas);
-                if (detected && detected.length > 0 && detected[0].rawValue) {
-                  rawCode = detected[0].rawValue;
-                }
-              } catch (_) {}
+            let rawCode = await detectWithNativeDetector(nativeDetector, frameCanvas);
+            if (!isValidBookBarcode(rawCode) && reader) {
+              // TRY_HARDER가 켜져 있으면 ZXing이 90° 회전된 바코드도 스스로 시도한다.
+              rawCode = decodeCanvasWithZxing(reader, frameCanvas);
             }
 
-            if (!isValidBookBarcode(rawCode)) {
-              rawCode = decodeCanvasWithZxing(reader, roiCanvas);
-            }
-
-            if (!isValidBookBarcode(rawCode)) {
-              const rotRoi = rotateCanvas90(roiCanvas);
-              rawCode = decodeCanvasWithZxing(reader, rotRoi);
-            }
-
-            if (isValidBookBarcode(rawCode)) {
+            if (isValidBookBarcode(rawCode) && barcodeVideoStream === stream) {
               const detectedIsbn13 = normalizeIsbn(rawCode);
               stopBarcodeCamera();
               document.getElementById('isbnManualInput').value = detectedIsbn13;
               showToast(`ISBN 바코드 인식 성공: ${detectedIsbn13}`, 'sage');
               await lookupBookMetadataByIsbn(detectedIsbn13);
             }
-          }, 180);
-        } catch (err) {
-          console.warn('Barcode camera error:', err);
-          stopBarcodeCamera();
-          setIsbnStatus('카메라 접근이 제한되었습니다. [바코드 사진 찍기 / 앨범]을 이용해 주세요.', 'error');
-        }
+          } finally {
+            barcodeScanBusy = false;
+          }
+        }, 150);
       }
 
       async function decodeBarcodeFromImageFile(file) {
@@ -3183,81 +3240,84 @@
         const previewImg = document.getElementById('barcodePhotoPreviewImg');
         const stageText = document.getElementById('barcodePhotoStageText');
 
-        setIsbnStatus('사진에서 ISBN 바코드 5단계 정밀 분석 중...', 'neutral');
+        setIsbnStatus('사진에서 ISBN 바코드를 찾는 중...', 'neutral');
 
+        let imgUrl = '';
         try {
-          const imgUrl = URL.createObjectURL(file);
+          imgUrl = URL.createObjectURL(file);
           const img = new Image();
           await new Promise((resolve, reject) => {
             img.onload = resolve;
             img.onerror = reject;
             img.src = imgUrl;
           });
+          const fullW = img.naturalWidth;
+          const fullH = img.naturalHeight;
 
-          // Downscale huge iPhone photos to max 1400px to protect iOS Safari memory
-          const maxDim = 1400;
-          const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
-          const baseCanvas = document.createElement('canvas');
-          baseCanvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-          baseCanvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-          const baseCtx = baseCanvas.getContext('2d', { willReadFrequently: true });
-          baseCtx.drawImage(img, 0, 0, baseCanvas.width, baseCanvas.height);
-
+          // 미리보기는 작은 썸네일만 만든다.
           if (previewBox && previewImg) {
-            previewImg.src = baseCanvas.toDataURL('image/jpeg', 0.75);
+            const thumbScale = Math.min(1, 320 / Math.max(fullW, fullH));
+            const thumb = document.createElement('canvas');
+            thumb.width = Math.max(1, Math.round(fullW * thumbScale));
+            thumb.height = Math.max(1, Math.round(fullH * thumbScale));
+            thumb.getContext('2d').drawImage(img, 0, 0, thumb.width, thumb.height);
+            previewImg.src = thumb.toDataURL('image/jpeg', 0.75);
             previewBox.classList.remove('hidden');
             previewBox.classList.add('flex');
           }
-          URL.revokeObjectURL(imgUrl);
 
-          await ensureZXingLoaded();
-          const reader = createConfiguredZxingReader();
-          const nativeDetector =
-            'BarcodeDetector' in window
-              ? new window.BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'code_128'] })
-              : null;
+          const nativeDetector = createNativeBarcodeDetector();
+          let reader = null;
+          try {
+            await ensureZXingLoaded();
+            reader = createConfiguredZxingReader();
+          } catch (err) {
+            console.warn('ZXing load failed:', err);
+          }
+          if (!reader && !nativeDetector) {
+            if (stageText) stageText.textContent = '바코드 인식 엔진을 불러오지 못했습니다.';
+            setIsbnStatus('바코드 인식 엔진(ZXing)을 불러오지 못했습니다. 네트워크 연결이나 콘텐츠 차단 앱을 확인해 주세요.', 'error');
+            return;
+          }
 
-          const makeCropCanvas = (rx, ry, rw, rh, rotate90 = false) => {
-            const sx = Math.round(baseCanvas.width * rx);
-            const sy = Math.round(baseCanvas.height * ry);
-            const sw = Math.max(40, Math.round(baseCanvas.width * rw));
-            const sh = Math.max(40, Math.round(baseCanvas.height * rh));
+          // 각 단계는 "원본 사진"에서 잘라낸다. 사진 전체를 먼저 1400px로 줄인 뒤 자르면
+          // 확대 단계에서도 해상도가 늘지 않아, 표지 전체를 찍은 사진의 작은 바코드를 읽지 못한다.
+          // 단계별 캔버스는 긴 변 1800px 이하로만 맞춰 iOS 메모리 한도를 지킨다.
+          const makeStageCanvas = (rx, ry, rw, rh) => {
+            const sx = Math.round(fullW * rx);
+            const sy = Math.round(fullH * ry);
+            const sw = Math.max(40, Math.min(fullW - sx, Math.round(fullW * rw)));
+            const sh = Math.max(40, Math.min(fullH - sy, Math.round(fullH * rh)));
+            const scale = Math.min(1, 1800 / Math.max(sw, sh));
             const c = document.createElement('canvas');
-            c.width = sw;
-            c.height = sh;
+            c.width = Math.max(1, Math.round(sw * scale));
+            c.height = Math.max(1, Math.round(sh * scale));
             const ctx = c.getContext('2d', { willReadFrequently: true });
-            ctx.drawImage(baseCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
-            enhanceBarcodeCanvasContrast(ctx, sw, sh);
-            return rotate90 ? rotateCanvas90(c) : c;
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+            return c;
           };
 
-          // 5-Stage Multi-Crop Scan Strategy for Korean & International Book Covers
           const stages = [
-            { label: '1/5단계: 전체 이미지 스캔 중...', build: () => makeCropCanvas(0, 0, 1, 1, false) },
-            { label: '2/5단계: 중앙 65% 영역 확대 스캔 중...', build: () => makeCropCanvas(0.175, 0.175, 0.65, 0.65, false) },
-            { label: '3/5단계: 뒷표지 하단 55% 영역 스캔 중...', build: () => makeCropCanvas(0.05, 0.45, 0.9, 0.55, false) },
-            { label: '4/5단계: 90° 회전 전체 스캔 중...', build: () => makeCropCanvas(0, 0, 1, 1, true) },
-            { label: '5/5단계: 90° 회전 중앙 영역 스캔 중...', build: () => makeCropCanvas(0.175, 0.175, 0.65, 0.65, true) },
+            { label: '전체 사진', rect: [0, 0, 1, 1] },
+            { label: '아래쪽 절반', rect: [0, 0.5, 1, 0.5] },
+            { label: '왼쪽 아래', rect: [0, 0.45, 0.6, 0.55] },
+            { label: '오른쪽 아래', rect: [0.4, 0.45, 0.6, 0.55] },
+            { label: '가운데', rect: [0.2, 0.2, 0.6, 0.6] },
+            { label: '위쪽 절반', rect: [0, 0, 1, 0.5] },
           ];
 
           let detectedIsbn13 = '';
 
-          for (const st of stages) {
-            if (stageText) stageText.textContent = st.label;
-            const stageCanvas = st.build();
-            let rawCode = '';
+          for (let i = 0; i < stages.length; i++) {
+            if (stageText) stageText.textContent = `${i + 1}/${stages.length}단계: ${stages[i].label} 확대 스캔 중...`;
+            // 진행 문구가 화면에 그려질 틈을 준다.
+            await new Promise((resolve) => setTimeout(resolve, 0));
 
-            if (nativeDetector) {
-              try {
-                const res = await nativeDetector.detect(stageCanvas);
-                if (res && res.length > 0 && res[0].rawValue) rawCode = res[0].rawValue;
-              } catch (_) {}
-            }
-
-            if (!isValidBookBarcode(rawCode)) {
+            const stageCanvas = makeStageCanvas(...stages[i].rect);
+            let rawCode = await detectWithNativeDetector(nativeDetector, stageCanvas);
+            if (!isValidBookBarcode(rawCode) && reader) {
               rawCode = decodeCanvasWithZxing(reader, stageCanvas);
             }
-
             if (isValidBookBarcode(rawCode)) {
               detectedIsbn13 = normalizeIsbn(rawCode);
               break;
@@ -3270,31 +3330,61 @@
             showToast(`사진에서 ISBN 바코드 인식 성공: ${detectedIsbn13}`, 'sage');
             await lookupBookMetadataByIsbn(detectedIsbn13);
           } else {
-            if (stageText) stageText.textContent = '바코드 자동 인식 실패 — 바코드 아래 13자리 숫자를 직접 입력해 주세요.';
+            if (stageText) stageText.textContent = '바코드를 찾지 못했습니다 — 바코드만 크고 선명하게 다시 찍거나 숫자를 직접 입력해 주세요.';
             setIsbnStatus('바코드를 찾지 못했습니다. 바코드 아래 13자리 숫자를 입력한 뒤 [도서 조회]를 눌러 주세요.', 'error');
             showToast('바코드를 인식하지 못했습니다. 숫자를 직접 입력해 조회할 수 있습니다.', 'danger');
           }
         } catch (err) {
           console.error('Barcode photo decode error:', err);
           setIsbnStatus('바코드 이미지 분석 중 오류가 발생했습니다.', 'error');
+        } finally {
+          if (imgUrl) URL.revokeObjectURL(imgUrl);
         }
       }
 
+      // 조회 결과를 "HTTP 상태 + 데이터"로 돌려준다. 실패 이유(429 사용량 초과, 401 키 오류,
+      // 연결 실패)를 삼키지 않아야 "결과 없음"과 구분해서 보여 줄 수 있다.
+      async function fetchJsonWithStatus(url, options = {}) {
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), 8000);
+        try {
+          const res = await fetch(url, { ...options, signal: ctl.signal });
+          if (!res.ok) return { status: res.status, data: null };
+          return { status: 200, data: await res.json() };
+        } catch (_) {
+          return { status: 0, data: null };
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      function describeLookupOutcome(status) {
+        if (status === 200) return '결과 없음';
+        if (status === 429) return '무료 사용량 초과(429)';
+        if (status === 401) return 'API 키 오류(401)';
+        if (status === 403) return '요청 거부(403)';
+        if (status === 0) return '연결 실패';
+        return `오류(${status})`;
+      }
+
       async function queryKakaoBookApi(isbn13, kakaoKey) {
-        const res = await fetch(`https://dapi.kakao.com/v3/search/book?target=isbn&query=${encodeURIComponent(isbn13)}`, {
-          headers: { Authorization: `KakaoAK ${kakaoKey}` },
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
+        const { status, data } = await fetchJsonWithStatus(
+          `https://dapi.kakao.com/v3/search/book?target=isbn&query=${encodeURIComponent(isbn13)}`,
+          { headers: { Authorization: `KakaoAK ${kakaoKey}` } }
+        );
         const doc = data && Array.isArray(data.documents) ? data.documents[0] : null;
-        if (!doc) return null;
         return {
-          title: doc.title || '',
-          author: Array.isArray(doc.authors) ? doc.authors.join(', ') : '',
-          publisher: doc.publisher || '',
-          publishedYear: doc.datetime ? String(doc.datetime).slice(0, 4) : '',
-          category: '',
-          coverUrl: doc.thumbnail ? String(doc.thumbnail).replace(/^http:\/\//i, 'https://') : '',
+          status,
+          meta: doc
+            ? {
+                title: doc.title || '',
+                author: Array.isArray(doc.authors) ? doc.authors.join(', ') : '',
+                publisher: doc.publisher || '',
+                publishedYear: doc.datetime ? String(doc.datetime).slice(0, 4) : '',
+                category: '',
+                coverUrl: doc.thumbnail ? String(doc.thumbnail).replace(/^http:\/\//i, 'https://') : '',
+              }
+            : null,
         };
       }
 
@@ -3359,9 +3449,19 @@
         });
       }
 
-      function parseGoogleBooksVolume(volData) {
+      // requireIsbnMatch=true면 ISBN이 일치하는 권만 받아들인다. 숫자만 넣은 넓은 검색은
+      // 무관한 책이 첫 결과로 올 수 있어, 그대로 쓰면 엉뚱한 책 정보가 입력된다.
+      function parseGoogleBooksVolume(volData, isbn13 = '', requireIsbnMatch = false) {
         if (!volData || !Array.isArray(volData.items) || volData.items.length === 0) return null;
-        const info = volData.items[0].volumeInfo || {};
+        const matchesIsbn = (item) =>
+          ((item.volumeInfo && item.volumeInfo.industryIdentifiers) || []).some(
+            (idf) => String(idf.identifier || '').replace(/[^0-9Xx]/g, '') === isbn13
+          );
+        let picked = isbn13 ? volData.items.find(matchesIsbn) : null;
+        if (!picked && !requireIsbnMatch) picked = volData.items[0];
+        if (!picked) return null;
+
+        const info = picked.volumeInfo || {};
         if (!info.title && (!info.authors || info.authors.length === 0)) return null;
         const rawThumb = info.imageLinks ? info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || '' : '';
         return {
@@ -3372,6 +3472,14 @@
           category: Array.isArray(info.categories) && info.categories[0] ? info.categories[0] : '',
           coverUrl: rawThumb ? rawThumb.replace(/^http:\/\//i, 'https://') : '',
         };
+      }
+
+      async function queryGoogleBooksApi(query, isbn13, googleKey, requireIsbnMatch) {
+        const url =
+          `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&country=KR&maxResults=5` +
+          (googleKey ? `&key=${encodeURIComponent(googleKey)}` : '');
+        const { status, data } = await fetchJsonWithStatus(url);
+        return { status, meta: parseGoogleBooksVolume(data, isbn13, requireIsbnMatch) };
       }
 
       function mergeBookMeta(target, incoming) {
@@ -3391,9 +3499,17 @@
           showToast('10자리 또는 13자리 ISBN 번호를 입력해 주세요.', 'danger');
           return;
         }
+        if (!hasValidIsbn13CheckDigit(isbn13)) {
+          setIsbnStatus(`ISBN ${isbn13}의 마지막 검증 숫자가 맞지 않습니다. 숫자를 다시 확인해 주세요.`, 'error');
+          showToast('ISBN 숫자에 오타가 있는 것 같습니다. 다시 확인해 주세요.', 'danger');
+          return;
+        }
 
         document.getElementById('isbnManualInput').value = isbn13;
         updateExternalVerificationLinks(isbn13);
+
+        const lookupBtn = document.getElementById('lookupIsbnBtn');
+        if (lookupBtn) lookupBtn.disabled = true;
 
         const meta = {
           title: '',
@@ -3403,107 +3519,66 @@
           category: '',
           coverUrl: '',
         };
+        const keys = readSavedApiKeys();
+        const outcomes = []; // 출처별 실패 이유 — 마지막에 그대로 보여 준다.
+        const isComplete = () => meta.title && meta.author;
 
-        let kakaoKey = '';
-        let aladinKey = '';
         try {
-          kakaoKey = localStorage.getItem(KAKAO_KEY_STORAGE) || '';
-          aladinKey = localStorage.getItem(ALADIN_KEY_STORAGE) || '';
-        } catch (_) {}
+          // A. 카카오 책 검색 (키 저장 시) — 국내 도서에 가장 잘 맞는다.
+          if (keys.kakao) {
+            setIsbnStatus(`[카카오 책 API] ISBN ${isbn13} 조회 중...`, 'neutral');
+            const kakao = await queryKakaoBookApi(isbn13, keys.kakao);
+            mergeBookMeta(meta, kakao.meta);
+            if (!kakao.meta) outcomes.push(`카카오: ${describeLookupOutcome(kakao.status)}`);
+          }
 
-        // Optional Step A: Kakao Book REST API (if user saved key)
-        if (kakaoKey) {
-          setIsbnStatus(`[카카오 책 API] ISBN ${isbn13} 조회 중...`, 'neutral');
-          try {
-            const kakaoMeta = await queryKakaoBookApi(isbn13, kakaoKey);
-            mergeBookMeta(meta, kakaoMeta);
-          } catch (_) {}
-        }
-
-        // Optional Step B: Aladin Open API JSONP (if user saved key)
-        if (aladinKey && (!meta.title || !meta.coverUrl)) {
-          setIsbnStatus(`[알라딘 TTB API] ISBN ${isbn13} 조회 중...`, 'neutral');
-          try {
-            const aladinMeta = await queryAladinJsonpApi(isbn13, aladinKey);
+          // B. 알라딘 TTB (키 저장 시)
+          if (keys.aladin && (!isComplete() || !meta.coverUrl)) {
+            setIsbnStatus(`[알라딘 TTB API] ISBN ${isbn13} 조회 중...`, 'neutral');
+            let aladinMeta = null;
+            try {
+              aladinMeta = await queryAladinJsonpApi(isbn13, keys.aladin);
+            } catch (_) {}
             mergeBookMeta(meta, aladinMeta);
-          } catch (_) {}
-        }
+            if (!aladinMeta) outcomes.push('알라딘: 결과 없음 또는 키 오류');
+          }
 
-        // Step 1: Google Books API strict query (q=isbn:...)
-        if (!meta.title || !meta.author) {
-          setIsbnStatus(`[1/3단계] Google Books 정밀 조회 중 (${isbn13})...`, 'neutral');
-          try {
-            const gbStrictRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn13)}`);
-            if (gbStrictRes.ok) {
-              const gbStrictData = await gbStrictRes.json();
-              mergeBookMeta(meta, parseGoogleBooksVolume(gbStrictData));
+          // C. Google Books — 키가 없으면 공용 사용량을 나눠 써서 429가 자주 난다.
+          if (!isComplete()) {
+            setIsbnStatus(`[Google Books] ISBN ${isbn13} 조회 중...`, 'neutral');
+            let google = await queryGoogleBooksApi(`isbn:${isbn13}`, isbn13, keys.google, false);
+            // 사용량 초과·거부가 아니라 "결과 없음"일 때만, ISBN이 일치하는 권을 넓은 검색으로 한 번 더 찾는다.
+            if (!google.meta && google.status === 200) {
+              google = await queryGoogleBooksApi(isbn13, isbn13, keys.google, true);
             }
-          } catch (_) {}
-        }
-
-        // Step 2: Google Books API broad query (q=${isbn13}) — essential for Korean 97889/97911 books
-        if (!meta.title || !meta.author) {
-          setIsbnStatus(`[2/3단계] Google Books 한국·확장 서지 조회 중 (${isbn13})...`, 'neutral');
-          try {
-            const gbBroadRes = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(isbn13)}`);
-            if (gbBroadRes.ok) {
-              const gbBroadData = await gbBroadRes.json();
-              mergeBookMeta(meta, parseGoogleBooksVolume(gbBroadData));
+            mergeBookMeta(meta, google.meta);
+            if (!google.meta) {
+              outcomes.push(`Google Books: ${describeLookupOutcome(google.status)}${google.status === 429 && !keys.google ? ' — 개인 키 필요' : ''}`);
             }
-          } catch (_) {}
-        }
+          }
 
-        // Step 3: Open Library Books API (bibkeys & /isbn/{isbn13}.json)
-        if (!meta.title || !meta.author || !meta.coverUrl) {
-          setIsbnStatus(`[3/3단계] Open Library 서지 데이터베이스 조회 중...`, 'neutral');
-          try {
-            const olRes = await fetch(
+          // D. Open Library — 국내 도서 수록은 적다.
+          if (!isComplete() || !meta.coverUrl) {
+            setIsbnStatus('[Open Library] 서지 데이터베이스 조회 중...', 'neutral');
+            const ol = await fetchJsonWithStatus(
               `https://openlibrary.org/api/books?bibkeys=ISBN:${encodeURIComponent(isbn13)}&format=json&jscmd=data`
             );
-            if (olRes.ok) {
-              const olJson = await olRes.json();
-              const olBook = olJson[`ISBN:${isbn13}`];
-              if (olBook) {
-                mergeBookMeta(meta, {
-                  title: [olBook.title, olBook.subtitle].filter(Boolean).join(' : '),
-                  author: Array.isArray(olBook.authors) ? olBook.authors.map((a) => a.name).filter(Boolean).join(', ') : '',
-                  publisher: Array.isArray(olBook.publishers) && olBook.publishers[0] ? olBook.publishers[0].name || '' : '',
-                  publishedYear: olBook.publish_date ? (String(olBook.publish_date).match(/\d{4}/) || [''])[0] : '',
-                  category: Array.isArray(olBook.subjects) && olBook.subjects[0] ? olBook.subjects[0].name || '' : '',
-                  coverUrl: olBook.cover ? olBook.cover.medium || olBook.cover.large || olBook.cover.small || '' : '',
-                });
-              }
+            const olBook = ol.data ? ol.data[`ISBN:${isbn13}`] : null;
+            if (olBook) {
+              mergeBookMeta(meta, {
+                title: [olBook.title, olBook.subtitle].filter(Boolean).join(' : '),
+                author: Array.isArray(olBook.authors) ? olBook.authors.map((a) => a.name).filter(Boolean).join(', ') : '',
+                publisher: Array.isArray(olBook.publishers) && olBook.publishers[0] ? olBook.publishers[0].name || '' : '',
+                publishedYear: olBook.publish_date ? (String(olBook.publish_date).match(/\d{4}/) || [''])[0] : '',
+                category: Array.isArray(olBook.subjects) && olBook.subjects[0] ? olBook.subjects[0].name || '' : '',
+                coverUrl: olBook.cover ? olBook.cover.medium || olBook.cover.large || olBook.cover.small || '' : '',
+              });
+            } else if (!meta.title) {
+              outcomes.push(`Open Library: ${describeLookupOutcome(ol.status)}`);
             }
-          } catch (_) {}
-
-          if (!meta.title) {
-            try {
-              const olDirectRes = await fetch(`https://openlibrary.org/isbn/${encodeURIComponent(isbn13)}.json`);
-              if (olDirectRes.ok) {
-                const directBook = await olDirectRes.json();
-                let authorName = '';
-                if (Array.isArray(directBook.authors) && directBook.authors[0]?.key) {
-                  try {
-                    const aRes = await fetch(`https://openlibrary.org${directBook.authors[0].key}.json`);
-                    if (aRes.ok) {
-                      const aJson = await aRes.json();
-                      authorName = aJson.name || '';
-                    }
-                  } catch (_) {}
-                }
-                mergeBookMeta(meta, {
-                  title: directBook.title || '',
-                  author: authorName,
-                  publisher: Array.isArray(directBook.publishers) ? directBook.publishers[0] || '' : '',
-                  publishedYear: directBook.publish_date ? (String(directBook.publish_date).match(/\d{4}/) || [''])[0] : '',
-                  category: '',
-                  coverUrl: Array.isArray(directBook.covers) && directBook.covers[0]
-                    ? `https://covers.openlibrary.org/b/id/${directBook.covers[0]}-M.jpg`
-                    : '',
-                });
-              }
-            } catch (_) {}
           }
+        } finally {
+          if (lookupBtn) lookupBtn.disabled = false;
         }
 
         if (meta.title || meta.author) {
@@ -3520,11 +3595,17 @@
           setIsbnStatus('도서 메타데이터 자동 입력 완료', 'success');
           showToast(`『${meta.title || isbn13}』 정보를 불러왔습니다.`, 'sage');
         } else {
-          setIsbnStatus(
-            `ISBN ${isbn13} 무료 DB 검색 결과 없음 — 위 외부 서점 링크로 확인하거나 아래에 직접 입력해 주세요.`,
-            'error'
-          );
-          showToast('무료 DB에서 해당 ISBN 결과를 찾지 못했습니다. 한국 도서 API 키를 설정하거나 직접 입력해 주세요.', 'danger');
+          // 왜 실패했는지를 출처별로 보여 준다 ("결과 없음"과 "사용량 초과·키 오류"는 대처가 다르다).
+          setIsbnStatus(`ISBN ${isbn13} 조회 실패 — ${outcomes.join(' · ')}`, 'error');
+          if (!keys.kakao && !keys.aladin) {
+            const panel = document.getElementById('krApiSettingsPanel');
+            const chev = document.getElementById('krApiChevron');
+            if (panel) panel.classList.remove('hidden');
+            if (chev) chev.textContent = '▲';
+            showToast('키 없는 무료 조회로는 찾지 못했습니다. 아래 설정에 카카오 책 검색 키를 저장하면 국내 도서를 조회할 수 있습니다.', 'danger');
+          } else {
+            showToast('저장된 키로도 찾지 못했습니다. 상태 표시의 이유를 확인하거나 직접 입력해 주세요.', 'danger');
+          }
         }
       }
 

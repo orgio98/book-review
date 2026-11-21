@@ -1177,14 +1177,14 @@
   <!-- ======================================================================= -->
   <div id="pageOcrModal" hidden class="modal-backdrop hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65">
     <div
-      class="surface-card border border-hairline rounded-t-2xl sm:rounded-2xl w-full max-w-4xl max-h-[94dvh] flex flex-col shadow-2xl overflow-hidden"
+      class="surface-card border border-hairline rounded-none sm:rounded-2xl w-full max-w-4xl h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[94dvh] flex flex-col shadow-2xl overflow-hidden"
       style="padding-bottom: env(safe-area-inset-bottom);"
     >
       <!-- Header -->
       <div class="px-5 py-3.5 border-b border-hairline flex items-center justify-between shrink-0">
         <div>
           <h3 class="font-literary font-bold text-base sm:text-lg text-ink">페이지 촬영 및 발췌 영역 선택</h3>
-          <p class="text-[11px] text-muted mt-0.5">책 페이지를 촬영한 뒤 손가락이나 마우스로 필요한 문장 영역만 드래그하여 텍스트를 추출합니다.</p>
+          <p class="text-[11px] text-muted mt-0.5">촬영하면 바로 큰 화면에서 영역을 고릅니다. 두 손가락으로 확대·이동하고, 한 손가락으로 상자를 옮기거나 모서리를 끌어 크기를 조절하세요.</p>
         </div>
         <button
           type="button"
@@ -1258,8 +1258,24 @@
           <!-- Left 7 Cols: Interactive Crop Canvas -->
           <div class="lg:col-span-7 flex flex-col gap-2">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="font-semibold text-xs text-secondary">1. 추출할 문장 영역 드래그 선택</span>
+              <span id="ocrCropToolbarLabel" class="font-semibold text-xs text-secondary">1. 두 손가락 확대·이동 / 한 손가락 영역 선택</span>
               <div class="flex items-center gap-1.5">
+                <button
+                  id="zoomOutOcrBtn"
+                  type="button"
+                  data-action="ocr-zoom-out"
+                  disabled
+                  aria-label="축소"
+                  class="min-h-[36px] min-w-[36px] px-2 py-1 rounded-lg border border-hairline surface-subtle text-sm font-semibold text-ink disabled:opacity-40 hover:opacity-85 transition"
+                >－</button>
+                <button
+                  id="zoomInOcrBtn"
+                  type="button"
+                  data-action="ocr-zoom-in"
+                  disabled
+                  aria-label="확대"
+                  class="min-h-[36px] min-w-[36px] px-2 py-1 rounded-lg border border-hairline surface-subtle text-sm font-semibold text-ink disabled:opacity-40 hover:opacity-85 transition"
+                >＋</button>
                 <button
                   id="rotateOcrImgBtn"
                   type="button"
@@ -1283,7 +1299,7 @@
 
             <div
               id="ocrCropCanvasWrapper"
-              class="relative w-full h-[290px] sm:h-[360px] rounded-xl border border-hairline surface-subtle overflow-hidden flex items-center justify-center select-none"
+              class="relative w-full h-[56dvh] lg:h-[420px] rounded-xl border border-hairline surface-subtle overflow-hidden flex items-center justify-center select-none"
               style="touch-action: none;"
             >
               <div id="ocrEmptyPlaceholder" class="text-center p-6 flex flex-col items-center gap-2">
@@ -1294,7 +1310,7 @@
                 </div>
                 <p class="font-literary font-semibold text-sm text-ink">촬영하거나 불러온 페이지가 여기에 표시됩니다</p>
                 <p class="text-xs text-muted max-w-xs leading-relaxed">
-                  페이지를 불러온 뒤 원하는 문단 위를 손가락이나 마우스로 드래그하면 해당 영역만 잘라내어 한국어·영어 텍스트로 변환합니다.
+                  촬영하면 이 자리에 크게 표시됩니다. 두 손가락으로 확대한 뒤 상자를 문장에 맞추면 그 영역만 한국어·영어 텍스트로 변환합니다.
                 </p>
               </div>
 
@@ -1384,6 +1400,7 @@
       const ZXING_CDN_PRIMARY = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
       const ZXING_CDN_FALLBACK = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
       const TESSERACT_CDN_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      const OCR_MAX_ZOOM = 6;
 
       const SPINE_COLORS = [
         { name: '테라코타', hex: '#9A3412' },
@@ -1559,6 +1576,9 @@
       let ocrDisplayMetrics = null;
       let ocrCropNorm = { x: 0.08, y: 0.22, w: 0.84, h: 0.36 };
       let ocrDragState = null;
+      let ocrView = { zoom: 1, cx: 0.5, cy: 0.5 }; // 확대 배율과 화면 중심(이미지 기준 0~1)
+      const ocrPointers = new Map(); // 화면에 닿아 있는 손가락들
+      let ocrPinchState = null;
       let ocrRawExtractedText = '';
 
       // =========================================================================
@@ -1629,6 +1649,22 @@
             break;
           case 'open-page-ocr':
             openPageOcrModal();
+            // 버튼 한 번으로 바로 카메라를 연다. 촬영을 취소하면 앨범 등 다른 방법을 고를 수 있다.
+            try {
+              document.getElementById('ocrCameraFileInput').click();
+            } catch (_) {}
+            break;
+          case 'ocr-zoom-in':
+            if (ocrRotatedCanvas) {
+              ocrView.zoom = Math.min(OCR_MAX_ZOOM, ocrView.zoom * 1.5);
+              renderOcrCropCanvas();
+            }
+            break;
+          case 'ocr-zoom-out':
+            if (ocrRotatedCanvas) {
+              ocrView.zoom = Math.max(1, ocrView.zoom / 1.5);
+              renderOcrCropCanvas();
+            }
             break;
           case 'close-page-ocr':
             closePageOcrModal();
@@ -1645,6 +1681,7 @@
           case 'rotate-ocr-img':
             if (ocrRawImage) {
               ocrRotationDeg = (ocrRotationDeg + 90) % 360;
+              ocrView = { zoom: 1, cx: 0.5, cy: 0.5 };
               rebuildOcrRotatedCanvas();
               renderOcrCropCanvas();
             }
@@ -3972,8 +4009,8 @@
         const origW = ocrRawImage.naturalWidth;
         const origH = ocrRawImage.naturalHeight;
 
-        // Bound longest side to 1600px to protect iOS Safari canvas memory limits
-        const maxDim = 1600;
+        // 긴 변 2000px까지 유지한다 (확대했을 때 글자가 뭉개지지 않고 OCR에도 유리, iOS 캔버스 한도 안쪽).
+        const maxDim = 2000;
         const scale = Math.min(1, maxDim / Math.max(origW, origH));
         const w = Math.max(1, Math.round(origW * scale));
         const h = Math.max(1, Math.round(origH * scale));
@@ -4000,8 +4037,14 @@
           ocrRawImage = img;
           ocrRotationDeg = 0;
           ocrCropNorm = { x: 0.08, y: 0.22, w: 0.84, h: 0.36 };
+          ocrView = { zoom: 1, cx: 0.5, cy: 0.5 };
+          ocrPointers.clear();
+          ocrPinchState = null;
+          ocrDragState = null;
           rebuildOcrRotatedCanvas();
 
+          document.getElementById('zoomInOcrBtn').disabled = false;
+          document.getElementById('zoomOutOcrBtn').disabled = false;
           document.getElementById('ocrEmptyPlaceholder').classList.add('hidden');
           document.getElementById('ocrCropCanvas').classList.remove('hidden');
           document.getElementById('rotateOcrImgBtn').disabled = false;
@@ -4009,6 +4052,12 @@
           document.getElementById('runOcrExtractBtn').disabled = false;
 
           renderOcrCropCanvas();
+          // 촬영 직후 영역 선택 화면이 바로 보이도록, 위쪽 버튼 줄을 넘겨 선택 영역으로 스크롤한다.
+          const toolbarLabel = document.getElementById('ocrCropToolbarLabel');
+          if (toolbarLabel && toolbarLabel.scrollIntoView) {
+            toolbarLabel.scrollIntoView({ block: 'start' });
+            requestAnimationFrame(renderOcrCropCanvas);
+          }
         };
         img.onerror = () => {
           if (revokeUrl) URL.revokeObjectURL(revokeUrl);
@@ -4017,57 +4066,93 @@
         img.src = src;
       }
 
-      function renderOcrCropCanvas() {
+      // 화면(캔버스 CSS 픽셀)과 이미지(0~1 정규화) 사이의 변환 기준.
+      // 확대 배율(ocrView.zoom)과 화면 중심(ocrView.cx, cy)으로 이미지가 놓일 위치를 정한다.
+      function getOcrViewGeometry() {
         const wrapper = document.getElementById('ocrCropCanvasWrapper');
-        const canvas = document.getElementById('ocrCropCanvas');
-        if (!ocrRotatedCanvas || !wrapper || !canvas) return;
-
-        const wrapRect = wrapper.getBoundingClientRect();
-        const availW = Math.max(260, wrapRect.width - 12);
-        const availH = Math.max(240, wrapRect.height - 12);
+        if (!wrapper || !ocrRotatedCanvas) return null;
+        const viewW = wrapper.clientWidth;
+        const viewH = wrapper.clientHeight;
+        if (viewW < 2 || viewH < 2) return null;
 
         const srcW = ocrRotatedCanvas.width;
         const srcH = ocrRotatedCanvas.height;
-        const fitScale = Math.min(availW / srcW, availH / srcH);
-        const drawW = Math.round(srcW * fitScale);
-        const drawH = Math.round(srcH * fitScale);
+        ocrView.zoom = Math.max(1, Math.min(OCR_MAX_ZOOM, ocrView.zoom));
+        const scale = Math.min(viewW / srcW, viewH / srcH) * ocrView.zoom;
+        const imgW = srcW * scale;
+        const imgH = srcH * scale;
+
+        // 이미지가 화면보다 작으면 가운데에 두고, 크면 화면 밖으로 빈 곳이 생기지 않게 중심을 제한한다.
+        const halfX = viewW / 2 / imgW;
+        const halfY = viewH / 2 / imgH;
+        ocrView.cx = imgW <= viewW ? 0.5 : Math.max(halfX, Math.min(1 - halfX, ocrView.cx));
+        ocrView.cy = imgH <= viewH ? 0.5 : Math.max(halfY, Math.min(1 - halfY, ocrView.cy));
+
+        return {
+          viewW,
+          viewH,
+          imgW,
+          imgH,
+          imgX: viewW / 2 - ocrView.cx * imgW,
+          imgY: viewH / 2 - ocrView.cy * imgH,
+        };
+      }
+
+      function ocrScreenToNorm(px, py, g) {
+        return {
+          x: Math.max(0, Math.min(1, (px - g.imgX) / g.imgW)),
+          y: Math.max(0, Math.min(1, (py - g.imgY) / g.imgH)),
+        };
+      }
+
+      // 배율을 바꾸되, 이미지의 anchor 지점(0~1)이 화면의 screenPt 위치에 그대로 머물게 한다 (핀치 확대용).
+      function setOcrZoomAround(zoom, anchor, screenPt) {
+        const wrapper = document.getElementById('ocrCropCanvasWrapper');
+        if (!wrapper || !ocrRotatedCanvas) return;
+        const viewW = wrapper.clientWidth;
+        const viewH = wrapper.clientHeight;
+        if (viewW < 2 || viewH < 2) return;
+        ocrView.zoom = Math.max(1, Math.min(OCR_MAX_ZOOM, zoom));
+        const scale = Math.min(viewW / ocrRotatedCanvas.width, viewH / ocrRotatedCanvas.height) * ocrView.zoom;
+        const imgW = ocrRotatedCanvas.width * scale;
+        const imgH = ocrRotatedCanvas.height * scale;
+        ocrView.cx = anchor.x + (viewW / 2 - screenPt.x) / imgW;
+        ocrView.cy = anchor.y + (viewH / 2 - screenPt.y) / imgH;
+        renderOcrCropCanvas();
+      }
+
+      function renderOcrCropCanvas() {
+        const canvas = document.getElementById('ocrCropCanvas');
+        const g = getOcrViewGeometry();
+        if (!g || !canvas) return;
 
         const dpr = Math.min(2, window.devicePixelRatio || 1);
-        canvas.style.width = `${drawW}px`;
-        canvas.style.height = `${drawH}px`;
-        canvas.width = Math.round(drawW * dpr);
-        canvas.height = Math.round(drawH * dpr);
+        canvas.style.width = `${g.viewW}px`;
+        canvas.style.height = `${g.viewH}px`;
+        const pxW = Math.round(g.viewW * dpr);
+        const pxH = Math.round(g.viewH * dpr);
+        if (canvas.width !== pxW) canvas.width = pxW;
+        if (canvas.height !== pxH) canvas.height = pxH;
 
-        ocrDisplayMetrics = { drawW, drawH };
+        ocrDisplayMetrics = { drawW: g.viewW, drawH: g.viewH };
 
         const ctx = canvas.getContext('2d');
         ctx.save();
-        ctx.scale(dpr, dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, g.viewW, g.viewH);
+        ctx.drawImage(ocrRotatedCanvas, g.imgX, g.imgY, g.imgW, g.imgH);
 
-        ctx.drawImage(ocrRotatedCanvas, 0, 0, drawW, drawH);
+        const cx = g.imgX + ocrCropNorm.x * g.imgW;
+        const cy = g.imgY + ocrCropNorm.y * g.imgH;
+        const cw = ocrCropNorm.w * g.imgW;
+        const ch = ocrCropNorm.h * g.imgH;
 
-        const cx = ocrCropNorm.x * drawW;
-        const cy = ocrCropNorm.y * drawH;
-        const cw = ocrCropNorm.w * drawW;
-        const ch = ocrCropNorm.h * drawH;
-
+        // 선택 영역 바깥을 어둡게
         ctx.fillStyle = 'rgba(12, 11, 10, 0.56)';
-        ctx.fillRect(0, 0, drawW, cy);
-        ctx.fillRect(0, cy + ch, drawW, drawH - (cy + ch));
-        ctx.fillRect(0, cy, cx, ch);
-        ctx.fillRect(cx + cw, cy, drawW - (cx + cw), ch);
-
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
-        for (let i = 1; i <= 2; i++) {
-          const gy = cy + (ch * i) / 3;
-          ctx.beginPath();
-          ctx.moveTo(cx, gy);
-          ctx.lineTo(cx + cw, gy);
-          ctx.stroke();
-        }
-        ctx.setLineDash([]);
+        ctx.fillRect(0, 0, g.viewW, Math.max(0, cy));
+        ctx.fillRect(0, cy + ch, g.viewW, Math.max(0, g.viewH - (cy + ch)));
+        ctx.fillRect(0, cy, Math.max(0, cx), ch);
+        ctx.fillRect(cx + cw, cy, Math.max(0, g.viewW - (cx + cw)), ch);
 
         ctx.strokeStyle = '#f59e0b';
         ctx.lineWidth = 2.2;
@@ -4088,55 +4173,67 @@
           ctx.strokeStyle = '#9a3412';
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, 6.5, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
         });
 
+        // 확대 중이면 배율을 표시
+        if (ocrView.zoom > 1.01) {
+          const label = `${ocrView.zoom.toFixed(1)}×`;
+          ctx.font = '600 12px sans-serif';
+          const tw = ctx.measureText(label).width;
+          ctx.fillStyle = 'rgba(12, 11, 10, 0.7)';
+          ctx.fillRect(8, 8, tw + 14, 22);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(label, 15, 23);
+        }
+
         ctx.restore();
       }
 
-      function hitTestCropHandle(px, py) {
-        if (!ocrDisplayMetrics) return 'new';
-        const { drawW, drawH } = ocrDisplayMetrics;
-        const cx = ocrCropNorm.x * drawW;
-        const cy = ocrCropNorm.y * drawH;
-        const cw = ocrCropNorm.w * drawW;
-        const ch = ocrCropNorm.h * drawH;
+      function hitTestCropHandle(px, py, g) {
+        const cx = g.imgX + ocrCropNorm.x * g.imgW;
+        const cy = g.imgY + ocrCropNorm.y * g.imgH;
+        const cw = ocrCropNorm.w * g.imgW;
+        const ch = ocrCropNorm.h * g.imgH;
 
-        const hitRadius = 20;
+        const hitRadius = 26; // 손가락 기준
         const handleMap = [
           { name: 'nw', x: cx, y: cy },
-          { name: 'n', x: cx + cw / 2, y: cy },
           { name: 'ne', x: cx + cw, y: cy },
-          { name: 'e', x: cx + cw, y: cy + ch / 2 },
           { name: 'se', x: cx + cw, y: cy + ch },
-          { name: 's', x: cx + cw / 2, y: cy + ch },
           { name: 'sw', x: cx, y: cy + ch },
+          { name: 'n', x: cx + cw / 2, y: cy },
+          { name: 'e', x: cx + cw, y: cy + ch / 2 },
+          { name: 's', x: cx + cw / 2, y: cy + ch },
           { name: 'w', x: cx, y: cy + ch / 2 },
         ];
 
+        let best = null;
         for (const h of handleMap) {
-          if (Math.hypot(px - h.x, py - h.y) <= hitRadius) {
-            return h.name;
-          }
+          const d = Math.hypot(px - h.x, py - h.y);
+          if (d <= hitRadius && (!best || d < best.d)) best = { name: h.name, d };
         }
-        if (px >= cx && px <= cx + cw && py >= cy && py <= cy + ch) {
-          return 'move';
-        }
+        if (best) return best.name;
+        if (px >= cx && px <= cx + cw && py >= cy && py <= cy + ch) return 'move';
         return 'new';
       }
 
       function getCropCanvasPointerCoords(clientX, clientY) {
         const canvas = document.getElementById('ocrCropCanvas');
         const rect = canvas.getBoundingClientRect();
-        const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
-        const y = Math.max(0, Math.min(rect.height, clientY - rect.top));
-        return { x, y, w: Math.max(1, rect.width), h: Math.max(1, rect.height) };
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      }
+
+      function firstTwoOcrPointers() {
+        const it = ocrPointers.values();
+        return [it.next().value, it.next().value];
       }
 
       function handleCropPointerDown(e) {
         if (!ocrRotatedCanvas) return;
+        e.preventDefault();
         const canvas = document.getElementById('ocrCropCanvas');
         if (canvas && canvas.setPointerCapture && e.pointerId !== undefined) {
           try {
@@ -4144,11 +4241,34 @@
           } catch (_) {}
         }
         const pt = getCropCanvasPointerCoords(e.clientX, e.clientY);
-        const mode = hitTestCropHandle(pt.x, pt.y);
+        ocrPointers.set(e.pointerId, pt);
+        const g = getOcrViewGeometry();
+        if (!g) return;
+
+        // 두 번째 손가락이 닿으면 확대·이동(핀치)으로 전환한다.
+        // 첫 손가락이 이미 상자를 건드렸다면 그 변경은 되돌린다.
+        if (ocrPointers.size === 2) {
+          if (ocrDragState) {
+            ocrCropNorm = { ...ocrDragState.origRect };
+            ocrDragState = null;
+          }
+          const [a, b] = firstTwoOcrPointers();
+          const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+          ocrPinchState = {
+            startDist: Math.max(10, Math.hypot(a.x - b.x, a.y - b.y)),
+            startZoom: ocrView.zoom,
+            anchor: { x: (mid.x - g.imgX) / g.imgW, y: (mid.y - g.imgY) / g.imgH },
+          };
+          renderOcrCropCanvas();
+          return;
+        }
+        if (ocrPointers.size > 2) return;
+
+        const start = ocrScreenToNorm(pt.x, pt.y, g);
         ocrDragState = {
-          mode,
-          startX: pt.x / pt.w,
-          startY: pt.y / pt.h,
+          mode: hitTestCropHandle(pt.x, pt.y, g),
+          startX: start.x,
+          startY: start.y,
           origRect: { ...ocrCropNorm },
         };
       }
@@ -4157,46 +4277,66 @@
         const canvas = document.getElementById('ocrCropCanvas');
         if (!ocrRotatedCanvas || !canvas) return;
         const pt = getCropCanvasPointerCoords(e.clientX, e.clientY);
+        if (ocrPointers.has(e.pointerId)) ocrPointers.set(e.pointerId, pt);
 
-        if (!ocrDragState) {
-          const hoverMode = hitTestCropHandle(pt.x, pt.y);
-          const cursorMap = {
-            nw: 'nwse-resize',
-            se: 'nwse-resize',
-            ne: 'nesw-resize',
-            sw: 'nesw-resize',
-            n: 'ns-resize',
-            s: 'ns-resize',
-            e: 'ew-resize',
-            w: 'ew-resize',
-            move: 'move',
-            new: 'crosshair',
-          };
-          canvas.style.cursor = cursorMap[hoverMode] || 'crosshair';
+        // 두 손가락: 벌리면 확대, 함께 움직이면 이동
+        if (ocrPinchState && ocrPointers.size >= 2) {
+          e.preventDefault();
+          const [a, b] = firstTwoOcrPointers();
+          const dist = Math.max(10, Math.hypot(a.x - b.x, a.y - b.y));
+          const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+          setOcrZoomAround((ocrPinchState.startZoom * dist) / ocrPinchState.startDist, ocrPinchState.anchor, mid);
           return;
         }
 
-        const curX = pt.x / pt.w;
-        const curY = pt.y / pt.h;
+        const g = getOcrViewGeometry();
+        if (!g) return;
+
+        if (!ocrDragState) {
+          if (ocrPointers.size === 0) {
+            const hoverMode = hitTestCropHandle(pt.x, pt.y, g);
+            const cursorMap = {
+              nw: 'nwse-resize',
+              se: 'nwse-resize',
+              ne: 'nesw-resize',
+              sw: 'nesw-resize',
+              n: 'ns-resize',
+              s: 'ns-resize',
+              e: 'ew-resize',
+              w: 'ew-resize',
+              move: 'move',
+              new: 'crosshair',
+            };
+            canvas.style.cursor = cursorMap[hoverMode] || 'crosshair';
+          }
+          return;
+        }
+
+        e.preventDefault();
+        const cur = ocrScreenToNorm(pt.x, pt.y, g);
+        const curX = cur.x;
+        const curY = cur.y;
         const dx = curX - ocrDragState.startX;
         const dy = curY - ocrDragState.startY;
         const o = ocrDragState.origRect;
-        const minSize = 0.05;
+        // 확대한 상태에서는 화면상 같은 크기라도 이미지 기준으로는 더 작으므로, 최소 크기를 배율에 맞춘다.
+        const minSize = 0.04 / ocrView.zoom;
 
         if (ocrDragState.mode === 'new') {
           const nx = Math.min(ocrDragState.startX, curX);
           const ny = Math.min(ocrDragState.startY, curY);
           const nw = Math.max(minSize, Math.abs(curX - ocrDragState.startX));
           const nh = Math.max(minSize, Math.abs(curY - ocrDragState.startY));
-          ocrCropNorm = {
-            x: Math.max(0, Math.min(1 - minSize, nx)),
-            y: Math.max(0, Math.min(1 - minSize, ny)),
-            w: Math.min(1 - nx, nw),
-            h: Math.min(1 - ny, nh),
-          };
+          const x = Math.max(0, Math.min(1 - minSize, nx));
+          const y = Math.max(0, Math.min(1 - minSize, ny));
+          ocrCropNorm = { x, y, w: Math.min(1 - x, nw), h: Math.min(1 - y, nh) };
         } else if (ocrDragState.mode === 'move') {
-          ocrCropNorm.x = Math.max(0, Math.min(1 - o.w, o.x + dx));
-          ocrCropNorm.y = Math.max(0, Math.min(1 - o.h, o.y + dy));
+          ocrCropNorm = {
+            x: Math.max(0, Math.min(1 - o.w, o.x + dx)),
+            y: Math.max(0, Math.min(1 - o.h, o.y + dy)),
+            w: o.w,
+            h: o.h,
+          };
         } else {
           let left = o.x;
           let top = o.y;
@@ -4221,6 +4361,9 @@
             canvas.releasePointerCapture(e.pointerId);
           } catch (_) {}
         }
+        if (e && e.pointerId !== undefined) ocrPointers.delete(e.pointerId);
+        // 핀치가 끝난 뒤 남은 한 손가락이 상자를 건드리지 않도록, 손가락을 모두 뗄 때까지 드래그를 시작하지 않는다.
+        if (ocrPointers.size < 2) ocrPinchState = null;
         ocrDragState = null;
       }
 
@@ -4352,6 +4495,8 @@
           progBar.style.width = '100%';
           pctText.textContent = '100%';
           statusText.textContent = '텍스트 추출이 완료되었습니다!';
+          const resultBox = document.getElementById('ocrResultPreview');
+          if (resultBox && resultBox.scrollIntoView) resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
           showToast('선택한 페이지 영역의 텍스트가 추출되었습니다.', 'sage');
         } catch (err) {
           console.error('OCR extraction failed:', err);
@@ -4388,6 +4533,9 @@
       }
 
       function closePageOcrModal() {
+        ocrPointers.clear();
+        ocrPinchState = null;
+        ocrDragState = null;
         stopOcrWebcam();
         closeModalEl('pageOcrModal');
       }

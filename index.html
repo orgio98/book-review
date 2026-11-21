@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>여백의 서재 (Marginalia Archive) — 발췌 문장과 여백의 사유 아카이브</title>
+  <!-- 홈 화면 아이콘: 저장소에 apple-touch-icon.png(180×180)를 올리면 모든 기기에 적용된다.
+       앱의 [데이터 관리 > 홈 화면 아이콘]에서 고른 이미지가 있으면 그 기기에서는 그것이 우선한다. -->
+  <meta name="apple-mobile-web-app-title" content="여백의 서재" />
+  <link id="appleTouchIconLink" rel="apple-touch-icon" href="apple-touch-icon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1161,6 +1165,38 @@
 
         <!-- Tab 3: Sample Reset / Clear Archive -->
         <div id="tabPanelManage" class="hidden flex flex-col gap-4">
+          <div class="surface-subtle border border-hairline rounded-xl p-4 flex flex-col gap-3">
+            <h4 class="font-bold text-sm text-ink">홈 화면 아이콘</h4>
+            <p class="text-xs text-secondary leading-relaxed">
+              사진 앨범의 이미지를 골라 홈 화면 아이콘으로 씁니다. 아이콘은 [홈 화면에 추가]를 하는 순간에 정해지므로, 저장한 뒤 Safari의 공유 버튼 → [홈 화면에 추가]를 다시 해 주세요.
+            </p>
+            <div class="flex flex-wrap items-center gap-3">
+              <img id="homeIconCurrentImg" src="" alt="현재 홈 화면 아이콘" class="hidden w-16 h-16 rounded-2xl border border-hairline object-cover shrink-0" />
+              <label for="homeIconFileInput" class="btn-primary min-h-[44px] inline-flex items-center px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer">앨범에서 이미지 고르기</label>
+              <input id="homeIconFileInput" type="file" accept="image/*" class="hidden" />
+              <button type="button" data-action="reset-home-icon" class="min-h-[44px] px-4 py-2 rounded-xl border border-hairline surface-card text-xs sm:text-sm font-medium text-secondary hover:text-ink">기본으로 되돌리기</button>
+            </div>
+            <div id="homeIconEditorBox" class="hidden flex-col gap-3">
+              <div class="flex flex-wrap items-start gap-4">
+                <canvas id="homeIconEditorCanvas" class="rounded-[22%] border border-hairline shrink-0" style="width: 200px; height: 200px; touch-action: none; cursor: grab;"></canvas>
+                <div class="flex-1 min-w-[180px] flex flex-col gap-2">
+                  <p class="text-xs text-secondary leading-relaxed">이미지를 끌어 위치를 맞추고, 아래 막대로 확대하세요. 보이는 그대로 아이콘이 됩니다.</p>
+                  <label for="homeIconZoomRange" class="text-[11px] font-semibold text-ink">확대</label>
+                  <input id="homeIconZoomRange" type="range" min="1" max="4" step="0.01" value="1" class="w-full accent-amber-700" />
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" data-action="save-home-icon" class="btn-primary min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold">이 모양으로 아이콘 저장</button>
+                <button type="button" data-action="download-home-icon" class="min-h-[44px] px-4 py-2 rounded-xl border border-hairline surface-card text-xs sm:text-sm font-semibold text-ink hover:opacity-85">PNG 파일로 내려받기</button>
+              </div>
+            </div>
+            <ul class="text-[11px] text-muted leading-relaxed list-disc pl-5 flex flex-col gap-1">
+              <li>여기서 저장한 아이콘은 이 기기에만 적용됩니다. 아이패드에서도 같은 방법으로 한 번 더 해 주세요.</li>
+              <li>모든 기기에 한 번에 적용하려면 [PNG 파일로 내려받기]로 받은 <span class="font-mono">apple-touch-icon.png</span>를 GitHub 저장소의 index.html 옆에 올리면 됩니다.</li>
+              <li>이미 홈 화면에 추가해 둔 아이콘은 바뀌지 않습니다. 기존 것을 지우고 다시 추가해야 하는데, 지우기 전에 동기화가 끝났는지(또는 JSON 백업을 받았는지) 꼭 확인하세요.</li>
+            </ul>
+          </div>
+
           <div class="surface-subtle border border-hairline rounded-xl p-4 flex flex-col gap-2">
             <h4 class="font-bold text-sm text-ink">큐레이션 샘플 서재 다시 불러오기</h4>
             <p class="text-xs text-secondary leading-relaxed">
@@ -1441,6 +1477,8 @@
       const SYNC_GIST_ID_STORAGE = 'marginalia_sync_gist_id_v1';
       const SYNC_LAST_STORAGE = 'marginalia_sync_last_at_v1';
       const SYNC_FILE_NAME = 'marginalia-archive.json';
+      const HOME_ICON_STORAGE = 'marginalia_home_icon_png_v1';
+      const HOME_ICON_DEFAULT_HREF = 'apple-touch-icon.png';
 
       const SPINE_COLORS = [
         { name: '테라코타', hex: '#9A3412' },
@@ -1607,6 +1645,11 @@
       let syncInFlight = false;
       let syncQueued = false;
       let syncTimerId = null;
+
+      // Home screen icon editor state
+      let homeIconSource = null; // 고른 이미지를 줄여 담은 캔버스
+      let homeIconView = { zoom: 1, cx: 0.5, cy: 0.5 };
+      let homeIconDrag = null;
 
       // Barcode Scanner & OCR runtime state
       let barcodeVideoStream = null;
@@ -1860,6 +1903,15 @@
             break;
           case 'sync-disconnect':
             disconnectDeviceSync();
+            break;
+          case 'save-home-icon':
+            saveHomeIcon();
+            break;
+          case 'download-home-icon':
+            downloadHomeIconPng();
+            break;
+          case 'reset-home-icon':
+            resetHomeIcon();
             break;
           case 'reset-sample-data':
             resetToSampleArchive();
@@ -5109,7 +5161,195 @@
         showToast('이 기기의 동기화 연결을 해제했습니다. 서재와 Gist의 내용은 그대로 있습니다.', 'sage');
       }
 
+      // =========================================================================
+      // 12c. HOME SCREEN ICON (PICK FROM PHOTO ALBUM, SQUARE CROP, 180×180 PNG)
+      // =========================================================================
+      // iOS는 [홈 화면에 추가]를 누르는 순간 문서에 있는 apple-touch-icon 링크를 아이콘으로 쓴다.
+      // 그래서 저장해 둔 이미지를 앱이 열릴 때마다 그 링크에 넣어 둔다.
+      function applySavedHomeIcon() {
+        let dataUrl = '';
+        try {
+          dataUrl = localStorage.getItem(HOME_ICON_STORAGE) || '';
+        } catch (_) {}
+        const link = document.getElementById('appleTouchIconLink');
+        if (link) link.setAttribute('href', dataUrl || HOME_ICON_DEFAULT_HREF);
+
+        let favicon = document.getElementById('customFaviconLink');
+        if (dataUrl) {
+          if (!favicon) {
+            favicon = document.createElement('link');
+            favicon.id = 'customFaviconLink';
+            favicon.rel = 'icon';
+            favicon.type = 'image/png';
+            document.head.appendChild(favicon);
+          }
+          favicon.href = dataUrl;
+        } else if (favicon) {
+          favicon.remove();
+        }
+
+        const current = document.getElementById('homeIconCurrentImg');
+        if (current) {
+          if (dataUrl) {
+            current.src = dataUrl;
+            current.classList.remove('hidden');
+          } else {
+            current.removeAttribute('src');
+            current.classList.add('hidden');
+          }
+        }
+      }
+
+      // 이미지에서 잘라낼 정사각형(원본 픽셀 기준). 확대할수록 변이 짧아지고, 이미지 밖으로는 나가지 않는다.
+      function getHomeIconCrop(srcW, srcH, view) {
+        const zoom = Math.max(1, Math.min(4, view.zoom || 1));
+        const side = Math.min(srcW, srcH) / zoom;
+        const sx = Math.max(0, Math.min(srcW - side, view.cx * srcW - side / 2));
+        const sy = Math.max(0, Math.min(srcH - side, view.cy * srcH - side / 2));
+        return { sx, sy, side };
+      }
+
+      function drawHomeIcon(ctx, size) {
+        const crop = getHomeIconCrop(homeIconSource.width, homeIconSource.height, homeIconView);
+        // 투명한 부분은 iOS에서 검게 나오므로 흰 바탕을 먼저 깐다.
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, size, size);
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(homeIconSource, crop.sx, crop.sy, crop.side, crop.side, 0, 0, size, size);
+        return crop;
+      }
+
+      function renderHomeIconEditor() {
+        const canvas = document.getElementById('homeIconEditorCanvas');
+        if (!canvas || !homeIconSource) return;
+        const cssSize = 200;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        const px = Math.round(cssSize * dpr);
+        if (canvas.width !== px) canvas.width = px;
+        if (canvas.height !== px) canvas.height = px;
+        const crop = drawHomeIcon(canvas.getContext('2d'), px);
+        // 끌다가 가장자리에 닿으면 중심값도 거기서 멈추게 맞춰 둔다.
+        homeIconView.cx = (crop.sx + crop.side / 2) / homeIconSource.width;
+        homeIconView.cy = (crop.sy + crop.side / 2) / homeIconSource.height;
+      }
+
+      function loadHomeIconFile(file) {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          // 큰 사진은 긴 변 1200px로 줄여 들고 있는다 (끌 때마다 원본을 다시 그리지 않도록).
+          const scale = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight));
+          const c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+
+          homeIconSource = c;
+          homeIconView = { zoom: 1, cx: 0.5, cy: 0.5 };
+          document.getElementById('homeIconZoomRange').value = '1';
+          const box = document.getElementById('homeIconEditorBox');
+          box.classList.remove('hidden');
+          box.classList.add('flex');
+          renderHomeIconEditor();
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          showToast('이 이미지는 열 수 없습니다. 다른 사진을 골라 주세요.', 'danger');
+        };
+        img.src = url;
+      }
+
+      function buildHomeIconCanvas() {
+        if (!homeIconSource) return null;
+        const out = document.createElement('canvas');
+        out.width = 180;
+        out.height = 180;
+        drawHomeIcon(out.getContext('2d'), 180);
+        return out;
+      }
+
+      function saveHomeIcon() {
+        const out = buildHomeIconCanvas();
+        if (!out) {
+          showToast('먼저 앨범에서 이미지를 골라 주세요.', 'danger');
+          return;
+        }
+        try {
+          localStorage.setItem(HOME_ICON_STORAGE, out.toDataURL('image/png'));
+        } catch (_) {
+          showToast('이 브라우저에서는 아이콘을 저장할 수 없습니다. [PNG 파일로 내려받기]를 이용해 주세요.', 'danger');
+          return;
+        }
+        applySavedHomeIcon();
+        showToast('아이콘을 저장했습니다. Safari 공유 버튼 → [홈 화면에 추가]를 다시 해 주세요.', 'sage');
+      }
+
+      function downloadHomeIconPng() {
+        const out = buildHomeIconCanvas();
+        if (!out) {
+          showToast('먼저 앨범에서 이미지를 골라 주세요.', 'danger');
+          return;
+        }
+        out.toBlob((blob) => {
+          if (!blob) {
+            showToast('PNG 파일을 만들지 못했습니다.', 'danger');
+            return;
+          }
+          triggerBlobDownload('apple-touch-icon.png', blob, 'image/png');
+          showToast('apple-touch-icon.png를 내려받았습니다. 저장소의 index.html 옆에 올리면 모든 기기에 적용됩니다.', 'sage');
+        }, 'image/png');
+      }
+
+      function resetHomeIcon() {
+        try {
+          localStorage.removeItem(HOME_ICON_STORAGE);
+        } catch (_) {}
+        applySavedHomeIcon();
+        showToast('이 기기의 아이콘 설정을 지웠습니다.', 'sage');
+      }
+
+      function bindHomeIconEditorListeners() {
+        document.getElementById('homeIconFileInput').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          e.target.value = '';
+          if (file) loadHomeIconFile(file);
+        });
+        document.getElementById('homeIconZoomRange').addEventListener('input', (e) => {
+          homeIconView.zoom = Number(e.target.value) || 1;
+          renderHomeIconEditor();
+        });
+
+        const canvas = document.getElementById('homeIconEditorCanvas');
+        canvas.addEventListener('pointerdown', (e) => {
+          if (!homeIconSource) return;
+          e.preventDefault();
+          try {
+            canvas.setPointerCapture(e.pointerId);
+          } catch (_) {}
+          homeIconDrag = { x: e.clientX, y: e.clientY, cx: homeIconView.cx, cy: homeIconView.cy };
+        });
+        canvas.addEventListener('pointermove', (e) => {
+          if (!homeIconDrag || !homeIconSource) return;
+          e.preventDefault();
+          const rect = canvas.getBoundingClientRect();
+          const crop = getHomeIconCrop(homeIconSource.width, homeIconSource.height, homeIconView);
+          // 화면에서 끈 거리만큼 이미지가 손가락을 따라오도록, 원본 픽셀 거리로 바꿔 중심을 옮긴다.
+          const perPx = crop.side / Math.max(1, rect.width);
+          homeIconView.cx = homeIconDrag.cx - ((e.clientX - homeIconDrag.x) * perPx) / homeIconSource.width;
+          homeIconView.cy = homeIconDrag.cy - ((e.clientY - homeIconDrag.y) * perPx) / homeIconSource.height;
+          renderHomeIconEditor();
+        });
+        const endDrag = () => {
+          homeIconDrag = null;
+        };
+        canvas.addEventListener('pointerup', endDrag);
+        canvas.addEventListener('pointercancel', endDrag);
+      }
+
       function bindFormAndInputListeners() {
+        bindHomeIconEditorListeners();
+
         const searchInput = document.getElementById('globalSearchInput');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
         searchInput.addEventListener('input', (e) => {
@@ -5396,6 +5636,7 @@
         }
 
         bindFormAndInputListeners();
+        applySavedHomeIcon();
         await loadArchiveFromStorage();
         rememberPersistedSnapshot();
         pickRandomRemindIds();

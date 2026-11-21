@@ -513,6 +513,8 @@
               </div>
               <h2 id="bookBannerTitle" class="font-literary font-bold text-lg sm:text-xl text-ink mt-1">책 제목</h2>
               <p id="bookBannerAuthor" class="text-xs sm:text-sm text-secondary mt-0.5">저자 · 출판사</p>
+              <p id="bookBannerSummary" class="hidden line-clamp-3 font-literary text-xs sm:text-sm text-secondary leading-relaxed mt-2 whitespace-pre-line max-w-2xl"></p>
+              <button id="bookBannerSummaryToggle" type="button" data-action="toggle-book-summary" class="hidden min-h-[32px] text-[11px] underline text-muted">줄거리 펼치기</button>
             </div>
           </div>
 
@@ -1034,6 +1036,10 @@
               <label for="bookCategoryInput" class="block font-semibold text-xs text-ink mb-1">분야 / 분류</label>
               <input id="bookCategoryInput" type="text" placeholder="예: 한국 SF" class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
             </div>
+          </div>
+          <div>
+            <label for="bookSummaryInput" class="block font-semibold text-xs text-ink mb-1">줄거리 / 책 소개</label>
+            <textarea id="bookSummaryInput" rows="4" placeholder="도서 조회를 하면 서점의 책 소개가 채워집니다. 직접 쓰거나 고쳐도 됩니다." class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink leading-relaxed focus:outline-none resize-y"></textarea>
           </div>
           <div>
             <span class="block font-semibold text-sm text-ink mb-1.5">책등 색상 (Spine Color)</span>
@@ -1923,6 +1929,12 @@
           case 'reset-home-icon':
             resetHomeIcon();
             break;
+          case 'toggle-book-summary': {
+            const summaryEl = document.getElementById('bookBannerSummary');
+            const stillClamped = summaryEl.classList.toggle('line-clamp-3');
+            triggerEl.textContent = stillClamped ? '줄거리 펼치기' : '줄거리 접기';
+            break;
+          }
           case 'reset-sample-data':
             resetToSampleArchive();
             break;
@@ -2687,6 +2699,18 @@
             document.getElementById('bookBannerTitle').textContent = book.title;
             const metaParts = [book.author, book.publisher, book.publishedYear ? `${book.publishedYear}년` : ''].filter(Boolean);
             document.getElementById('bookBannerAuthor').textContent = metaParts.join(' · ');
+            // 줄거리: 세 줄까지만 보이고, 길면 펼치기 버튼을 둔다. 책을 바꾸면 다시 접는다.
+            const summaryEl = document.getElementById('bookBannerSummary');
+            const summaryToggle = document.getElementById('bookBannerSummaryToggle');
+            const summaryText = String(book.summary || '').trim();
+            summaryEl.textContent = summaryText;
+            summaryEl.classList.toggle('hidden', !summaryText);
+            if (summaryEl.dataset.bookId !== book.id) {
+              summaryEl.dataset.bookId = book.id;
+              summaryEl.classList.add('line-clamp-3');
+            }
+            summaryToggle.classList.toggle('hidden', summaryText.length < 110);
+            summaryToggle.textContent = summaryEl.classList.contains('line-clamp-3') ? '줄거리 펼치기' : '줄거리 접기';
             heading.textContent = `『${book.title}』 발췌 목록`;
           }
         } else {
@@ -3556,6 +3580,7 @@
                 publishedYear: doc.datetime ? String(doc.datetime).slice(0, 4) : '',
                 category: '',
                 coverUrl: doc.thumbnail ? String(doc.thumbnail).replace(/^http:\/\//i, 'https://') : '',
+                summary: cleanSummaryText(doc.contents),
               }
             : null,
         };
@@ -3603,6 +3628,7 @@
               publishedYear: item.pubDate ? String(item.pubDate).slice(0, 4) : '',
               category: item.categoryName ? String(item.categoryName).split('>').pop().trim() : '',
               coverUrl: item.cover ? String(item.cover).replace(/^http:\/\//i, 'https://').replace('/coversum/', '/cover200/') : '',
+              summary: cleanSummaryText(item.description),
             });
           };
 
@@ -3644,6 +3670,7 @@
           publishedYear: info.publishedDate ? (String(info.publishedDate).match(/\d{4}/) || [''])[0] : '',
           category: Array.isArray(info.categories) && info.categories[0] ? info.categories[0] : '',
           coverUrl: rawThumb ? rawThumb.replace(/^http:\/\//i, 'https://') : '',
+          summary: cleanSummaryText(info.description),
         };
       }
 
@@ -3663,6 +3690,7 @@
         if (!target.publishedYear && incoming.publishedYear) target.publishedYear = incoming.publishedYear;
         if (!target.category && incoming.category) target.category = incoming.category;
         if (!target.coverUrl && incoming.coverUrl) target.coverUrl = incoming.coverUrl;
+        if (!target.summary && incoming.summary) target.summary = incoming.summary;
       }
 
       async function lookupBookMetadataByIsbn(rawIsbn) {
@@ -3691,6 +3719,7 @@
           publishedYear: '',
           category: '',
           coverUrl: '',
+          summary: '',
         };
         const keys = readSavedApiKeys();
         const outcomes = []; // 출처별 실패 이유 — 마지막에 그대로 보여 준다.
@@ -3762,6 +3791,10 @@
           if (meta.category && !document.getElementById('bookCategoryInput').value) {
             document.getElementById('bookCategoryInput').value = meta.category;
           }
+          // 줄거리는 이미 써 둔 내용이 있으면 덮지 않는다.
+          if (meta.summary && !document.getElementById('bookSummaryInput').value.trim()) {
+            document.getElementById('bookSummaryInput').value = meta.summary;
+          }
           if (meta.coverUrl) {
             updateBookCoverPreview(meta.coverUrl, `${meta.title || isbn13} 표지 로드됨`);
           }
@@ -3785,6 +3818,22 @@
       // =========================================================================
       // 9b. TITLE SEARCH + COVER IMAGE HELPERS
       // =========================================================================
+      // 서점 API의 책 소개에는 HTML 태그와 &lt; 같은 표기가 섞여 온다. 글자만 남기고 길이를 제한한다.
+      function cleanSummaryText(raw) {
+        const entities = { lt: '<', gt: '>', amp: '&', quot: '"', nbsp: ' ', '#39': "'" };
+        let text = String(raw || '')
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<\/p>/gi, '\n\n')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&(lt|gt|amp|quot|nbsp|#39);/g, (_, name) => entities[name])
+          .replace(/[ \t]+/g, ' ')
+          .replace(/ ?\n ?/g, '\n')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
+        if (text.length > 1500) text = `${text.slice(0, 1500).trimEnd()}…`;
+        return text;
+      }
+
       // 표지 주소는 https 이미지나 앱이 직접 만든 data:image만 받는다.
       function safeCoverUrl(url) {
         const v = String(url || '').trim();
@@ -3867,6 +3916,7 @@
               publishedYear: d.datetime ? String(d.datetime).slice(0, 4) : '',
               category: '',
               coverUrl: httpsUrl(d.thumbnail),
+              summary: cleanSummaryText(d.contents),
               isbn: pickIsbn13(String(d.isbn || '').split(/\s+/)),
             })),
         };
@@ -3890,6 +3940,7 @@
               publishedYear: it.pubDate ? String(it.pubDate).slice(0, 4) : '',
               category: it.categoryName ? String(it.categoryName).split('>').pop().trim() : '',
               coverUrl: httpsUrl(it.cover),
+              summary: cleanSummaryText(it.description),
               isbn: pickIsbn13([it.isbn13, it.isbn]),
             })),
         };
@@ -3913,6 +3964,7 @@
               publishedYear: info.publishedDate ? (String(info.publishedDate).match(/\d{4}/) || [''])[0] : '',
               category: Array.isArray(info.categories) && info.categories[0] ? info.categories[0] : '',
               coverUrl: httpsUrl(info.imageLinks ? info.imageLinks.thumbnail || info.imageLinks.smallThumbnail : ''),
+              summary: cleanSummaryText(info.description),
               isbn: pickIsbn13((info.industryIdentifiers || []).map((idf) => idf.identifier)),
             })),
         };
@@ -4048,6 +4100,7 @@
         if (item.category && !document.getElementById('bookCategoryInput').value) {
           document.getElementById('bookCategoryInput').value = item.category;
         }
+        if (item.summary) document.getElementById('bookSummaryInput').value = item.summary;
         // 조회 칸에는 검색어 대신 ISBN을 넣어 둔다 (없으면 비운다 — 제목이 ISBN으로 저장되지 않게).
         document.getElementById('isbnManualInput').value = item.isbn || '';
         updateExternalVerificationLinks(item.isbn || '');
@@ -4124,6 +4177,7 @@
           document.getElementById('bookPublisherInput').value = bookToEdit.publisher || '';
           document.getElementById('bookPublishedYearInput').value = bookToEdit.publishedYear || '';
           document.getElementById('bookCategoryInput').value = bookToEdit.category || '';
+          document.getElementById('bookSummaryInput').value = bookToEdit.summary || '';
           updateBookCoverPreview(bookToEdit.coverUrl || '', `${bookToEdit.title} 표지`);
           renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', bookToEdit.spineColor || '#9A3412');
         } else {
@@ -4136,6 +4190,7 @@
           document.getElementById('bookPublisherInput').value = '';
           document.getElementById('bookPublishedYearInput').value = '';
           document.getElementById('bookCategoryInput').value = '';
+          document.getElementById('bookSummaryInput').value = '';
           updateBookCoverPreview('');
           renderSpineSwatches('bookModalSpineSwatches', 'bookSpineColorInput', '#9A3412');
         }
@@ -5008,6 +5063,12 @@
           if (book && (book.publisher || book.category)) {
             lines.push(`- 분류: ${[book.category, book.publisher].filter(Boolean).join(' / ')}`);
           }
+          if (book && book.summary) {
+            lines.push('');
+            lines.push('**줄거리**');
+            lines.push('');
+            lines.push(book.summary);
+          }
           lines.push('');
 
           excs.forEach((exc) => {
@@ -5848,6 +5909,7 @@
               book.isbn = isbn;
               book.coverUrl = coverUrl;
               book.category = document.getElementById('bookCategoryInput').value.trim();
+              book.summary = document.getElementById('bookSummaryInput').value.trim();
               book.spineColor = document.getElementById('bookSpineColorInput').value || '#9A3412';
             }
             showToast('책 정보가 수정되었습니다.', 'sage');
@@ -5861,6 +5923,7 @@
               isbn,
               coverUrl,
               category: document.getElementById('bookCategoryInput').value.trim(),
+              summary: document.getElementById('bookSummaryInput').value.trim(),
               spineColor: document.getElementById('bookSpineColorInput').value || '#9A3412',
               createdAt: Date.now(),
             };

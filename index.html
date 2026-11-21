@@ -877,8 +877,8 @@
             <input
               id="isbnManualInput"
               type="text"
-              inputmode="numeric"
-              placeholder="ISBN 13자리 또는 10자리 (하이픈 자동 제거)"
+              enterkeyhint="search"
+              placeholder="ISBN 또는 책 제목 (예: 9788936434120 / 소년이 온다)"
               class="flex-1 min-h-[44px] surface-card border border-hairline rounded-xl px-3 py-2 font-mono text-ink focus:outline-none"
             />
             <button
@@ -890,6 +890,9 @@
               도서 조회
             </button>
           </div>
+
+          <!-- Title search results: tap one to fill the form -->
+          <div id="titleSearchResults" class="hidden flex-col gap-1.5"></div>
 
           <!-- Quick Sample ISBN Test Chips -->
           <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
@@ -980,6 +983,13 @@
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- Manual cover from album / camera -->
+          <div class="flex flex-wrap items-center gap-2 text-[11px]">
+            <label for="bookCoverFileInput" class="min-h-[36px] inline-flex items-center px-3 py-1 rounded-lg border border-hairline surface-card text-xs font-semibold text-ink cursor-pointer">표지 사진 직접 넣기</label>
+            <input id="bookCoverFileInput" type="file" accept="image/*" class="hidden" />
+            <span class="text-muted">조회로 표지가 안 나오면 앨범에서 고르거나 표지를 찍어 넣을 수 있습니다.</span>
           </div>
 
           <!-- Fetched Book Cover Thumbnail Preview -->
@@ -1802,7 +1812,7 @@
             stopBarcodeCamera();
             break;
           case 'lookup-isbn':
-            lookupBookMetadataByIsbn(document.getElementById('isbnManualInput').value);
+            runBookLookupFromInput(document.getElementById('isbnManualInput').value);
             break;
           case 'test-sample-isbn': {
             const sampleCode = triggerEl.dataset.sampleIsbn || '';
@@ -2468,9 +2478,16 @@
               isSelected ? 'surface-card border border-hairline shadow-2xs' : 'hover:opacity-90'
             }`;
 
+            // 책 아이콘: 표지가 있으면 표지를, 없거나 불러오지 못하면 책등 색 바탕에 제목 첫 글자를 보여 준다.
+            const coverSrc = safeCoverUrl(book.coverUrl);
+            const titleInitial = Array.from(String(book.title || '?').trim())[0] || '?';
             li.innerHTML = `
               <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                <span class="w-1.5 h-8 rounded-full shrink-0" style="background-color: ${escapeHtml(book.spineColor || '#9A3412')};"></span>
+                <span class="relative w-7 h-10 rounded-[5px] overflow-hidden shrink-0 flex items-center justify-center font-literary text-[11px] font-bold text-white border border-hairline" style="background-color: ${escapeHtml(book.spineColor || '#9A3412')};">${escapeHtml(titleInitial)}${
+                  coverSrc
+                    ? `<img src="${escapeHtml(coverSrc)}" alt="" loading="lazy" onerror="this.remove()" class="absolute inset-0 w-full h-full object-cover" />`
+                    : ''
+                }</span>
                 <div class="min-w-0 flex-1">
                   <div class="font-literary text-xs font-semibold text-ink truncate">${escapeHtml(book.title)}</div>
                   <div class="text-[11px] text-muted truncate">${escapeHtml(book.author)}${book.publishedYear ? ` (${escapeHtml(book.publishedYear)})` : ''}</div>
@@ -3765,6 +3782,306 @@
         }
       }
 
+      // =========================================================================
+      // 9b. TITLE SEARCH + COVER IMAGE HELPERS
+      // =========================================================================
+      // 표지 주소는 https 이미지나 앱이 직접 만든 data:image만 받는다.
+      function safeCoverUrl(url) {
+        const v = String(url || '').trim();
+        return /^https:\/\//i.test(v) || /^data:image\/(png|jpeg|webp);base64,/i.test(v) ? v : '';
+      }
+
+      // 조회 칸 하나로 ISBN과 제목을 모두 받는다. 숫자(와 X, 하이픈)만 있으면 ISBN, 글자가 섞이면 제목 검색.
+      function runBookLookupFromInput(rawValue) {
+        const raw = String(rawValue || '').trim();
+        const compact = raw.replace(/[\s-]/g, '');
+        if (!compact) {
+          setIsbnStatus('ISBN이나 책 제목을 입력해 주세요.', 'error');
+          return;
+        }
+        if (/^[\dXx]+$/.test(compact)) {
+          clearTitleSearchResults();
+          lookupBookMetadataByIsbn(raw);
+        } else {
+          searchBooksByTitle(raw);
+        }
+      }
+
+      function clearTitleSearchResults() {
+        const box = document.getElementById('titleSearchResults');
+        if (!box) return;
+        box.innerHTML = '';
+        box.classList.add('hidden');
+        box.classList.remove('flex');
+      }
+
+      function requestJsonp(url, timeoutMs = 6000) {
+        return new Promise((resolve) => {
+          const cbName = `__jsonpCb_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+          const script = document.createElement('script');
+          let settled = false;
+          const finish = (value) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            if (script.parentNode) script.parentNode.removeChild(script);
+            try {
+              delete window[cbName];
+            } catch (_) {
+              window[cbName] = undefined;
+            }
+            resolve(value);
+          };
+          const timer = setTimeout(() => finish(null), timeoutMs);
+          window[cbName] = (...args) => finish(args.find((a) => a && typeof a === 'object') || null);
+          script.onerror = () => finish(null);
+          script.src = `${url}&callback=${cbName}`;
+          document.head.appendChild(script);
+        });
+      }
+
+      function pickIsbn13(candidates) {
+        return (
+          (candidates || [])
+            .map((c) => normalizeIsbn(c))
+            .find((c) => /^97[89]\d{10}$/.test(c) && hasValidIsbn13CheckDigit(c)) || ''
+        );
+      }
+
+      const httpsUrl = (u) => (u ? String(u).replace(/^http:\/\//i, 'https://') : '');
+
+      async function searchKakaoBooks(query, kakaoKey) {
+        const { status, data } = await fetchJsonWithStatus(
+          `https://dapi.kakao.com/v3/search/book?size=8&query=${encodeURIComponent(query)}`,
+          { headers: { Authorization: `KakaoAK ${kakaoKey}` } }
+        );
+        const docs = data && Array.isArray(data.documents) ? data.documents : [];
+        return {
+          status,
+          items: docs
+            .filter((d) => d && d.title)
+            .map((d) => ({
+              title: d.title || '',
+              author: Array.isArray(d.authors) ? d.authors.join(', ') : '',
+              publisher: d.publisher || '',
+              publishedYear: d.datetime ? String(d.datetime).slice(0, 4) : '',
+              category: '',
+              coverUrl: httpsUrl(d.thumbnail),
+              isbn: pickIsbn13(String(d.isbn || '').split(/\s+/)),
+            })),
+        };
+      }
+
+      async function searchAladinBooks(query, ttbKey) {
+        const payload = await requestJsonp(
+          `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${encodeURIComponent(ttbKey)}&Query=${encodeURIComponent(
+            query
+          )}&QueryType=Keyword&MaxResults=8&start=1&SearchTarget=Book&Cover=Big&output=js&Version=20131101`
+        );
+        const list = payload && Array.isArray(payload.item) ? payload.item : [];
+        return {
+          status: payload ? 200 : 0,
+          items: list
+            .filter((it) => it && it.title)
+            .map((it) => ({
+              title: it.title || '',
+              author: it.author || '',
+              publisher: it.publisher || '',
+              publishedYear: it.pubDate ? String(it.pubDate).slice(0, 4) : '',
+              category: it.categoryName ? String(it.categoryName).split('>').pop().trim() : '',
+              coverUrl: httpsUrl(it.cover),
+              isbn: pickIsbn13([it.isbn13, it.isbn]),
+            })),
+        };
+      }
+
+      async function searchGoogleBooks(query, googleKey) {
+        const { status, data } = await fetchJsonWithStatus(
+          `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&country=KR&printType=books&maxResults=8` +
+            (googleKey ? `&key=${encodeURIComponent(googleKey)}` : '')
+        );
+        const vols = data && Array.isArray(data.items) ? data.items : [];
+        return {
+          status,
+          items: vols
+            .map((v) => v.volumeInfo || {})
+            .filter((info) => info.title)
+            .map((info) => ({
+              title: [info.title, info.subtitle].filter(Boolean).join(' : '),
+              author: Array.isArray(info.authors) ? info.authors.join(', ') : '',
+              publisher: info.publisher || '',
+              publishedYear: info.publishedDate ? (String(info.publishedDate).match(/\d{4}/) || [''])[0] : '',
+              category: Array.isArray(info.categories) && info.categories[0] ? info.categories[0] : '',
+              coverUrl: httpsUrl(info.imageLinks ? info.imageLinks.thumbnail || info.imageLinks.smallThumbnail : ''),
+              isbn: pickIsbn13((info.industryIdentifiers || []).map((idf) => idf.identifier)),
+            })),
+        };
+      }
+
+      async function searchOpenLibraryBooks(query) {
+        const { status, data } = await fetchJsonWithStatus(
+          `https://openlibrary.org/search.json?limit=8&fields=title,author_name,publisher,first_publish_year,isbn,cover_i&q=${encodeURIComponent(query)}`
+        );
+        const docs = data && Array.isArray(data.docs) ? data.docs : [];
+        return {
+          status,
+          items: docs
+            .filter((d) => d && d.title)
+            .map((d) => ({
+              title: d.title || '',
+              author: Array.isArray(d.author_name) ? d.author_name.join(', ') : '',
+              publisher: Array.isArray(d.publisher) && d.publisher[0] ? d.publisher[0] : '',
+              publishedYear: d.first_publish_year ? String(d.first_publish_year) : '',
+              category: '',
+              coverUrl: d.cover_i ? `https://covers.openlibrary.org/b/id/${encodeURIComponent(d.cover_i)}-M.jpg` : '',
+              isbn: pickIsbn13(Array.isArray(d.isbn) ? d.isbn.slice(0, 40) : []),
+            })),
+        };
+      }
+
+      // 제목(또는 제목+저자)으로 검색해 후보를 보여 준다. 국내 도서에 강한 순서로 묻고,
+      // 결과가 나온 첫 출처의 목록을 쓴다. 실패 이유는 ISBN 조회와 같은 방식으로 출처별로 알려 준다.
+      async function searchBooksByTitle(rawQuery) {
+        const query = String(rawQuery || '').trim();
+        if (query.length < 2) {
+          setIsbnStatus('검색할 책 제목을 두 글자 이상 입력해 주세요.', 'error');
+          return;
+        }
+        clearTitleSearchResults();
+        const lookupBtn = document.getElementById('lookupIsbnBtn');
+        if (lookupBtn) lookupBtn.disabled = true;
+
+        const keys = readSavedApiKeys();
+        const outcomes = [];
+        const sources = [];
+        if (keys.kakao) sources.push(['카카오', () => searchKakaoBooks(query, keys.kakao)]);
+        if (keys.aladin) sources.push(['알라딘', () => searchAladinBooks(query, keys.aladin)]);
+        sources.push(['Google Books', () => searchGoogleBooks(query, keys.google)]);
+        sources.push(['Open Library', () => searchOpenLibraryBooks(query)]);
+
+        let found = null;
+        try {
+          for (const [label, run] of sources) {
+            setIsbnStatus(`[${label}] “${query}” 검색 중...`, 'neutral');
+            let result = { status: 0, items: [] };
+            try {
+              result = await run();
+            } catch (_) {}
+            if (result.items.length > 0) {
+              found = { label, items: result.items.slice(0, 8) };
+              break;
+            }
+            outcomes.push(
+              `${label}: ${label === '알라딘' && result.status === 0 ? '결과 없음 또는 키 오류' : describeLookupOutcome(result.status)}` +
+                (label === 'Google Books' && result.status === 429 && !keys.google ? ' — 개인 키 필요' : '')
+            );
+          }
+        } finally {
+          if (lookupBtn) lookupBtn.disabled = false;
+        }
+
+        if (found) {
+          renderTitleSearchResults(found.items);
+          setIsbnStatus(`${found.label}에서 ${found.items.length}권을 찾았습니다. 맞는 책을 눌러 주세요.`, 'success');
+        } else {
+          setIsbnStatus(`“${query}” 검색 실패 — ${outcomes.join(' · ')}`, 'error');
+          if (!keys.kakao && !keys.aladin) {
+            const panel = document.getElementById('krApiSettingsPanel');
+            const chev = document.getElementById('krApiChevron');
+            if (panel) panel.classList.remove('hidden');
+            if (chev) chev.textContent = '▲';
+            showToast('키 없는 무료 검색으로는 찾지 못했습니다. 카카오 책 검색 키를 저장하면 국내 도서를 제목으로 찾을 수 있습니다.', 'danger');
+          } else {
+            showToast('검색 결과가 없습니다. 제목을 조금 다르게 입력해 보세요.', 'danger');
+          }
+        }
+      }
+
+      // 외부에서 받은 글자는 textContent로만 넣는다 (HTML로 해석되지 않게).
+      function renderTitleSearchResults(items) {
+        const box = document.getElementById('titleSearchResults');
+        if (!box) return;
+        box.innerHTML = '';
+        items.forEach((item) => {
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.className = 'w-full flex items-center gap-3 text-left surface-card border border-hairline rounded-xl px-2.5 py-2 min-h-[56px] hover:opacity-85 transition';
+
+          const thumb = document.createElement('span');
+          thumb.className = 'relative w-8 h-11 rounded-[5px] overflow-hidden shrink-0 surface-elevated border border-hairline';
+          const cover = safeCoverUrl(item.coverUrl);
+          if (cover) {
+            const img = document.createElement('img');
+            img.src = cover;
+            img.alt = '';
+            img.loading = 'lazy';
+            img.className = 'absolute inset-0 w-full h-full object-cover';
+            img.addEventListener('error', () => img.remove());
+            thumb.appendChild(img);
+          }
+
+          const text = document.createElement('span');
+          text.className = 'min-w-0 flex-1';
+          const titleEl = document.createElement('span');
+          titleEl.className = 'block font-literary text-xs font-semibold text-ink truncate';
+          titleEl.textContent = item.title;
+          const subEl = document.createElement('span');
+          subEl.className = 'block text-[11px] text-muted truncate';
+          subEl.textContent = [item.author, item.publisher, item.publishedYear].filter(Boolean).join(' · ') || '저자 정보 없음';
+          text.appendChild(titleEl);
+          text.appendChild(subEl);
+
+          row.appendChild(thumb);
+          row.appendChild(text);
+          row.addEventListener('click', () => applyBookSearchResult(item));
+          box.appendChild(row);
+        });
+        box.classList.remove('hidden');
+        box.classList.add('flex');
+      }
+
+      function applyBookSearchResult(item) {
+        document.getElementById('bookTitleInput').value = item.title || '';
+        document.getElementById('bookAuthorInput').value = item.author || '';
+        document.getElementById('bookPublisherInput').value = item.publisher || '';
+        document.getElementById('bookPublishedYearInput').value = item.publishedYear || '';
+        if (item.category && !document.getElementById('bookCategoryInput').value) {
+          document.getElementById('bookCategoryInput').value = item.category;
+        }
+        // 조회 칸에는 검색어 대신 ISBN을 넣어 둔다 (없으면 비운다 — 제목이 ISBN으로 저장되지 않게).
+        document.getElementById('isbnManualInput').value = item.isbn || '';
+        updateExternalVerificationLinks(item.isbn || '');
+        const cover = safeCoverUrl(item.coverUrl);
+        updateBookCoverPreview(cover, cover ? `${item.title} 표지` : '');
+        clearTitleSearchResults();
+        setIsbnStatus(item.author ? '도서 정보를 채웠습니다. 확인한 뒤 저장하세요.' : '도서 정보를 채웠습니다. 저자를 직접 입력해 주세요.', 'success');
+      }
+
+      // 앨범·카메라에서 고른 표지 사진을 작은 JPEG로 줄여 책에 함께 저장한다 (가로 160 × 세로 240 안쪽).
+      // 서재 데이터에 들어가 동기화되므로 크기를 작게 유지한다.
+      function loadBookCoverFile(file) {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, 160 / img.naturalWidth, 240 / img.naturalHeight);
+          const c = document.createElement('canvas');
+          c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          updateBookCoverPreview(c.toDataURL('image/jpeg', 0.75), '직접 넣은 표지');
+          showToast('표지 사진을 넣었습니다. 저장하기를 누르면 책에 적용됩니다.', 'sage');
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          showToast('이 이미지는 열 수 없습니다. 다른 사진을 골라 주세요.', 'danger');
+        };
+        img.src = url;
+      }
+
       function renderSpineSwatches(containerId, hiddenInputId, activeHex) {
         const container = document.getElementById(containerId);
         const hiddenInput = document.getElementById(hiddenInputId);
@@ -3787,6 +4104,7 @@
       }
 
       function openBookModal(bookToEdit = null) {
+        clearTitleSearchResults();
         stopBarcodeCamera();
         setIsbnStatus('');
         syncKoreanApiSettingsUi();
@@ -5376,8 +5694,14 @@
         document.getElementById('isbnManualInput').addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            lookupBookMetadataByIsbn(e.target.value);
+            runBookLookupFromInput(e.target.value);
           }
+        });
+
+        document.getElementById('bookCoverFileInput').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          e.target.value = '';
+          if (file) loadBookCoverFile(file);
         });
 
         // OCR Camera & Album File Inputs
@@ -5508,7 +5832,8 @@
           const author = document.getElementById('bookAuthorInput').value.trim();
           if (!title || !author) return;
 
-          const isbn = normalizeIsbn(document.getElementById('isbnManualInput').value);
+          const isbnCandidate = normalizeIsbn(document.getElementById('isbnManualInput').value);
+          const isbn = /^\d{13}$/.test(isbnCandidate) ? isbnCandidate : '';
           const publishedYear = document.getElementById('bookPublishedYearInput').value.trim();
           const coverUrl = document.getElementById('bookCoverUrlInput').value.trim();
 

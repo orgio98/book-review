@@ -467,6 +467,31 @@
     <!-- RIGHT MAIN CONTENT AREA -->
     <main class="flex-1 min-w-0 flex flex-col gap-6">
 
+      <!-- 2b. TODAY'S BOOK ("오늘의 책": one from my shelf, one from public-library loan rankings (도서관 정보나루)) -->
+      <section id="todaySection" class="surface-subtle border border-hairline rounded-2xl p-4 sm:p-5 transition">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs" style="background-color: var(--accent-primary-soft); color: var(--accent-primary);">❖</span>
+            <div>
+              <h2 class="font-literary font-bold text-sm sm:text-base text-ink">오늘의 책</h2>
+              <p class="text-[11px] text-muted">내 서재에서 한 권, 도서관에서 많이 빌려 가는 책 한 권을 날마다 골라 드립니다.</p>
+            </div>
+          </div>
+          <button
+            id="toggleTodayCollapseBtn"
+            type="button"
+            data-action="toggle-today-collapse"
+            class="min-h-[40px] px-3 py-1.5 rounded-xl border border-hairline surface-card text-xs text-muted hover:text-ink transition"
+          >
+            접기
+          </button>
+        </div>
+        <div id="todayCardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-4">
+          <article id="todayOwnCard" class="surface-card border border-hairline rounded-xl p-4 flex flex-col gap-3 min-w-0"></article>
+          <article id="todayOutCard" class="surface-card border border-hairline rounded-xl p-4 flex flex-col gap-3 min-w-0"></article>
+        </div>
+      </section>
+
       <!-- 3. TODAY'S REMIND SECTION ("오늘의 리마인드 카드") -->
       <section id="remindSection" class="surface-subtle border border-hairline rounded-2xl p-4 sm:p-5 transition">
         <div class="flex flex-wrap items-center justify-between gap-2">
@@ -940,7 +965,7 @@
             <a id="extLinkGoogle" href="#" target="_blank" rel="noopener noreferrer" class="underline font-medium text-secondary">Google 도서 ↗</a>
           </div>
 
-          <!-- Collapsible Optional Korean Bookstore API Settings (Kakao / Aladin) -->
+          <!-- Collapsible API key settings (Kakao / 도서관 정보나루 / Google Books) -->
           <div class="border-t border-hairline pt-2">
             <button
               type="button"
@@ -956,7 +981,7 @@
 
             <div id="krApiSettingsPanel" class="hidden mt-2 p-3 rounded-xl surface-card border border-hairline flex flex-col gap-2.5 text-xs">
               <p class="text-[11px] text-muted leading-relaxed">
-                키 없이 쓰는 무료 조회(Google Books · Open Library)는 공용 사용량이 자주 소진되고 국내 도서 수록이 적어 실패하는 일이 많습니다. 아래 키 중 하나를 저장하면 조회가 안정됩니다. (키는 현재 기기 브라우저에만 저장되며, GitHub 저장소 코드에는 넣지 마세요.)
+                키 없이 쓰는 무료 조회(Google Books · Open Library)는 공용 사용량이 자주 소진되고 국내 도서 수록이 적어 실패하는 일이 많습니다. 도서 조회에는 카카오 키를 권합니다. (알라딘 OpenAPI는 2026년 10월 30일에 종료되어 뺐습니다.) (키는 현재 기기 브라우저에만 저장되며, GitHub 저장소 코드에는 넣지 마세요.)
               </p>
               <div>
                 <label for="kakaoRestKeyInput" class="block text-[11px] font-semibold text-ink mb-1">카카오 책 검색 REST API 키 (KakaoAK)</label>
@@ -969,12 +994,12 @@
                 />
               </div>
               <div>
-                <label for="aladinTtbKeyInput" class="block text-[11px] font-semibold text-ink mb-1">알라딘 TTBKey (JSONP CORS 우회 지원)</label>
+                <label for="naruKeyInput" class="block text-[11px] font-semibold text-ink mb-1">도서관 정보나루 인증키 (선택 · ‘오늘의 책’ 인기 대출 도서용)</label>
                 <input
-                  id="aladinTtbKeyInput"
+                  id="naruKeyInput"
                   type="password"
                   autocomplete="off"
-                  placeholder="예: ttbexample1234001"
+                  placeholder="data4library.kr 마이페이지에서 발급받은 인증키"
                   class="w-full min-h-[40px] surface-subtle border border-hairline rounded-lg px-3 py-1.5 font-mono text-ink focus:outline-none"
                 />
               </div>
@@ -1497,7 +1522,8 @@
       const LS_FALLBACK_KEY = 'marginalia_archive_v2_data';
       const THEME_STORAGE_KEY = 'marginalia_archive_theme_v2';
       const KAKAO_KEY_STORAGE = 'marginalia_kakao_rest_key_v1';
-      const ALADIN_KEY_STORAGE = 'marginalia_aladin_ttb_key_v1';
+      const NARU_KEY_STORAGE = 'marginalia_data4library_key_v1';
+      const RETIRED_ALADIN_KEY_STORAGE = 'marginalia_aladin_ttb_key_v1'; // 알라딘 OpenAPI는 2026-10-30에 종료됨 — 남은 키는 지운다
       const GOOGLE_KEY_STORAGE = 'marginalia_google_books_key_v1';
       const ZXING_CDN_PRIMARY = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
       const ZXING_CDN_FALLBACK = 'https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js';
@@ -1511,6 +1537,8 @@
       const HOME_ICON_DEFAULT_HREF = 'apple-touch-icon.png';
       const SHELF_PREFS_STORAGE = 'marginalia_bookshelf_prefs_v1';
       const UNCATEGORIZED_LABEL = '미분류';
+      const TODAY_PREFS_STORAGE = 'marginalia_today_prefs_v1';
+      const TODAY_LIST_STORAGE = 'marginalia_today_naru_lists_v1';
 
       const SPINE_COLORS = [
         { name: '테라코타', hex: '#9A3412' },
@@ -1690,6 +1718,10 @@
 
       // Bookshelf view preferences (이 기기에만 저장): 정렬 기준, 분야별 묶기, 접어 둔 분야
       let shelfPrefs = { sort: 'created-desc', grouped: false, collapsed: [] };
+
+      // Today's book: 날짜가 바뀌면 '다른 책'을 누른 횟수(offset)는 0으로 돌아간다
+      let todayPrefs = { date: '', offsetOwn: 0, offsetOut: 0, outType: 'popular', collapsed: false };
+      let todayOutCache = {}; // `${date}|${type}` → { status: 'loading' | 'ok' | 'error', items, message }
       let barcodeVideoDevices = [];
       let barcodeCurrentDeviceIdx = 0;
       let zxingLoadPromise = null;
@@ -1948,6 +1980,68 @@
           case 'reset-home-icon':
             resetHomeIcon();
             break;
+          case 'toggle-today-collapse':
+            todayPrefs.collapsed = !todayPrefs.collapsed;
+            saveTodayPrefs();
+            renderTodaySection();
+            break;
+          case 'today-own-next':
+            todayPrefs.offsetOwn += 1;
+            saveTodayPrefs();
+            renderTodayOwnCard();
+            break;
+          case 'today-own-open': {
+            const bookId = triggerEl.dataset.bookId;
+            if (getBookById(bookId)) {
+              state.activeView = 'book';
+              state.selectedBookId = bookId;
+              state.selectedTag = null;
+              renderAll();
+              const banner = document.getElementById('bookContextBanner');
+              if (banner && banner.scrollIntoView) banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            break;
+          }
+          case 'today-out-next':
+            todayPrefs.offsetOut += 1;
+            saveTodayPrefs();
+            renderTodayOutCard();
+            break;
+          case 'today-out-type':
+            if (['popular', 'rising'].includes(triggerEl.dataset.type)) {
+              todayPrefs.outType = triggerEl.dataset.type;
+              todayPrefs.offsetOut = 0;
+              saveTodayPrefs();
+              renderTodayOutCard();
+            }
+            break;
+          case 'today-out-retry':
+            delete todayOutCache[`${todayDateKey()}|${todayPrefs.outType}`];
+            renderTodayOutCard();
+            break;
+          case 'today-out-add': {
+            const pick = pickTodayOutBook();
+            if (pick) {
+              openBookModal(null);
+              applyBookSearchResult(pick.item);
+              // 정보나루 목록에는 줄거리가 없다. 카카오 키가 있으면 ISBN으로 한 번 더 조회해 줄거리와 표지를 채운다.
+              if (pick.item.isbn && readSavedApiKeys().kakao) lookupBookMetadataByIsbn(pick.item.isbn);
+            }
+            break;
+          }
+          case 'today-open-key-settings': {
+            openBookModal(null);
+            const panel = document.getElementById('krApiSettingsPanel');
+            const chev = document.getElementById('krApiChevron');
+            if (panel) panel.classList.remove('hidden');
+            if (chev) chev.textContent = '▲';
+            const keyInput = document.getElementById('naruKeyInput');
+            if (keyInput) {
+              if (keyInput.scrollIntoView) keyInput.scrollIntoView({ block: 'center' });
+              keyInput.focus();
+            }
+            break;
+          }
           case 'toggle-book-summary': {
             const summaryEl = document.getElementById('bookBannerSummary');
             const stillClamped = summaryEl.classList.toggle('line-clamp-3');
@@ -2478,6 +2572,467 @@
       // =========================================================================
       // 7. RENDERING FUNCTIONS (SIDEBAR, REMIND CARDS, MAIN FEED)
       // =========================================================================
+      // =========================================================================
+      // 7b. TODAY'S BOOK — ONE FROM MY SHELF (DAILY ROTATION) + ONE FROM PUBLIC-LIBRARY LOAN RANKINGS
+      // =========================================================================
+      function todayDateKey(now = new Date()) {
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      }
+
+      // 기기 시간대 기준의 "며칠째"인지. 같은 날이면 두 기기에서 같은 값이 나온다.
+      function todayDayNumber(now = new Date()) {
+        return Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
+      }
+
+      const positiveMod = (n, m) => ((n % m) + m) % m;
+
+      function loadTodayPrefs() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(TODAY_PREFS_STORAGE) || 'null');
+          if (saved && typeof saved === 'object') {
+            todayPrefs.date = typeof saved.date === 'string' ? saved.date : '';
+            todayPrefs.offsetOwn = Number(saved.offsetOwn) || 0;
+            todayPrefs.offsetOut = Number(saved.offsetOut) || 0;
+            if (['popular', 'rising'].includes(saved.outType)) todayPrefs.outType = saved.outType;
+            todayPrefs.collapsed = saved.collapsed === true;
+          }
+        } catch (_) {}
+      }
+
+      function saveTodayPrefs() {
+        try {
+          localStorage.setItem(TODAY_PREFS_STORAGE, JSON.stringify(todayPrefs));
+        } catch (_) {}
+      }
+
+      // 날짜가 넘어갔으면 '다른 책'으로 넘긴 횟수를 지운다 (새 날에는 새 책부터).
+      function rollTodayPrefsIfNewDay() {
+        const key = todayDateKey();
+        if (todayPrefs.date !== key) {
+          todayPrefs.date = key;
+          todayPrefs.offsetOwn = 0;
+          todayPrefs.offsetOut = 0;
+          saveTodayPrefs();
+        }
+      }
+
+      // 내 서재의 책을 등록 순서대로 하루에 한 권씩 돌아가며 고른다.
+      // 무작위가 아니라 순환이라서, 책이 N권이면 N일 안에 모든 책이 한 번씩 나온다.
+      function pickTodayOwnBook(books, dayNumber, offset) {
+        if (!books || books.length === 0) return null;
+        const ordered = [...books].sort(
+          (a, b) => (a.createdAt || 0) - (b.createdAt || 0) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+        );
+        return ordered[positiveMod(dayNumber + offset, ordered.length)];
+      }
+
+      function pickTodayOwnQuote(excerpts, bookId, dayNumber) {
+        const mine = excerpts
+          .filter((e) => e.bookId === bookId && e.quote)
+          .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0) || (a.id < b.id ? -1 : 1));
+        return mine.length ? mine[positiveMod(dayNumber, mine.length)] : null;
+      }
+
+      // 서지 데이터의 저자 표기에서 지은이만 남긴다. 출처마다 모양이 다르다:
+      //   "김초엽, 정세랑 (지은이), 홍길동 (옮긴이)"  → "김초엽, 정세랑"
+      //   "지은이: 한강 ;옮긴이: 홍길동"              → "한강"
+      //   "헤르만 헤세 지음 ; 전영애 옮김"            → "헤르만 헤세"
+      function cleanAuthorRoles(raw) {
+        const text = String(raw || '').replace(/\s+/g, ' ').trim();
+        if (!text) return '';
+
+        if (/\([^)]*\)/.test(text)) {
+          const groups = [];
+          const re = /([^()]+)\(([^)]*)\)/g;
+          let m;
+          while ((m = re.exec(text))) {
+            const names = m[1]
+              .split(',')
+              .map((n) => n.trim())
+              .filter(Boolean);
+            if (names.length) groups.push({ names, role: m[2].trim() });
+          }
+          if (groups.length) {
+            const writers = groups.filter((g) => /^(지은이|글|저자|원작)$/.test(g.role));
+            return (writers.length ? writers : groups.slice(0, 1)).flatMap((g) => g.names).join(', ');
+          }
+        }
+
+        const writerPrefix = /^(지은이|저자|글|원작|지음)\s*[:：]\s*/;
+        const otherPrefix = /^(옮긴이|역자|번역|그림|그린이|엮은이|편자|감수)\s*[:：]\s*/;
+        const writerSuffix = /\s+(지음|저|글|씀|원작)$/;
+        const otherSuffix = /\s+(옮김|역|번역|그림|엮음|편|감수)$/;
+        const segs = text
+          .split(/\s*;\s*/)
+          .map((seg) => seg.trim())
+          .filter(Boolean);
+        const writers = segs.filter((seg) => writerPrefix.test(seg) || writerSuffix.test(seg));
+        const neutral = segs.filter((seg) => !otherPrefix.test(seg) && !otherSuffix.test(seg));
+        const chosen = writers.length ? writers : neutral.length ? neutral : segs.slice(0, 1);
+        return chosen
+          .map((seg) => seg.replace(writerPrefix, '').replace(otherPrefix, '').replace(writerSuffix, '').replace(otherSuffix, '').trim())
+          .filter(Boolean)
+          .join(', ');
+      }
+
+      const normalizeTitleKey = (t) => String(t || '').replace(/[\s\-:·,.()\[\]]/g, '').toLowerCase();
+
+      // 받아 온 목록에서 오늘 보여 줄 한 권.
+      // - 이미 서재에 있는 책은 뺀다 (ISBN 또는 제목이 같은 책).
+      // - 내 서재의 분야 이름이 목록의 분류(KDC 분류명)에 들어 있는 책이 3권 이상이면 그 안에서 고른다.
+      function chooseTodayOutCandidate(items, books, dayNumber, offset) {
+        const ownedIsbn = new Set(books.map((b) => b.isbn).filter(Boolean));
+        const ownedTitle = new Set(books.map((b) => normalizeTitleKey(b.title)).filter(Boolean));
+        const fresh = (items || []).filter(
+          (it) => !(it.isbn && ownedIsbn.has(it.isbn)) && !ownedTitle.has(normalizeTitleKey(it.title))
+        );
+        if (fresh.length === 0) return null;
+        const tokens = [
+          ...new Set(
+            books
+              .flatMap((b) => String(b.category || '').split(/[\/>,·\s]+/))
+              .map((t) => t.trim())
+              .filter((t) => t.length >= 2)
+          ),
+        ];
+        const matched = tokens.length ? fresh.filter((it) => tokens.some((t) => String(it.categoryPath || '').includes(t))) : [];
+        const pool = matched.length >= 3 ? matched : fresh;
+        return { item: pool[positiveMod(dayNumber + offset, pool.length)], matchedMyShelf: pool === matched, poolSize: pool.length };
+      }
+
+      function pickTodayOutBook() {
+        const entry = todayOutCache[`${todayDateKey()}|${todayPrefs.outType}`];
+        if (!entry || entry.status !== 'ok') return null;
+        return chooseTodayOutCandidate(entry.items, state.books, todayDayNumber(), todayPrefs.offsetOut);
+      }
+
+      // 도서관 정보나루(문화체육관광부)의 공공도서관 대출 통계. 판매 순위가 아니라 "많이 빌린 책" 순위다.
+      function mapNaruDoc(doc) {
+        const classPath = String(doc.class_nm || '');
+        const linkRaw = String(doc.bookDtlUrl || '');
+        return {
+          title: String(doc.bookname || '').replace(/\s*[:=\/]\s*$/, '').trim(),
+          author: cleanAuthorRoles(doc.authors),
+          publisher: String(doc.publisher || '').trim(),
+          publishedYear: (String(doc.publication_year || '').match(/\d{4}/) || [''])[0],
+          category: classPath ? classPath.split('>').pop().trim() : '',
+          categoryPath: classPath,
+          coverUrl: httpsUrl(doc.bookImageURL),
+          summary: '',
+          isbn: pickIsbn13([doc.isbn13]),
+          link: /^https?:\/\/(www\.)?data4library\.kr\//i.test(linkRaw) ? httpsUrl(linkRaw) : '',
+          rank: Number(doc.ranking) || 0,
+          loanCount: Number(doc.loan_count) || 0,
+        };
+      }
+
+      function extractNaruDocs(type, payload) {
+        const r = payload && payload.response;
+        if (!r) return [];
+        const wrapped =
+          type === 'rising'
+            ? (Array.isArray(r.results) ? r.results : []).flatMap((x) => (x && x.result && Array.isArray(x.result.docs) ? x.result.docs : []))
+            : Array.isArray(r.docs)
+            ? r.docs
+            : [];
+        const seen = new Set();
+        return wrapped
+          .map((d) => d && d.doc)
+          .filter((d) => d && d.bookname)
+          .map(mapNaruDoc)
+          .filter((it) => {
+            const key = it.isbn || normalizeTitleKey(it.title);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+      }
+
+      function naruDate(daysAgo) {
+        const d = new Date();
+        d.setDate(d.getDate() - daysAgo);
+        return todayDateKey(d);
+      }
+
+      // 정보나루를 브라우저에서 부른다. 먼저 일반 요청(fetch)을 해 보고, 사이트 간 요청이 막혀 실패하면
+      // JSONP 방식으로 한 번 더 시도한다. 둘 다 안 되면 blocked로 알려 화면에 이유를 보여 준다.
+      async function requestNaruJson(pathAndQuery) {
+        const url = `https://data4library.kr/api/${pathAndQuery}&format=json`;
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), 8000);
+        try {
+          const res = await fetch(url, { signal: ctl.signal });
+          if (res.ok) return { payload: await res.json(), blocked: false };
+          return { payload: null, blocked: false, status: res.status };
+        } catch (_) {
+          // CORS 차단·오프라인·시간 초과 — 아래에서 JSONP로 재시도
+        } finally {
+          clearTimeout(timer);
+        }
+        const viaScript = await requestJsonp(url, 6000);
+        if (viaScript) return { payload: viaScript, blocked: false };
+        return { payload: null, blocked: true };
+      }
+
+      // 목록은 하루에 종류별로 한 번만 받아 이 기기에 보관한다 (열 때마다 다시 묻지 않는다).
+      async function ensureTodayOutList(type) {
+        const date = todayDateKey();
+        const cacheKey = `${date}|${type}`;
+        if (todayOutCache[cacheKey]) return;
+
+        try {
+          const saved = JSON.parse(localStorage.getItem(TODAY_LIST_STORAGE) || 'null');
+          if (saved && saved.date === date && saved.lists && Array.isArray(saved.lists[type]) && saved.lists[type].length) {
+            todayOutCache[cacheKey] = { status: 'ok', items: saved.lists[type] };
+            return;
+          }
+        } catch (_) {}
+
+        const naruKey = readSavedApiKeys().naru;
+        if (!naruKey) return;
+
+        todayOutCache[cacheKey] = { status: 'loading', items: [] };
+        const key = encodeURIComponent(naruKey);
+        // 통계가 하루 이틀 늦게 올라오므로 어제까지의 최근 한 달 / 이틀 전 기준으로 묻는다.
+        const queries =
+          type === 'rising'
+            ? [`hotTrend?authKey=${key}&searchDt=${naruDate(2)}`, `hotTrend?authKey=${key}&searchDt=${naruDate(5)}`]
+            : [`loanItemSrch?authKey=${key}&startDt=${naruDate(31)}&endDt=${naruDate(1)}&pageNo=1&pageSize=40`];
+
+        let list = [];
+        let failure = '';
+        for (const q of queries) {
+          const result = await requestNaruJson(q);
+          const apiError = result.payload && result.payload.response && result.payload.response.error;
+          if (apiError) {
+            failure = `정보나루가 요청을 거절했습니다: ${String(apiError).slice(0, 80)} (인증키가 승인 완료 상태인지 확인해 주세요.)`;
+            break;
+          }
+          if (result.blocked) {
+            failure =
+              typeof navigator !== 'undefined' && navigator.onLine === false
+                ? '인터넷에 연결돼 있지 않아 목록을 받지 못했습니다.'
+                : '이 브라우저에서 도서관 정보나루를 직접 불러올 수 없습니다 (사이트 간 요청이 막혀 있는 것으로 보입니다). 이 문구가 계속 보이면 다른 방식이 필요합니다.';
+            break;
+          }
+          if (!result.payload) {
+            failure = `정보나루 서버 오류(${result.status || '응답 없음'})입니다. 잠시 뒤 다시 시도해 주세요.`;
+            break;
+          }
+          list = extractNaruDocs(type, result.payload);
+          if (list.length) break;
+        }
+
+        if (list.length === 0) {
+          todayOutCache[cacheKey] = { status: 'error', items: [], message: failure || '정보나루에서 받은 목록이 비어 있습니다. 잠시 뒤 다시 시도해 주세요.' };
+        } else {
+          todayOutCache[cacheKey] = { status: 'ok', items: list };
+          try {
+            const saved = JSON.parse(localStorage.getItem(TODAY_LIST_STORAGE) || 'null');
+            const lists = saved && saved.date === date && saved.lists ? saved.lists : {};
+            lists[type] = list;
+            localStorage.setItem(TODAY_LIST_STORAGE, JSON.stringify({ date, lists }));
+          } catch (_) {}
+        }
+        renderTodayOutCard();
+      }
+
+      // 작은 DOM 조립 도우미. 글자는 항상 textContent로 넣는다 (외부에서 받은 글자가 HTML로 해석되지 않게).
+      function makeEl(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined && text !== null) node.textContent = text;
+        return node;
+      }
+
+      function makeBookTile(title, coverUrl, spineColor) {
+        const tile = makeEl(
+          'span',
+          'relative w-14 h-20 rounded-md overflow-hidden shrink-0 flex items-center justify-center font-literary text-base font-bold text-white border border-hairline',
+          Array.from(String(title || '?').trim())[0] || '?'
+        );
+        tile.style.backgroundColor = spineColor || '#9A3412';
+        const cover = safeCoverUrl(coverUrl);
+        if (cover) {
+          const img = makeEl('img', 'absolute inset-0 w-full h-full object-cover');
+          img.src = cover;
+          img.alt = '';
+          img.loading = 'lazy';
+          img.addEventListener('error', () => img.remove());
+          tile.appendChild(img);
+        }
+        return tile;
+      }
+
+      function makeActionButton(label, action, primary, dataset) {
+        const btn = makeEl(
+          'button',
+          primary
+            ? 'btn-primary min-h-[40px] px-3 py-1.5 rounded-xl text-xs font-semibold'
+            : 'min-h-[40px] px-3 py-1.5 rounded-xl border border-hairline surface-subtle text-xs font-medium text-secondary hover:text-ink transition',
+          label
+        );
+        btn.type = 'button';
+        btn.dataset.action = action;
+        Object.keys(dataset || {}).forEach((k) => {
+          btn.dataset[k] = dataset[k];
+        });
+        return btn;
+      }
+
+      function renderTodayOwnCard() {
+        const card = document.getElementById('todayOwnCard');
+        if (!card) return;
+        card.innerHTML = '';
+        card.appendChild(makeEl('div', 'text-[11px] font-semibold tracking-wider text-muted', '오늘 다시 펼칠 책 · 내 서재'));
+
+        const dayNumber = todayDayNumber();
+        const book = pickTodayOwnBook(state.books, dayNumber, todayPrefs.offsetOwn);
+        if (!book) {
+          card.appendChild(makeEl('p', 'text-xs text-secondary leading-relaxed', '책을 등록하면 날마다 한 권씩 다시 꺼내 드립니다.'));
+          return;
+        }
+
+        const head = makeEl('div', 'flex items-start gap-3 min-w-0');
+        head.appendChild(makeBookTile(book.title, book.coverUrl, book.spineColor));
+        const info = makeEl('div', 'min-w-0 flex-1');
+        info.appendChild(makeEl('div', 'font-literary font-bold text-sm sm:text-base text-ink', book.title));
+        info.appendChild(
+          makeEl('div', 'text-xs text-secondary mt-0.5', [book.author, book.publishedYear ? `${book.publishedYear}년` : ''].filter(Boolean).join(' · '))
+        );
+        const excerptCount = state.excerpts.filter((e) => e.bookId === book.id).length;
+        info.appendChild(makeEl('div', 'text-[11px] text-muted mt-1', `${bookCategoryLabel(book)} · 발췌 ${excerptCount}개`));
+        head.appendChild(info);
+        card.appendChild(head);
+
+        if (book.summary) card.appendChild(makeEl('p', 'line-clamp-3 text-xs text-secondary leading-relaxed whitespace-pre-line', book.summary));
+
+        const quote = pickTodayOwnQuote(state.excerpts, book.id, dayNumber);
+        if (quote) {
+          const block = makeEl('blockquote', 'font-literary text-sm text-ink leading-relaxed pl-3 line-clamp-4 whitespace-pre-line', quote.quote);
+          block.style.borderLeft = `3px solid ${book.spineColor || '#9A3412'}`;
+          card.appendChild(block);
+        } else {
+          card.appendChild(makeEl('p', 'text-xs text-muted', '아직 이 책에서 옮겨 둔 문장이 없습니다. 오늘 한 문장 남겨 보세요.'));
+        }
+
+        const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
+        actions.appendChild(makeActionButton('이 책 펼치기', 'today-own-open', true, { bookId: book.id }));
+        if (state.books.length > 1) actions.appendChild(makeActionButton('다른 책', 'today-own-next', false));
+        card.appendChild(actions);
+      }
+
+      function renderTodayOutCard() {
+        const card = document.getElementById('todayOutCard');
+        if (!card) return;
+        card.innerHTML = '';
+
+        const top = makeEl('div', 'flex flex-wrap items-center justify-between gap-2');
+        top.appendChild(makeEl('div', 'text-[11px] font-semibold tracking-wider text-muted', '서재 밖에서 · 도서관 정보나루'));
+        const tabs = makeEl('div', 'flex items-center gap-1');
+        [
+          ['popular', '인기 대출'],
+          ['rising', '대출 급상승'],
+        ].forEach(([type, label]) => {
+          const active = todayPrefs.outType === type;
+          const tab = makeEl(
+            'button',
+            `min-h-[34px] px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${active ? 'btn-primary' : 'surface-subtle border border-hairline text-secondary hover:text-ink'}`,
+            label
+          );
+          tab.type = 'button';
+          tab.dataset.action = 'today-out-type';
+          tab.dataset.type = type;
+          tab.setAttribute('aria-pressed', String(active));
+          tabs.appendChild(tab);
+        });
+        top.appendChild(tabs);
+        card.appendChild(top);
+
+        const type = todayPrefs.outType;
+        const entry = todayOutCache[`${todayDateKey()}|${type}`];
+
+        if (!entry) {
+          if (!readSavedApiKeys().naru) {
+            card.appendChild(
+              makeEl('p', 'text-xs text-secondary leading-relaxed', '전국 공공도서관에서 요즘 많이 빌려 가는 책을 도서관 정보나루에서 받아 옵니다. data4library.kr에 가입해 마이페이지에서 인증키를 발급받아 저장하면 날마다 한 권씩 보여 드립니다.')
+            );
+            const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
+            actions.appendChild(makeActionButton('정보나루 인증키 넣기', 'today-open-key-settings', true));
+            card.appendChild(actions);
+            return;
+          }
+          card.appendChild(makeEl('p', 'text-xs text-muted', '도서관 정보나루에서 목록을 불러오는 중…'));
+          ensureTodayOutList(type).then(() => {
+            // 보관해 둔 목록을 바로 찾은 경우에는 여기서 한 번 그린다.
+            const now = todayOutCache[`${todayDateKey()}|${type}`];
+            if (now && now.status === 'ok' && todayPrefs.outType === type) renderTodayOutCard();
+          });
+          return;
+        }
+        if (entry.status === 'loading') {
+          card.appendChild(makeEl('p', 'text-xs text-muted', '도서관 정보나루에서 목록을 불러오는 중…'));
+          return;
+        }
+        if (entry.status === 'error') {
+          card.appendChild(makeEl('p', 'text-xs leading-relaxed', entry.message)).style.color = '#e11d48';
+          const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
+          actions.appendChild(makeActionButton('다시 시도', 'today-out-retry', true));
+          actions.appendChild(makeActionButton('키 확인하기', 'today-open-key-settings', false));
+          card.appendChild(actions);
+          return;
+        }
+
+        const pick = chooseTodayOutCandidate(entry.items, state.books, todayDayNumber(), todayPrefs.offsetOut);
+        if (!pick) {
+          card.appendChild(makeEl('p', 'text-xs text-secondary', '오늘 목록의 책이 모두 이미 서재에 있습니다. 다른 목록을 눌러 보세요.'));
+          return;
+        }
+        const item = pick.item;
+
+        const head = makeEl('div', 'flex items-start gap-3 min-w-0');
+        head.appendChild(makeBookTile(item.title, item.coverUrl, '#334155'));
+        const info = makeEl('div', 'min-w-0 flex-1');
+        info.appendChild(makeEl('div', 'font-literary font-bold text-sm sm:text-base text-ink', item.title));
+        info.appendChild(makeEl('div', 'text-xs text-secondary mt-0.5', [item.author, item.publisher].filter(Boolean).join(' · ')));
+        const badges = [
+          type === 'rising' ? '대출 급상승' : item.rank ? `인기 대출 ${item.rank}위` : '인기 대출',
+          item.publishedYear ? `${item.publishedYear}년` : '',
+          item.category,
+          pick.matchedMyShelf ? '내 서재 분야' : '',
+        ].filter(Boolean);
+        info.appendChild(makeEl('div', 'text-[11px] text-muted mt-1', badges.join(' · ')));
+        head.appendChild(info);
+        card.appendChild(head);
+
+        if (item.summary) card.appendChild(makeEl('p', 'line-clamp-4 text-xs text-secondary leading-relaxed whitespace-pre-line', item.summary));
+
+        const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
+        actions.appendChild(makeActionButton('책장에 추가', 'today-out-add', true));
+        if (pick.poolSize > 1) actions.appendChild(makeActionButton('다른 추천', 'today-out-next', false));
+        if (item.link) {
+          const link = makeEl('a', 'min-h-[40px] inline-flex items-center px-2 text-xs underline text-secondary hover:text-ink', '정보나루에서 보기 ↗');
+          link.href = item.link;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          actions.appendChild(link);
+        }
+        card.appendChild(actions);
+        card.appendChild(makeEl('div', 'text-[10px] text-muted', '도서 정보 제공: 도서관 정보나루 (공공도서관 대출 통계)'));
+      }
+
+      function renderTodaySection() {
+        const grid = document.getElementById('todayCardsGrid');
+        const toggle = document.getElementById('toggleTodayCollapseBtn');
+        if (!grid) return;
+        rollTodayPrefsIfNewDay();
+        grid.classList.toggle('hidden', todayPrefs.collapsed);
+        if (toggle) toggle.textContent = todayPrefs.collapsed ? '펼치기' : '접기';
+        if (todayPrefs.collapsed) return;
+        renderTodayOwnCard();
+        renderTodayOutCard();
+      }
+
       function loadShelfPrefs() {
         try {
           const saved = JSON.parse(localStorage.getItem(SHELF_PREFS_STORAGE) || 'null');
@@ -3104,6 +3659,7 @@
 
       function renderAll() {
         renderSidebar();
+        renderTodaySection();
         renderRemindSection();
         renderFeedHeader();
         renderExcerptsFeed();
@@ -3232,10 +3788,10 @@
       }
 
       function readSavedApiKeys() {
-        const keys = { kakao: '', aladin: '', google: '' };
+        const keys = { kakao: '', naru: '', google: '' };
         try {
           keys.kakao = localStorage.getItem(KAKAO_KEY_STORAGE) || '';
-          keys.aladin = localStorage.getItem(ALADIN_KEY_STORAGE) || '';
+          keys.naru = localStorage.getItem(NARU_KEY_STORAGE) || '';
           keys.google = localStorage.getItem(GOOGLE_KEY_STORAGE) || '';
         } catch (_) {}
         return keys;
@@ -3244,21 +3800,21 @@
       function syncKoreanApiSettingsUi() {
         const keys = readSavedApiKeys();
         const kakaoInput = document.getElementById('kakaoRestKeyInput');
-        const aladinInput = document.getElementById('aladinTtbKeyInput');
+        const naruInput = document.getElementById('naruKeyInput');
         const googleInput = document.getElementById('googleBooksKeyInput');
         const activeBadge = document.getElementById('krApiActiveBadge');
         if (kakaoInput) kakaoInput.value = keys.kakao;
-        if (aladinInput) aladinInput.value = keys.aladin;
+        if (naruInput) naruInput.value = keys.naru;
         if (googleInput) googleInput.value = keys.google;
         if (activeBadge) {
-          activeBadge.classList.toggle('hidden', !keys.kakao && !keys.aladin && !keys.google);
+          activeBadge.classList.toggle('hidden', !keys.kakao && !keys.naru && !keys.google);
         }
       }
 
       function saveKoreanBookstoreApiKeys() {
         const pairs = [
           [KAKAO_KEY_STORAGE, (document.getElementById('kakaoRestKeyInput')?.value || '').trim()],
-          [ALADIN_KEY_STORAGE, (document.getElementById('aladinTtbKeyInput')?.value || '').trim()],
+          [NARU_KEY_STORAGE, (document.getElementById('naruKeyInput')?.value || '').trim()],
           [GOOGLE_KEY_STORAGE, (document.getElementById('googleBooksKeyInput')?.value || '').trim()],
         ];
         let saved = true;
@@ -3272,7 +3828,11 @@
         }
 
         syncKoreanApiSettingsUi();
-        if (saved) showToast('도서 조회 API 키 설정이 저장되었습니다.', 'sage');
+        if (saved) {
+          showToast('도서 조회 API 키 설정이 저장되었습니다.', 'sage');
+          todayOutCache = {};
+          renderTodayOutCard();
+        }
         else showToast('이 브라우저에서는 키를 저장할 수 없습니다 (사생활 보호 모드 등).', 'danger');
       }
 
@@ -3705,68 +4265,6 @@
         };
       }
 
-      function queryAladinJsonpApi(isbn13, ttbKey) {
-        return new Promise((resolve) => {
-          const cbName = `__aladinJsonpCb_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-          const script = document.createElement('script');
-          let settled = false;
-
-          const cleanup = () => {
-            if (script.parentNode) script.parentNode.removeChild(script);
-            try {
-              delete window[cbName];
-            } catch (_) {
-              window[cbName] = undefined;
-            }
-          };
-
-          const timer = setTimeout(() => {
-            if (!settled) {
-              settled = true;
-              cleanup();
-              resolve(null);
-            }
-          }, 5000);
-
-          window[cbName] = (...args) => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            cleanup();
-
-            const payload = args.find((a) => a && typeof a === 'object' && Array.isArray(a.item));
-            const item = payload && payload.item[0] ? payload.item[0] : null;
-            if (!item) {
-              resolve(null);
-              return;
-            }
-            resolve({
-              title: item.title || '',
-              author: item.author || '',
-              publisher: item.publisher || '',
-              publishedYear: item.pubDate ? String(item.pubDate).slice(0, 4) : '',
-              category: item.categoryName ? String(item.categoryName).split('>').pop().trim() : '',
-              coverUrl: item.cover ? String(item.cover).replace(/^http:\/\//i, 'https://').replace('/coversum/', '/cover200/') : '',
-              summary: cleanSummaryText(item.description),
-            });
-          };
-
-          script.onerror = () => {
-            if (!settled) {
-              settled = true;
-              clearTimeout(timer);
-              cleanup();
-              resolve(null);
-            }
-          };
-
-          script.src = `https://www.aladin.co.kr/ttb/api/ItemLookUp.aspx?ttbkey=${encodeURIComponent(
-            ttbKey
-          )}&itemIdType=ISBN13&ItemId=${encodeURIComponent(isbn13)}&output=js&Version=20131101&callback=${cbName}`;
-          document.head.appendChild(script);
-        });
-      }
-
       // requireIsbnMatch=true면 ISBN이 일치하는 권만 받아들인다. 숫자만 넣은 넓은 검색은
       // 무관한 책이 첫 결과로 올 수 있어, 그대로 쓰면 엉뚱한 책 정보가 입력된다.
       function parseGoogleBooksVolume(volData, isbn13 = '', requireIsbnMatch = false) {
@@ -3853,17 +4351,6 @@
             if (!kakao.meta) outcomes.push(`카카오: ${describeLookupOutcome(kakao.status)}`);
           }
 
-          // B. 알라딘 TTB (키 저장 시)
-          if (keys.aladin && (!isComplete() || !meta.coverUrl)) {
-            setIsbnStatus(`[알라딘 TTB API] ISBN ${isbn13} 조회 중...`, 'neutral');
-            let aladinMeta = null;
-            try {
-              aladinMeta = await queryAladinJsonpApi(isbn13, keys.aladin);
-            } catch (_) {}
-            mergeBookMeta(meta, aladinMeta);
-            if (!aladinMeta) outcomes.push('알라딘: 결과 없음 또는 키 오류');
-          }
-
           // C. Google Books — 키가 없으면 공용 사용량을 나눠 써서 429가 자주 난다.
           if (!isComplete()) {
             setIsbnStatus(`[Google Books] ISBN ${isbn13} 조회 중...`, 'neutral');
@@ -3922,7 +4409,7 @@
         } else {
           // 왜 실패했는지를 출처별로 보여 준다 ("결과 없음"과 "사용량 초과·키 오류"는 대처가 다르다).
           setIsbnStatus(`ISBN ${isbn13} 조회 실패 — ${outcomes.join(' · ')}`, 'error');
-          if (!keys.kakao && !keys.aladin) {
+          if (!keys.kakao) {
             const panel = document.getElementById('krApiSettingsPanel');
             const chev = document.getElementById('krApiChevron');
             if (panel) panel.classList.remove('hidden');
@@ -4003,6 +4490,7 @@
           const timer = setTimeout(() => finish(null), timeoutMs);
           window[cbName] = (...args) => finish(args.find((a) => a && typeof a === 'object') || null);
           script.onerror = () => finish(null);
+          script.onload = () => setTimeout(() => finish(null), 80);
           script.src = `${url}&callback=${cbName}`;
           document.head.appendChild(script);
         });
@@ -4037,30 +4525,6 @@
               coverUrl: httpsUrl(d.thumbnail),
               summary: cleanSummaryText(d.contents),
               isbn: pickIsbn13(String(d.isbn || '').split(/\s+/)),
-            })),
-        };
-      }
-
-      async function searchAladinBooks(query, ttbKey) {
-        const payload = await requestJsonp(
-          `https://www.aladin.co.kr/ttb/api/ItemSearch.aspx?ttbkey=${encodeURIComponent(ttbKey)}&Query=${encodeURIComponent(
-            query
-          )}&QueryType=Keyword&MaxResults=8&start=1&SearchTarget=Book&Cover=Big&output=js&Version=20131101`
-        );
-        const list = payload && Array.isArray(payload.item) ? payload.item : [];
-        return {
-          status: payload ? 200 : 0,
-          items: list
-            .filter((it) => it && it.title)
-            .map((it) => ({
-              title: it.title || '',
-              author: it.author || '',
-              publisher: it.publisher || '',
-              publishedYear: it.pubDate ? String(it.pubDate).slice(0, 4) : '',
-              category: it.categoryName ? String(it.categoryName).split('>').pop().trim() : '',
-              coverUrl: httpsUrl(it.cover),
-              summary: cleanSummaryText(it.description),
-              isbn: pickIsbn13([it.isbn13, it.isbn]),
             })),
         };
       }
@@ -4126,7 +4590,6 @@
         const outcomes = [];
         const sources = [];
         if (keys.kakao) sources.push(['카카오', () => searchKakaoBooks(query, keys.kakao)]);
-        if (keys.aladin) sources.push(['알라딘', () => searchAladinBooks(query, keys.aladin)]);
         sources.push(['Google Books', () => searchGoogleBooks(query, keys.google)]);
         sources.push(['Open Library', () => searchOpenLibraryBooks(query)]);
 
@@ -4143,7 +4606,7 @@
               break;
             }
             outcomes.push(
-              `${label}: ${label === '알라딘' && result.status === 0 ? '결과 없음 또는 키 오류' : describeLookupOutcome(result.status)}` +
+              `${label}: ${describeLookupOutcome(result.status)}` +
                 (label === 'Google Books' && result.status === 429 && !keys.google ? ' — 개인 키 필요' : '')
             );
           }
@@ -4156,7 +4619,7 @@
           setIsbnStatus(`${found.label}에서 ${found.items.length}권을 찾았습니다. 맞는 책을 눌러 주세요.`, 'success');
         } else {
           setIsbnStatus(`“${query}” 검색 실패 — ${outcomes.join(' · ')}`, 'error');
-          if (!keys.kakao && !keys.aladin) {
+          if (!keys.kakao) {
             const panel = document.getElementById('krApiSettingsPanel');
             const chev = document.getElementById('krApiChevron');
             if (panel) panel.classList.remove('hidden');
@@ -6155,8 +6618,12 @@
         }
 
         bindFormAndInputListeners();
+        try {
+          localStorage.removeItem(RETIRED_ALADIN_KEY_STORAGE);
+        } catch (_) {}
         applySavedHomeIcon();
         loadShelfPrefs();
+        loadTodayPrefs();
         await loadArchiveFromStorage();
         rememberPersistedSnapshot();
         pickRandomRemindIds();

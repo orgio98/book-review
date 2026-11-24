@@ -420,6 +420,19 @@
           </button>
         </div>
 
+        <div class="flex items-center gap-2 px-2.5">
+          <label for="bookshelfSortSelect" class="sr-only">책 정렬</label>
+          <select id="bookshelfSortSelect" class="flex-1 min-w-0 min-h-[36px] surface-card border border-hairline rounded-lg px-2 py-1 text-xs text-ink focus:outline-none">
+            <option value="created-desc">등록일 최신순</option>
+            <option value="created-asc">등록일 오래된순</option>
+            <option value="title-asc">도서명 가나다순</option>
+          </select>
+          <label class="shrink-0 min-h-[36px] inline-flex items-center gap-1.5 text-xs text-secondary cursor-pointer select-none">
+            <input id="bookshelfGroupToggle" type="checkbox" class="w-4 h-4 accent-amber-700" />
+            분야별
+          </label>
+        </div>
+
         <ul id="bookshelfList" class="flex flex-col gap-1">
           <!-- Dynamically populated books -->
         </ul>
@@ -1034,9 +1047,10 @@
             </div>
             <div>
               <label for="bookCategoryInput" class="block font-semibold text-xs text-ink mb-1">분야 / 분류</label>
-              <input id="bookCategoryInput" type="text" placeholder="예: 한국 SF" class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
+              <input id="bookCategoryInput" type="text" list="bookCategoryOptions" autocomplete="off" placeholder="예: 한국 SF" class="w-full min-h-[44px] surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink focus:outline-none" />
             </div>
           </div>
+          <datalist id="bookCategoryOptions"></datalist>
           <div>
             <label for="bookSummaryInput" class="block font-semibold text-xs text-ink mb-1">줄거리 / 책 소개</label>
             <textarea id="bookSummaryInput" rows="4" placeholder="도서 조회를 하면 서점의 책 소개가 채워집니다. 직접 쓰거나 고쳐도 됩니다." class="w-full surface-subtle border border-hairline rounded-xl px-3 py-2 text-ink leading-relaxed focus:outline-none resize-y"></textarea>
@@ -1495,6 +1509,8 @@
       const SYNC_FILE_NAME = 'marginalia-archive.json';
       const HOME_ICON_STORAGE = 'marginalia_home_icon_png_v1';
       const HOME_ICON_DEFAULT_HREF = 'apple-touch-icon.png';
+      const SHELF_PREFS_STORAGE = 'marginalia_bookshelf_prefs_v1';
+      const UNCATEGORIZED_LABEL = '미분류';
 
       const SPINE_COLORS = [
         { name: '테라코타', hex: '#9A3412' },
@@ -1671,6 +1687,9 @@
       let barcodeVideoStream = null;
       let barcodeScanTimerId = null;
       let barcodeScanBusy = false;
+
+      // Bookshelf view preferences (이 기기에만 저장): 정렬 기준, 분야별 묶기, 접어 둔 분야
+      let shelfPrefs = { sort: 'created-desc', grouped: false, collapsed: [] };
       let barcodeVideoDevices = [];
       let barcodeCurrentDeviceIdx = 0;
       let zxingLoadPromise = null;
@@ -2459,6 +2478,75 @@
       // =========================================================================
       // 7. RENDERING FUNCTIONS (SIDEBAR, REMIND CARDS, MAIN FEED)
       // =========================================================================
+      function loadShelfPrefs() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(SHELF_PREFS_STORAGE) || 'null');
+          if (saved && typeof saved === 'object') {
+            if (['created-desc', 'created-asc', 'title-asc'].includes(saved.sort)) shelfPrefs.sort = saved.sort;
+            shelfPrefs.grouped = saved.grouped === true;
+            if (Array.isArray(saved.collapsed)) shelfPrefs.collapsed = saved.collapsed.filter((c) => typeof c === 'string');
+          }
+        } catch (_) {}
+        const sortSelect = document.getElementById('bookshelfSortSelect');
+        const groupToggle = document.getElementById('bookshelfGroupToggle');
+        if (sortSelect) sortSelect.value = shelfPrefs.sort;
+        if (groupToggle) groupToggle.checked = shelfPrefs.grouped;
+      }
+
+      function saveShelfPrefs() {
+        try {
+          localStorage.setItem(SHELF_PREFS_STORAGE, JSON.stringify(shelfPrefs));
+        } catch (_) {}
+      }
+
+      function bookCategoryLabel(book) {
+        return String((book && book.category) || '').trim() || UNCATEGORIZED_LABEL;
+      }
+
+      function sortBooksForShelf(books, sortKey) {
+        const byTitle = (a, b) =>
+          String(a.title || '').localeCompare(String(b.title || ''), 'ko', { numeric: true, sensitivity: 'base' });
+        const list = [...books];
+        if (sortKey === 'title-asc') list.sort(byTitle);
+        else if (sortKey === 'created-asc') list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0) || byTitle(a, b));
+        else list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0) || byTitle(a, b));
+        return list;
+      }
+
+      // 책장에 보여 줄 묶음. 분야별 보기가 꺼져 있으면 제목 없는 묶음 하나, 켜져 있으면 분야 이름 가나다순
+      // (분야를 적지 않은 책은 '미분류'로 맨 아래)으로 나누고, 각 묶음 안은 고른 정렬 기준을 따른다.
+      function getBookshelfGroups() {
+        const sorted = sortBooksForShelf(state.books, shelfPrefs.sort);
+        if (!shelfPrefs.grouped) return [{ label: null, books: sorted }];
+        const map = new Map();
+        sorted.forEach((book) => {
+          const label = bookCategoryLabel(book);
+          if (!map.has(label)) map.set(label, []);
+          map.get(label).push(book);
+        });
+        return [...map.keys()]
+          .sort((a, b) => {
+            if (a === UNCATEGORIZED_LABEL) return 1;
+            if (b === UNCATEGORIZED_LABEL) return -1;
+            return a.localeCompare(b, 'ko', { numeric: true, sensitivity: 'base' });
+          })
+          .map((label) => ({ label, books: map.get(label) }));
+      }
+
+      // 책 등록·수정 창의 분야 칸에 이미 쓴 분야 이름을 제안한다 (같은 분야를 같은 이름으로 적기 쉽게).
+      function fillBookCategoryOptions() {
+        const list = document.getElementById('bookCategoryOptions');
+        if (!list) return;
+        list.innerHTML = '';
+        [...new Set(state.books.map((b) => String(b.category || '').trim()).filter(Boolean))]
+          .sort((a, b) => a.localeCompare(b, 'ko'))
+          .forEach((name) => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            list.appendChild(opt);
+          });
+      }
+
       function renderSidebar() {
         const totalCount = state.excerpts.length;
         const linkedCount = state.excerpts.filter((e) => e.linkedIds && e.linkedIds.length > 0).length;
@@ -2481,7 +2569,37 @@
         if (state.books.length === 0) {
           bookshelfList.innerHTML = `<li class="px-3 py-3 text-xs text-muted">등록된 책이 없습니다.</li>`;
         } else {
-          state.books.forEach((book) => {
+          getBookshelfGroups().forEach((group) => {
+            if (group.label !== null) {
+              const isCollapsed = shelfPrefs.collapsed.includes(group.label);
+              const header = document.createElement('li');
+              const headerBtn = document.createElement('button');
+              headerBtn.type = 'button';
+              headerBtn.className = 'w-full min-h-[34px] flex items-center justify-between gap-2 px-2.5 mt-1.5 text-[11px] font-semibold text-secondary hover:text-ink transition';
+              headerBtn.setAttribute('aria-expanded', String(!isCollapsed));
+              const nameEl = document.createElement('span');
+              nameEl.className = 'truncate text-left';
+              nameEl.textContent = `${isCollapsed ? '▸' : '▾'} ${group.label}`;
+              const countEl = document.createElement('span');
+              countEl.className = 'font-mono text-muted shrink-0';
+              countEl.textContent = `${group.books.length}권`;
+              headerBtn.appendChild(nameEl);
+              headerBtn.appendChild(countEl);
+              headerBtn.addEventListener('click', () => {
+                shelfPrefs.collapsed = isCollapsed
+                  ? shelfPrefs.collapsed.filter((c) => c !== group.label)
+                  : [...shelfPrefs.collapsed, group.label];
+                saveShelfPrefs();
+                renderSidebar();
+              });
+              header.appendChild(headerBtn);
+              bookshelfList.appendChild(header);
+              // 접어 둔 분야라도, 지금 보고 있는 책이 그 안에 있으면 그 책은 보이게 둔다.
+              if (isCollapsed) {
+                group.books = group.books.filter((b) => state.activeView === 'book' && state.selectedBookId === b.id);
+              }
+            }
+            group.books.forEach((book) => {
             const count = state.excerpts.filter((e) => e.bookId === book.id).length;
             const isSelected = state.activeView === 'book' && state.selectedBookId === book.id;
 
@@ -2567,6 +2685,7 @@
             });
 
             bookshelfList.appendChild(li);
+            });
           });
         }
 
@@ -4157,6 +4276,7 @@
       }
 
       function openBookModal(bookToEdit = null) {
+        fillBookCategoryOptions();
         clearTitleSearchResults();
         stopBarcodeCamera();
         setIsbnStatus('');
@@ -5759,6 +5879,17 @@
           }
         });
 
+        document.getElementById('bookshelfSortSelect').addEventListener('change', (e) => {
+          shelfPrefs.sort = e.target.value;
+          saveShelfPrefs();
+          renderSidebar();
+        });
+        document.getElementById('bookshelfGroupToggle').addEventListener('change', (e) => {
+          shelfPrefs.grouped = e.target.checked;
+          saveShelfPrefs();
+          renderSidebar();
+        });
+
         document.getElementById('bookCoverFileInput').addEventListener('change', (e) => {
           const file = e.target.files && e.target.files[0];
           e.target.value = '';
@@ -6025,6 +6156,7 @@
 
         bindFormAndInputListeners();
         applySavedHomeIcon();
+        loadShelfPrefs();
         await loadArchiveFromStorage();
         rememberPersistedSnapshot();
         pickRandomRemindIds();

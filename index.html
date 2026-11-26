@@ -474,7 +474,7 @@
             <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs" style="background-color: var(--accent-primary-soft); color: var(--accent-primary);">❖</span>
             <div>
               <h2 class="font-literary font-bold text-sm sm:text-base text-ink">오늘의 책</h2>
-              <p class="text-[11px] text-muted">내 서재에서 한 권, 도서관에서 많이 빌려 가는 책 한 권을 날마다 골라 드립니다.</p>
+              <p class="text-[11px] text-muted">내 서재에서 한 권, 서점 베스트셀러·신간에서 한 권을 날마다 골라 드립니다.</p>
             </div>
           </div>
           <button
@@ -994,12 +994,25 @@
                 />
               </div>
               <div>
-                <label for="naruKeyInput" class="block text-[11px] font-semibold text-ink mb-1">도서관 정보나루 인증키 (선택 · ‘오늘의 책’ 인기 대출 도서용)</label>
+                <label for="relayUrlInput" class="block text-[11px] font-semibold text-ink mb-1">중계 서버 주소 (선택 · ‘오늘의 책’ 베스트셀러·신간용)</label>
                 <input
-                  id="naruKeyInput"
-                  type="password"
+                  id="relayUrlInput"
+                  type="url"
+                  inputmode="url"
+                  autocapitalize="off"
                   autocomplete="off"
-                  placeholder="data4library.kr 마이페이지에서 발급받은 인증키"
+                  placeholder="예: https://marginalia-relay.내이름.workers.dev"
+                  class="w-full min-h-[40px] surface-subtle border border-hairline rounded-lg px-3 py-1.5 font-mono text-ink focus:outline-none"
+                />
+              </div>
+              <div>
+                <label for="relayCodeInput" class="block text-[11px] font-semibold text-ink mb-1">중계 서버 접속 코드 (중계 서버의 ACCESS_CODE와 똑같이)</label>
+                <input
+                  id="relayCodeInput"
+                  type="password"
+                  autocapitalize="off"
+                  autocomplete="off"
+                  placeholder="중계 서버에 넣은 ACCESS_CODE"
                   class="w-full min-h-[40px] surface-subtle border border-hairline rounded-lg px-3 py-1.5 font-mono text-ink focus:outline-none"
                 />
               </div>
@@ -1522,7 +1535,9 @@
       const LS_FALLBACK_KEY = 'marginalia_archive_v2_data';
       const THEME_STORAGE_KEY = 'marginalia_archive_theme_v2';
       const KAKAO_KEY_STORAGE = 'marginalia_kakao_rest_key_v1';
-      const NARU_KEY_STORAGE = 'marginalia_data4library_key_v1';
+      const RELAY_URL_STORAGE = 'marginalia_relay_url_v1';
+      const RELAY_CODE_STORAGE = 'marginalia_relay_code_v1';
+      const RETIRED_NARU_KEY_STORAGE = 'marginalia_data4library_key_v1'; // 브라우저 직접 호출이 막혀 중계 서버로 옮김 — 남은 키는 지운다
       const RETIRED_ALADIN_KEY_STORAGE = 'marginalia_aladin_ttb_key_v1'; // 알라딘 OpenAPI는 2026-10-30에 종료됨 — 남은 키는 지운다
       const GOOGLE_KEY_STORAGE = 'marginalia_google_books_key_v1';
       const ZXING_CDN_PRIMARY = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
@@ -1538,7 +1553,8 @@
       const SHELF_PREFS_STORAGE = 'marginalia_bookshelf_prefs_v1';
       const UNCATEGORIZED_LABEL = '미분류';
       const TODAY_PREFS_STORAGE = 'marginalia_today_prefs_v1';
-      const TODAY_LIST_STORAGE = 'marginalia_today_naru_lists_v1';
+      const TODAY_LIST_STORAGE = 'marginalia_today_relay_lists_v1';
+      const TODAY_OUT_TYPES = ['yes24-best', 'yes24-new', 'naru-popular', 'naru-rising'];
 
       const SPINE_COLORS = [
         { name: '테라코타', hex: '#9A3412' },
@@ -1720,7 +1736,8 @@
       let shelfPrefs = { sort: 'created-desc', grouped: false, collapsed: [] };
 
       // Today's book: 날짜가 바뀌면 '다른 책'을 누른 횟수(offset)는 0으로 돌아간다
-      let todayPrefs = { date: '', offsetOwn: 0, offsetOut: 0, outType: 'popular', collapsed: false };
+      let todayPrefs = { date: '', offsetOwn: 0, offsetOut: 0, outType: 'yes24-best', collapsed: false };
+      let relayStatus = null; // { state: 'loading' | 'ok' | 'error', sources: { yes24, naru }, message }
       let todayOutCache = {}; // `${date}|${type}` → { status: 'loading' | 'ok' | 'error', items, message }
       let barcodeVideoDevices = [];
       let barcodeCurrentDeviceIdx = 0;
@@ -2008,7 +2025,7 @@
             renderTodayOutCard();
             break;
           case 'today-out-type':
-            if (['popular', 'rising'].includes(triggerEl.dataset.type)) {
+            if (TODAY_OUT_TYPES.includes(triggerEl.dataset.type)) {
               todayPrefs.outType = triggerEl.dataset.type;
               todayPrefs.offsetOut = 0;
               saveTodayPrefs();
@@ -2016,6 +2033,7 @@
             }
             break;
           case 'today-out-retry':
+            if (relayStatus && relayStatus.state === 'error') relayStatus = null;
             delete todayOutCache[`${todayDateKey()}|${todayPrefs.outType}`];
             renderTodayOutCard();
             break;
@@ -2024,8 +2042,8 @@
             if (pick) {
               openBookModal(null);
               applyBookSearchResult(pick.item);
-              // 정보나루 목록에는 줄거리가 없다. 카카오 키가 있으면 ISBN으로 한 번 더 조회해 줄거리와 표지를 채운다.
-              if (pick.item.isbn && readSavedApiKeys().kakao) lookupBookMetadataByIsbn(pick.item.isbn);
+              // 줄거리가 없는 목록(도서관 대출 순위)이면, 카카오 키가 있을 때 ISBN으로 한 번 더 조회해 채운다.
+              if (!pick.item.summary && pick.item.isbn && readSavedApiKeys().kakao) lookupBookMetadataByIsbn(pick.item.isbn);
             }
             break;
           }
@@ -2035,7 +2053,7 @@
             const chev = document.getElementById('krApiChevron');
             if (panel) panel.classList.remove('hidden');
             if (chev) chev.textContent = '▲';
-            const keyInput = document.getElementById('naruKeyInput');
+            const keyInput = document.getElementById('relayUrlInput');
             if (keyInput) {
               if (keyInput.scrollIntoView) keyInput.scrollIntoView({ block: 'center' });
               keyInput.focus();
@@ -2593,7 +2611,7 @@
             todayPrefs.date = typeof saved.date === 'string' ? saved.date : '';
             todayPrefs.offsetOwn = Number(saved.offsetOwn) || 0;
             todayPrefs.offsetOut = Number(saved.offsetOut) || 0;
-            if (['popular', 'rising'].includes(saved.outType)) todayPrefs.outType = saved.outType;
+            if (TODAY_OUT_TYPES.includes(saved.outType)) todayPrefs.outType = saved.outType;
             todayPrefs.collapsed = saved.collapsed === true;
           }
         } catch (_) {}
@@ -2706,72 +2724,107 @@
         return chooseTodayOutCandidate(entry.items, state.books, todayDayNumber(), todayPrefs.offsetOut);
       }
 
-      // 도서관 정보나루(문화체육관광부)의 공공도서관 대출 통계. 판매 순위가 아니라 "많이 빌린 책" 순위다.
-      function mapNaruDoc(doc) {
-        const classPath = String(doc.class_nm || '');
-        const linkRaw = String(doc.bookDtlUrl || '');
-        return {
-          title: String(doc.bookname || '').replace(/\s*[:=\/]\s*$/, '').trim(),
-          author: cleanAuthorRoles(doc.authors),
-          publisher: String(doc.publisher || '').trim(),
-          publishedYear: (String(doc.publication_year || '').match(/\d{4}/) || [''])[0],
-          category: classPath ? classPath.split('>').pop().trim() : '',
-          categoryPath: classPath,
-          coverUrl: httpsUrl(doc.bookImageURL),
-          summary: '',
-          isbn: pickIsbn13([doc.isbn13]),
-          link: /^https?:\/\/(www\.)?data4library\.kr\//i.test(linkRaw) ? httpsUrl(linkRaw) : '',
-          rank: Number(doc.ranking) || 0,
-          loanCount: Number(doc.loan_count) || 0,
-        };
-      }
-
-      function extractNaruDocs(type, payload) {
-        const r = payload && payload.response;
-        if (!r) return [];
-        const wrapped =
-          type === 'rising'
-            ? (Array.isArray(r.results) ? r.results : []).flatMap((x) => (x && x.result && Array.isArray(x.result.docs) ? x.result.docs : []))
-            : Array.isArray(r.docs)
-            ? r.docs
-            : [];
-        const seen = new Set();
-        return wrapped
-          .map((d) => d && d.doc)
-          .filter((d) => d && d.bookname)
-          .map(mapNaruDoc)
-          .filter((it) => {
-            const key = it.isbn || normalizeTitleKey(it.title);
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          });
-      }
-
-      function naruDate(daysAgo) {
-        const d = new Date();
-        d.setDate(d.getDate() - daysAgo);
-        return todayDateKey(d);
-      }
-
-      // 정보나루를 브라우저에서 부른다. 먼저 일반 요청(fetch)을 해 보고, 사이트 간 요청이 막혀 실패하면
-      // JSONP 방식으로 한 번 더 시도한다. 둘 다 안 되면 blocked로 알려 화면에 이유를 보여 준다.
-      async function requestNaruJson(pathAndQuery) {
-        const url = `https://data4library.kr/api/${pathAndQuery}&format=json`;
-        const ctl = new AbortController();
-        const timer = setTimeout(() => ctl.abort(), 8000);
+      // ---- 중계 서버 (Cloudflare Workers의 relay-worker.js) ----
+      // 서점·도서관 API는 브라우저에서 직접 부를 수 없어서, 키를 가진 중계 서버가 대신 받아 준다.
+      function normalizeRelayUrl(raw) {
+        let v = String(raw || '').trim().replace(/\/+$/, '');
+        if (!v) return '';
+        if (!/^https?:\/\//i.test(v)) v = `https://${v}`;
+        v = v.replace(/^http:\/\//i, 'https://');
         try {
-          const res = await fetch(url, { signal: ctl.signal });
-          if (res.ok) return { payload: await res.json(), blocked: false };
-          return { payload: null, blocked: false, status: res.status };
+          const u = new URL(v);
+          if (!u.hostname.includes('.')) return '';
+          return `${u.origin}${u.pathname.replace(/\/+$/, '')}`;
         } catch (_) {
-          // CORS 차단·오프라인·시간 초과 — 아래에서 JSONP로 재시도
+          return '';
+        }
+      }
+
+      const TODAY_OUT_META = {
+        'yes24-best': { source: 'yes24', tab: '베스트셀러' },
+        'yes24-new': { source: 'yes24', tab: '신간' },
+        'naru-popular': { source: 'naru', tab: '도서관 인기' },
+        'naru-rising': { source: 'naru', tab: '대출 급상승' },
+      };
+      const SOURCE_LABEL = { yes24: '예스24', naru: '도서관 정보나루' };
+
+      async function relayRequest(pathAndQuery) {
+        const { relayUrl, relayCode } = readSavedApiKeys();
+        const base = normalizeRelayUrl(relayUrl);
+        if (!base || !relayCode) return { ok: false, message: '중계 서버 주소와 접속 코드를 설정해 주세요.' };
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), 12000);
+        let res;
+        try {
+          res = await fetch(`${base}${pathAndQuery}`, { headers: { 'X-Relay-Code': relayCode }, cache: 'no-store', signal: ctl.signal });
+        } catch (_) {
+          return {
+            ok: false,
+            message:
+              typeof navigator !== 'undefined' && navigator.onLine === false
+                ? '인터넷에 연결돼 있지 않아 목록을 받지 못했습니다.'
+                : '중계 서버에 연결하지 못했습니다. 주소가 맞는지, 중계 서버의 ALLOWED_ORIGIN이 이 앱 주소(https://사용자명.github.io)와 같은지 확인해 주세요.',
+          };
         } finally {
           clearTimeout(timer);
         }
-        const viaScript = await requestJsonp(url, 6000);
-        if (viaScript) return { payload: viaScript, blocked: false };
-        return { payload: null, blocked: true };
+        let body = null;
+        try {
+          body = await res.json();
+        } catch (_) {}
+        if (!res.ok || !body || body.ok !== true) {
+          const reason = body && body.error ? String(body.error).slice(0, 160) : `중계 서버 오류(${res.status})입니다. 주소가 맞는지 확인해 주세요.`;
+          return { ok: false, message: reason, status: res.status };
+        }
+        return { ok: true, body };
+      }
+
+      // 중계 서버에 어떤 목록(예스24 / 정보나루) 키가 들어 있는지 한 번 물어 둔다.
+      async function ensureRelayStatus() {
+        if (relayStatus) return;
+        relayStatus = { state: 'loading', sources: {} };
+        const result = await relayRequest('/status');
+        relayStatus = result.ok
+          ? { state: 'ok', sources: (result.body && result.body.sources) || {} }
+          : { state: 'error', sources: {}, message: result.message };
+        renderTodayOutCard();
+      }
+
+      function availableOutTypes() {
+        const sources = (relayStatus && relayStatus.sources) || {};
+        return TODAY_OUT_TYPES.filter((t) => sources[TODAY_OUT_META[t].source]);
+      }
+
+      const RELAY_LINK_PATTERN = /^https:\/\/(([a-z0-9-]+\.)?yes24\.com|(www\.)?data4library\.kr)\//i;
+
+      // 중계 서버가 준 목록을 앱에서 쓰는 모양으로 다듬는다 (저자 역할 표기·HTML 소개글 정리, 링크 출처 제한, 중복 제거).
+      function normalizeRelayItems(rawItems) {
+        const seen = new Set();
+        return (Array.isArray(rawItems) ? rawItems : [])
+          .filter((it) => it && typeof it.title === 'string' && it.title.trim())
+          .map((it) => {
+            const link = httpsUrl(String(it.link || ''));
+            return {
+              title: it.title.trim(),
+              author: cleanAuthorRoles(it.author),
+              publisher: String(it.publisher || '').trim(),
+              publishedYear: String(it.publishedYear || '').slice(0, 4),
+              pubDate: String(it.pubDate || '').slice(0, 10),
+              category: String(it.category || '').trim(),
+              categoryPath: String(it.categoryPath || ''),
+              coverUrl: httpsUrl(String(it.coverUrl || '')),
+              summary: cleanSummaryText(it.summary),
+              isbn: pickIsbn13([it.isbn]),
+              link: RELAY_LINK_PATTERN.test(link) ? link : '',
+              rank: Number(it.rank) || 0,
+            };
+          })
+          .filter((it) => {
+            const k = it.isbn || normalizeTitleKey(it.title);
+            if (seen.has(k)) return false;
+            seen.add(k);
+            return true;
+          });
       }
 
       // 목록은 하루에 종류별로 한 번만 받아 이 기기에 보관한다 (열 때마다 다시 묻지 않는다).
@@ -2788,43 +2841,16 @@
           }
         } catch (_) {}
 
-        const naruKey = readSavedApiKeys().naru;
-        if (!naruKey) return;
+        const { relayUrl, relayCode } = readSavedApiKeys();
+        if (!relayUrl || !relayCode) return;
 
         todayOutCache[cacheKey] = { status: 'loading', items: [] };
-        const key = encodeURIComponent(naruKey);
-        // 통계가 하루 이틀 늦게 올라오므로 어제까지의 최근 한 달 / 이틀 전 기준으로 묻는다.
-        const queries =
-          type === 'rising'
-            ? [`hotTrend?authKey=${key}&searchDt=${naruDate(2)}`, `hotTrend?authKey=${key}&searchDt=${naruDate(5)}`]
-            : [`loanItemSrch?authKey=${key}&startDt=${naruDate(31)}&endDt=${naruDate(1)}&pageNo=1&pageSize=40`];
-
-        let list = [];
-        let failure = '';
-        for (const q of queries) {
-          const result = await requestNaruJson(q);
-          const apiError = result.payload && result.payload.response && result.payload.response.error;
-          if (apiError) {
-            failure = `정보나루가 요청을 거절했습니다: ${String(apiError).slice(0, 80)} (인증키가 승인 완료 상태인지 확인해 주세요.)`;
-            break;
-          }
-          if (result.blocked) {
-            failure =
-              typeof navigator !== 'undefined' && navigator.onLine === false
-                ? '인터넷에 연결돼 있지 않아 목록을 받지 못했습니다.'
-                : '이 브라우저에서 도서관 정보나루를 직접 불러올 수 없습니다 (사이트 간 요청이 막혀 있는 것으로 보입니다). 이 문구가 계속 보이면 다른 방식이 필요합니다.';
-            break;
-          }
-          if (!result.payload) {
-            failure = `정보나루 서버 오류(${result.status || '응답 없음'})입니다. 잠시 뒤 다시 시도해 주세요.`;
-            break;
-          }
-          list = extractNaruDocs(type, result.payload);
-          if (list.length) break;
-        }
+        const result = await relayRequest(`/list?type=${encodeURIComponent(type)}`);
+        const list = result.ok ? normalizeRelayItems(result.body.items) : [];
+        const failure = result.ok ? '' : result.message;
 
         if (list.length === 0) {
-          todayOutCache[cacheKey] = { status: 'error', items: [], message: failure || '정보나루에서 받은 목록이 비어 있습니다. 잠시 뒤 다시 시도해 주세요.' };
+          todayOutCache[cacheKey] = { status: 'error', items: [], message: failure || '받은 목록이 비어 있습니다. 잠시 뒤 다시 시도해 주세요.' };
         } else {
           todayOutCache[cacheKey] = { status: 'ok', items: list };
           try {
@@ -2927,22 +2953,75 @@
         if (!card) return;
         card.innerHTML = '';
 
+        const keys = readSavedApiKeys();
+        const label = (text) => makeEl('div', 'text-[11px] font-semibold tracking-wider text-muted', text);
+        const errorText = (text) => {
+          const el = makeEl('p', 'text-xs leading-relaxed', text);
+          el.style.color = '#e11d48';
+          return el;
+        };
+
+        // 1) 중계 서버가 아직 설정되지 않았다
+        if (!keys.relayUrl || !keys.relayCode) {
+          card.appendChild(label('서재 밖에서 · 베스트셀러·신간'));
+          card.appendChild(
+            makeEl(
+              'p',
+              'text-xs text-secondary leading-relaxed',
+              '서점의 베스트셀러와 신간은 브라우저에서 바로 받아 올 수 없어 작은 중계 서버를 거칩니다. Cloudflare에 중계 서버(relay-worker.js)를 만든 뒤 주소와 접속 코드를 저장하면 날마다 한 권씩 보여 드립니다.'
+            )
+          );
+          const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
+          actions.appendChild(makeActionButton('중계 서버 설정하기', 'today-open-key-settings', true));
+          card.appendChild(actions);
+          return;
+        }
+
+        // 2) 중계 서버에 어떤 목록이 있는지 먼저 확인한다
+        if (!relayStatus || relayStatus.state === 'loading') {
+          card.appendChild(label('서재 밖에서'));
+          card.appendChild(makeEl('p', 'text-xs text-muted', '중계 서버에 연결하는 중…'));
+          ensureRelayStatus();
+          return;
+        }
+        if (relayStatus.state === 'error') {
+          card.appendChild(label('서재 밖에서'));
+          card.appendChild(errorText(relayStatus.message));
+          const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
+          actions.appendChild(makeActionButton('다시 시도', 'today-out-retry', true));
+          actions.appendChild(makeActionButton('설정 확인하기', 'today-open-key-settings', false));
+          card.appendChild(actions);
+          return;
+        }
+        const types = availableOutTypes();
+        if (types.length === 0) {
+          card.appendChild(label('서재 밖에서'));
+          card.appendChild(errorText('중계 서버에 연결됐지만 예스24·정보나루 키가 하나도 등록돼 있지 않습니다. Cloudflare에서 YES24_KEY를 넣어 주세요.'));
+          const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
+          actions.appendChild(makeActionButton('다시 시도', 'today-out-retry', true));
+          card.appendChild(actions);
+          return;
+        }
+        if (!types.includes(todayPrefs.outType)) {
+          todayPrefs.outType = types[0];
+          todayPrefs.offsetOut = 0;
+          saveTodayPrefs();
+        }
+        const currentSource = TODAY_OUT_META[todayPrefs.outType].source;
+
         const top = makeEl('div', 'flex flex-wrap items-center justify-between gap-2');
-        top.appendChild(makeEl('div', 'text-[11px] font-semibold tracking-wider text-muted', '서재 밖에서 · 도서관 정보나루'));
-        const tabs = makeEl('div', 'flex items-center gap-1');
-        [
-          ['popular', '인기 대출'],
-          ['rising', '대출 급상승'],
-        ].forEach(([type, label]) => {
-          const active = todayPrefs.outType === type;
+        top.appendChild(label(`서재 밖에서 · ${SOURCE_LABEL[currentSource]}`));
+        const tabs = makeEl('div', 'flex flex-wrap items-center gap-1');
+        types.forEach((tabType) => {
+          const active = todayPrefs.outType === tabType;
           const tab = makeEl(
             'button',
             `min-h-[34px] px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${active ? 'btn-primary' : 'surface-subtle border border-hairline text-secondary hover:text-ink'}`,
-            label
+            TODAY_OUT_META[tabType].tab
           );
           tab.type = 'button';
           tab.dataset.action = 'today-out-type';
-          tab.dataset.type = type;
+          tab.dataset.type = tabType;
           tab.setAttribute('aria-pressed', String(active));
           tabs.appendChild(tab);
         });
@@ -2953,16 +3032,7 @@
         const entry = todayOutCache[`${todayDateKey()}|${type}`];
 
         if (!entry) {
-          if (!readSavedApiKeys().naru) {
-            card.appendChild(
-              makeEl('p', 'text-xs text-secondary leading-relaxed', '전국 공공도서관에서 요즘 많이 빌려 가는 책을 도서관 정보나루에서 받아 옵니다. data4library.kr에 가입해 마이페이지에서 인증키를 발급받아 저장하면 날마다 한 권씩 보여 드립니다.')
-            );
-            const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
-            actions.appendChild(makeActionButton('정보나루 인증키 넣기', 'today-open-key-settings', true));
-            card.appendChild(actions);
-            return;
-          }
-          card.appendChild(makeEl('p', 'text-xs text-muted', '도서관 정보나루에서 목록을 불러오는 중…'));
+          card.appendChild(makeEl('p', 'text-xs text-muted', `${SOURCE_LABEL[currentSource]} 목록을 불러오는 중…`));
           ensureTodayOutList(type).then(() => {
             // 보관해 둔 목록을 바로 찾은 경우에는 여기서 한 번 그린다.
             const now = todayOutCache[`${todayDateKey()}|${type}`];
@@ -2971,14 +3041,14 @@
           return;
         }
         if (entry.status === 'loading') {
-          card.appendChild(makeEl('p', 'text-xs text-muted', '도서관 정보나루에서 목록을 불러오는 중…'));
+          card.appendChild(makeEl('p', 'text-xs text-muted', `${SOURCE_LABEL[currentSource]} 목록을 불러오는 중…`));
           return;
         }
         if (entry.status === 'error') {
-          card.appendChild(makeEl('p', 'text-xs leading-relaxed', entry.message)).style.color = '#e11d48';
+          card.appendChild(errorText(entry.message));
           const actions = makeEl('div', 'flex flex-wrap items-center gap-2 mt-auto pt-1');
           actions.appendChild(makeActionButton('다시 시도', 'today-out-retry', true));
-          actions.appendChild(makeActionButton('키 확인하기', 'today-open-key-settings', false));
+          actions.appendChild(makeActionButton('설정 확인하기', 'today-open-key-settings', false));
           card.appendChild(actions);
           return;
         }
@@ -2996,8 +3066,14 @@
         info.appendChild(makeEl('div', 'font-literary font-bold text-sm sm:text-base text-ink', item.title));
         info.appendChild(makeEl('div', 'text-xs text-secondary mt-0.5', [item.author, item.publisher].filter(Boolean).join(' · ')));
         const badges = [
-          type === 'rising' ? '대출 급상승' : item.rank ? `인기 대출 ${item.rank}위` : '인기 대출',
-          item.publishedYear ? `${item.publishedYear}년` : '',
+          type === 'yes24-best'
+            ? `베스트셀러${item.rank ? ` ${item.rank}위` : ''}`
+            : type === 'yes24-new'
+            ? '신간'
+            : type === 'naru-rising'
+            ? '도서관 대출 급상승'
+            : `도서관 인기 대출${item.rank ? ` ${item.rank}위` : ''}`,
+          item.pubDate || (item.publishedYear ? `${item.publishedYear}년` : ''),
           item.category,
           pick.matchedMyShelf ? '내 서재 분야' : '',
         ].filter(Boolean);
@@ -3011,14 +3087,14 @@
         actions.appendChild(makeActionButton('책장에 추가', 'today-out-add', true));
         if (pick.poolSize > 1) actions.appendChild(makeActionButton('다른 추천', 'today-out-next', false));
         if (item.link) {
-          const link = makeEl('a', 'min-h-[40px] inline-flex items-center px-2 text-xs underline text-secondary hover:text-ink', '정보나루에서 보기 ↗');
+          const link = makeEl('a', 'min-h-[40px] inline-flex items-center px-2 text-xs underline text-secondary hover:text-ink', `${SOURCE_LABEL[currentSource]}에서 보기 ↗`);
           link.href = item.link;
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
           actions.appendChild(link);
         }
         card.appendChild(actions);
-        card.appendChild(makeEl('div', 'text-[10px] text-muted', '도서 정보 제공: 도서관 정보나루 (공공도서관 대출 통계)'));
+        card.appendChild(makeEl('div', 'text-[10px] text-muted', currentSource === 'yes24' ? '도서 정보 제공: 예스24' : '도서 정보 제공: 도서관 정보나루 (공공도서관 대출 통계)'));
       }
 
       function renderTodaySection() {
@@ -3788,10 +3864,11 @@
       }
 
       function readSavedApiKeys() {
-        const keys = { kakao: '', naru: '', google: '' };
+        const keys = { kakao: '', google: '', relayUrl: '', relayCode: '' };
         try {
           keys.kakao = localStorage.getItem(KAKAO_KEY_STORAGE) || '';
-          keys.naru = localStorage.getItem(NARU_KEY_STORAGE) || '';
+          keys.relayUrl = localStorage.getItem(RELAY_URL_STORAGE) || '';
+          keys.relayCode = localStorage.getItem(RELAY_CODE_STORAGE) || '';
           keys.google = localStorage.getItem(GOOGLE_KEY_STORAGE) || '';
         } catch (_) {}
         return keys;
@@ -3800,21 +3877,24 @@
       function syncKoreanApiSettingsUi() {
         const keys = readSavedApiKeys();
         const kakaoInput = document.getElementById('kakaoRestKeyInput');
-        const naruInput = document.getElementById('naruKeyInput');
+        const relayUrlInput = document.getElementById('relayUrlInput');
+        const relayCodeInput = document.getElementById('relayCodeInput');
         const googleInput = document.getElementById('googleBooksKeyInput');
         const activeBadge = document.getElementById('krApiActiveBadge');
         if (kakaoInput) kakaoInput.value = keys.kakao;
-        if (naruInput) naruInput.value = keys.naru;
+        if (relayUrlInput) relayUrlInput.value = keys.relayUrl;
+        if (relayCodeInput) relayCodeInput.value = keys.relayCode;
         if (googleInput) googleInput.value = keys.google;
         if (activeBadge) {
-          activeBadge.classList.toggle('hidden', !keys.kakao && !keys.naru && !keys.google);
+          activeBadge.classList.toggle('hidden', !keys.kakao && !keys.google && !(keys.relayUrl && keys.relayCode));
         }
       }
 
       function saveKoreanBookstoreApiKeys() {
         const pairs = [
           [KAKAO_KEY_STORAGE, (document.getElementById('kakaoRestKeyInput')?.value || '').trim()],
-          [NARU_KEY_STORAGE, (document.getElementById('naruKeyInput')?.value || '').trim()],
+          [RELAY_URL_STORAGE, normalizeRelayUrl(document.getElementById('relayUrlInput')?.value || '')],
+          [RELAY_CODE_STORAGE, (document.getElementById('relayCodeInput')?.value || '').trim()],
           [GOOGLE_KEY_STORAGE, (document.getElementById('googleBooksKeyInput')?.value || '').trim()],
         ];
         let saved = true;
@@ -3831,6 +3911,10 @@
         if (saved) {
           showToast('도서 조회 API 키 설정이 저장되었습니다.', 'sage');
           todayOutCache = {};
+          relayStatus = null;
+          try {
+            localStorage.removeItem(TODAY_LIST_STORAGE);
+          } catch (_) {}
           renderTodayOutCard();
         }
         else showToast('이 브라우저에서는 키를 저장할 수 없습니다 (사생활 보호 모드 등).', 'danger');
@@ -4468,32 +4552,6 @@
         box.innerHTML = '';
         box.classList.add('hidden');
         box.classList.remove('flex');
-      }
-
-      function requestJsonp(url, timeoutMs = 6000) {
-        return new Promise((resolve) => {
-          const cbName = `__jsonpCb_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-          const script = document.createElement('script');
-          let settled = false;
-          const finish = (value) => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            if (script.parentNode) script.parentNode.removeChild(script);
-            try {
-              delete window[cbName];
-            } catch (_) {
-              window[cbName] = undefined;
-            }
-            resolve(value);
-          };
-          const timer = setTimeout(() => finish(null), timeoutMs);
-          window[cbName] = (...args) => finish(args.find((a) => a && typeof a === 'object') || null);
-          script.onerror = () => finish(null);
-          script.onload = () => setTimeout(() => finish(null), 80);
-          script.src = `${url}&callback=${cbName}`;
-          document.head.appendChild(script);
-        });
       }
 
       function pickIsbn13(candidates) {
@@ -6620,6 +6678,7 @@
         bindFormAndInputListeners();
         try {
           localStorage.removeItem(RETIRED_ALADIN_KEY_STORAGE);
+          localStorage.removeItem(RETIRED_NARU_KEY_STORAGE);
         } catch (_) {}
         applySavedHomeIcon();
         loadShelfPrefs();
